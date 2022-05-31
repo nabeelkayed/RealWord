@@ -6,10 +6,10 @@ namespace RealWord.Db.Repositories
 {
     public interface ICommentRepository
     {
-        Comment GetComment(Guid id);
-        List<Comment> GetAllComments(string slug);
-        Comment CreateComment(Comment comment); 
-        void DeleteComment(Comment comment);
-        void Save();
+        Comment GetComment(Guid Id);
+        List<Comment> GetAllComments(string Slug);
+        Comment CreateComment(Comment Comment); 
+        void DeleteComment(Comment Comment);
+        void Save(); 
     }
 }

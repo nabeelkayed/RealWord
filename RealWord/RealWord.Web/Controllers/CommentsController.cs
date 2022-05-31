@@ -38,30 +38,27 @@ namespace RealWord.Web.controllers
         }
 
         [HttpPost("{slug}/comments")]
-        public ActionResult<CommentDto> AddCommentToArticle(string slug, CommentForCreationDto comment)
+        public ActionResult<CommentDto> AddCommentToArticle(string slug, CommentForCreationDto CommentForCreation)
         {
             if (!_IArticleRepository.ArticleExists(slug))
             {
                 return NotFound();
             }
 
-            var commentEntity = _mapper.Map<Comment>(comment);
+            var CommentEntityForCreation = _mapper.Map<Comment>(CommentForCreation);
 
-            var username = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
-            var CurrentUser = _IUserRepository.GetUser(username);
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
+            CommentEntityForCreation.UserId = CurrentUser.UserId;
 
-            commentEntity.UserId = CurrentUser.UserId;
+            var Article = _IArticleRepository.GetArticle(slug);
+            CommentEntityForCreation.ArticleId = Article.ArticleId;
 
-            var article = _IArticleRepository.GetArticle(slug);
-
-            commentEntity.ArticleId = article.ArticleId;
-
-            var newcimment = _ICommentRepository.CreateComment(commentEntity);
+            var CreatedComment = _ICommentRepository.CreateComment(CommentEntityForCreation);
             _ICommentRepository.Save();
 
-            var c = _mapper.Map<CommentDto>(newcimment);
-            return Ok(new { comment = c });
-
+            var CreatedCommentToReturn = _mapper.Map<CommentDto>(CreatedComment);
+            return Ok(new { comment = CreatedCommentToReturn });
         }
 
         [AllowAnonymous]
@@ -72,23 +69,22 @@ namespace RealWord.Web.controllers
             {
                 return NotFound();
             }
-            var AllComments = _ICommentRepository.GetAllComments(slug);
-            var xx = _mapper.Map<IEnumerable<CommentDto>>(AllComments);
 
-            var currUsername1 = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var Comments = _ICommentRepository.GetAllComments(slug);
+            var CommentsToReturn = _mapper.Map<IEnumerable<CommentDto>>(Comments);
 
-            if (currUsername1 == null)
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (CurrentUsername != null)
             {
-                return Ok(new { comments = xx });
+                //أفحص اذا هاي الكومنتات اله وشو ارجع الفلو
+                foreach (var x in CommentsToReturn)
+                {//هون بدي اعمل موضوع الفلو لما يكون مسجل دخول 
+                    x.author.following = true;
+                    //أعمل كود برجعلي برفايل مع انه متابعه أو لا
+                }
+            }
 
-            }
-            //أفحص اذا هاي الكومنتات اله وشو ارجع الفلو
-            foreach (var x in xx)
-            {//هون بدي اعمل موضوع الفلو لما يكون مسجل دخول 
-                x.author.following = true;
-                //أعمل كود برجعلي برفايل مع انه متابعه أو لا
-            }
-            return Ok(new { comments = xx });
+            return Ok(new { comments = CommentsToReturn });
         }
 
         [HttpDelete("{slug}/comments/{id}")]
@@ -99,18 +95,16 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var comment = _ICommentRepository.GetComment(id);
-
-            if (comment == null)
+            var Comment = _ICommentRepository.GetComment(id);
+            if (Comment == null)
             {
                 return NotFound();
             }
 
-            _ICommentRepository.DeleteComment(comment);
+            _ICommentRepository.DeleteComment(Comment);
             _ICommentRepository.Save();
 
             return NoContent();
         }
-
     }
 }

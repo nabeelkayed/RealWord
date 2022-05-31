@@ -19,79 +19,85 @@ namespace RealWord.Db.Repositories
         {
             return _context.Users.FirstOrDefault(u => u.Username == username);
         }
-        public User LoginUser(User user)
+        public User LoginUser(User User)
         {
-            var a = _context.Users.FirstOrDefault(o => o.Email == user.Email && o.Password == user.Password);
-            return a;
+            var user = _context.Users.FirstOrDefault(u => u.Email == User.Email && u.Password == User.Password);
+            return user;
         }
         public void CreateUser(User user)
         {
             _context.Users.Add(user);
         }
-        public User UpdateUser(User currUser, User user)
+        public User UpdateUser(User CurrUser, User User)
         {
-            var u = _context.Users.FirstOrDefault(a => a.Username == currUser.Username);
+            var UpdatedUser = _context.Users.FirstOrDefault(a => a.Username == CurrUser.Username);
 
-            if (!string.IsNullOrWhiteSpace(user.Email))
+            if (!string.IsNullOrWhiteSpace(User.Email))
             {
-                u.Email = user.Email;
-            }
-
-            if (!string.IsNullOrWhiteSpace(user.Image))
-            {
-                u.Image = user.Image;
+                UpdatedUser.Email = User.Email;
             }
 
-            if (!string.IsNullOrWhiteSpace(user.Bio))
+            if (!string.IsNullOrWhiteSpace(User.Image))
             {
-                u.Bio = user.Bio;
+                UpdatedUser.Image = User.Image;
             }
-            if (!string.IsNullOrWhiteSpace(user.Password))
+
+            if (!string.IsNullOrWhiteSpace(User.Bio))
             {
-                u.Password = user.Password;
+                UpdatedUser.Bio = User.Bio;
             }
-            if (!string.IsNullOrWhiteSpace(user.Username))
+            if (!string.IsNullOrWhiteSpace(User.Password))
             {
-                u.Username = user.Username;
+                UpdatedUser.Password = User.Password;
             }
-            return u;
-            /*var user = _context.Users.Single(u=>u.Username == usrname);
-            //Author.AuthorName += "Kayed";
-            return user;*/
+            if (!string.IsNullOrWhiteSpace(User.Username))
+            {
+                UpdatedUser.Username = User.Username;
+            }
+            return UpdatedUser;
         }
-        public bool FollowUser(User currUser, User user)
+        public bool FollowUser(User CurrentUser, User User)
         {
-            bool ff = Isfolo(currUser, user);
-            if (ff)
+            if (IsFollow(CurrentUser, User))
             {
                 return false;
             }
-            var UserFollower = new UserFollowers { FollowerId = currUser.UserId, FolloweingId = user.UserId };
+            var UserFollower = new UserFollowers { FollowerId = CurrentUser.UserId, FolloweingId = User.UserId };
             _context.UserFollowers.Add(UserFollower);
             return true;
         }
 
-        public bool Isfolo(User currUser, User user)
+        public bool IsFollow(User CurrentUser, User user)
         {
-            return _context.UserFollowers.Any(uf => uf.FollowerId == currUser.UserId
+            return _context.UserFollowers.Any(uf => uf.FollowerId == CurrentUser.UserId
                         && uf.FolloweingId == user.UserId);
         }
 
-        public bool UnFollowUser(User currUser, User user)
+        public bool UnfollowUser(User CurrentUser, User User)
         {
-            var ff = _context.UserFollowers.Any(uf => uf.FollowerId == currUser.UserId
-           && uf.FolloweingId == user.UserId);
-            if (!ff)
+            if (!IsFollow(CurrentUser, User)) 
             {
                 return false;
             }
-            var UserFollower = new UserFollowers { FollowerId = currUser.UserId, FolloweingId = user.UserId };
+
+            var UserFollower = new UserFollowers { FollowerId = CurrentUser.UserId, FolloweingId = User.UserId };
             _context.UserFollowers.Remove(UserFollower);
+
             return true;
         }
         public void Save()
         {
             _context.SaveChanges();
+        }
+
+        public bool UserExists(string Username)
+        {
+            if (String.IsNullOrEmpty(Username))
+            {
+                throw new ArgumentNullException(nameof(Username));
+            }
+
+            return _context.Users.Any(a => a.Username == Username);
         }
     }
 }

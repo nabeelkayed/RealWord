@@ -19,27 +19,25 @@ namespace RealWord.Db.Repositories
         {
             return _context.Comments.Find(id);
         }
-        public List<Comment> GetAllComments(string slug)
+        public List<Comment> GetAllComments(string Slug)
         {
-            var arr = _context.Articles.FirstOrDefault(a => a.Slug == slug);
-            var com = _context.Comments.Where(c => c.ArticleId == arr.ArticleId).ToList();
-            return com;
+            var Article = _context.Articles.FirstOrDefault(a => a.Slug == Slug);
+            var Comments = _context.Comments.Where(c => c.ArticleId == Article.ArticleId).ToList();
+            
+            return Comments;
         }
-        public Comment CreateComment(Comment comment)
+        public Comment CreateComment(Comment Comment)
         {
-            comment.CommentId = Guid.NewGuid();
+            Comment.CommentId = Guid.NewGuid();
 
-            var timestamp = DateTime.Now;
-            comment.CreatedAt = timestamp;
-            comment.UpdatedAt = timestamp;
+            var TimeStamp = DateTime.Now;
+            Comment.CreatedAt = TimeStamp;
+            Comment.UpdatedAt = TimeStamp;
 
-            _context.Comments.Add(comment);
+            _context.Comments.Add(Comment);
 
-            /*var timestamp = DateTime.Now;
-            _context.Entry(comment).Property("CreatedAt").CurrentValue = timestamp;
-            _context.Entry(comment).Property("UpdatedAt").CurrentValue = timestamp;*/
 
-           var xx = _context.Comments.Find(comment.CommentId);
+           var xx = _context.Comments.Find(Comment.CommentId);
           /*  var xx = _context.Comments.Where(c => c.CommentId == comment.CommentId)
                 .Select(c=>new {c.Article,c.ArticleId,c.Body,c.CommentId,c.User,c.UserId, createdAt =EF.Property<DateTime>(c, "CreatedAt") }).ToList();*/
             return xx;

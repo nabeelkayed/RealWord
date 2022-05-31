@@ -34,93 +34,88 @@ namespace RealWord.Web.controllers
         [HttpGet("{username}")]
         public ActionResult<ProfileDto> GetProfile(string username)
         {
-            var user = _IUserRepository.GetUser(username);
-
-            if (user == null)
+            var User = _IUserRepository.GetUser(username);
+            if (User == null)
             {
                 return NotFound();
             }
 
-            var profile = _mapper.Map<ProfileDto>(user);
+            var ProfileToReturn = _mapper.Map<ProfileDto>(User);
 
-            var currUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
-
-            if (currUsername == null)
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (CurrentUsername != null)
             {
-                return Ok(new { profile = profile });
+                var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
-            }
-            
-            var user1 = _IUserRepository.GetUser(currUsername);
-            var Isfolo = _IUserRepository.Isfolo(user1, user);
-            profile.following = Isfolo;
+                ProfileToReturn.following = _IUserRepository.IsFollow(CurrentUser, User);
 
-            if (currUsername == username)
-            {
-                profile.following = false;
+                if (CurrentUsername == username)
+                {
+                    ProfileToReturn.following = false;
+                }                 
             }
 
-            return Ok(new { profile = profile });
+            return Ok(new { profile = ProfileToReturn });
         }
 
         [HttpPost("{username}/follow")]
         public ActionResult<ProfileDto> Follow(string username)
         {
-            var user = _IUserRepository.GetUser(username);
-
-            if (user == null)
-            {
+            var User = _IUserRepository.GetUser(username);
+            if (User == null)
+            { 
                 return NotFound();
             }
 
-            var currUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
-
-            if (currUsername == username)
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            if (CurrentUsername == username)
             {
                 return BadRequest("You can't follow yourself");
             }
-            var currUser = _IUserRepository.GetUser(currUsername);
+            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
-            var ff = _IUserRepository.FollowUser(currUser, user);
-            if (ff)
+            var UserFollowed = _IUserRepository.FollowUser(CurrentUser, User);
+            if (UserFollowed)
             {
                 _IUserRepository.Save();
-                var userprofile = _mapper.Map<ProfileDto>(user);
-                userprofile.following = true;
-                return Ok(new { profile = _mapper.Map<ProfileDto>(userprofile) });
 
+                var ProfileToReturn = _mapper.Map<ProfileDto>(User);
+                ProfileToReturn.following = true;
+
+                return Ok(new { profile = ProfileToReturn });
             }
-            return BadRequest($"You alredy follow the user of username {username}");
+
+            return BadRequest($"You already follow the user with username {username}");
         }
 
         [HttpDelete("{username}/follow")]
         public ActionResult<ProfileDto> UnFollow(string username)
         {
-            var user = _IUserRepository.GetUser(username);
-
-            if (user == null)
+            var User = _IUserRepository.GetUser(username);
+            if (User == null)
             {
                 return NotFound();
             }
 
-            var currUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
-
-            if (currUsername == username)
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            if (CurrentUsername == username)
             {
                 return BadRequest("You can't unfollow yourself");
             }
+            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
-            var currUser = _IUserRepository.GetUser(currUsername);
-
-            var ff = _IUserRepository.UnFollowUser(currUser, user);
-            if (ff)
+            var UserUnfollowed = _IUserRepository.UnfollowUser(CurrentUser, User);
+            if (UserUnfollowed)
             {
                 _IUserRepository.Save();
-                var userprofile = _mapper.Map<ProfileDto>(user);
-                userprofile.following = false;
-                return Ok(new { profile = _mapper.Map<ProfileDto>(userprofile) });
+
+                var ProfileToReturn = _mapper.Map<ProfileDto>(User);
+                ProfileToReturn.following = false;
+
+                return Ok(new { profile = ProfileToReturn });
             }
-            return BadRequest($"You are not follow the user of username {username}");
+
+            return BadRequest($"You aren't follow the user of username {username}");
 
         }
     }

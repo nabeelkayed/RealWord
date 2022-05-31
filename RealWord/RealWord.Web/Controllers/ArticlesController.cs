@@ -42,96 +42,101 @@ namespace RealWord.Web.controllers
         public ActionResult<IEnumerable<ArticleDto>> GetArticles(string tag, string author,
                                     string favorited, int limit = 20, int offset = 0)
         {
+            var Articles = _IArticleRepository.GetArticles(tag, author, favorited, limit, offset);
 
-            var articles = _IArticleRepository.GetArticles(tag, author, favorited, limit, offset);
-            int articlesCount = articles.Count();
-            return Ok(new { articles = _mapper.Map<IEnumerable<ArticleDto>>(articles), articlesCount = articlesCount });
+            var ArticlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(Articles);
+            int ArticlesCount = Articles.Count();
+
+            return Ok(new { articles = ArticlesToReturn, articlesCount = ArticlesCount });
         }
 
         [HttpGet("feed")]
         public ActionResult<IEnumerable<ArticleDto>> FeedArticle(int limit = 20, int offset = 0)
         {
-            var currUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
-            var currUser = _IUserRepository.GetUser(currUsername);
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
-             
-            var articles = _IArticleRepository.GetFeedArticles(currUser, limit, offset);
 
-            var x = _mapper.Map<IEnumerable<ArticleDto>>(articles);
+            var Articles = _IArticleRepository.GetFeedArticles(CurrentUser, limit, offset);
+
+            var ArticlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(Articles);
+            int ArticlesCount = Articles.Count();
+
+            return Ok(new { articles = ArticlesToReturn, articlesCount = ArticlesCount });
+
             //أضيف fave and vave count
-          /*  foreach(var c in x)
-            {
-                c.favorited = _IArticleRepository.Isfave(currUser, c.slug);
-            }*/
-            int articlesCount = articles.Count();
-            return Ok(new { articles = x, articlesCount = articlesCount });
+            /*  foreach(var c in x)
+              {
+                  c.favorited = _IArticleRepository.Isfave(currUser, c.slug);
+              }*/
         }
 
         [AllowAnonymous]
         [HttpGet("{slug}")]
         public ActionResult<ArticleDto> GetArticle(string slug)
         {
-            var article = _IArticleRepository.GetArticle(slug);
-
-            if (article == null)
+            var Article = _IArticleRepository.GetArticle(slug);
+            if (Article == null)
             {
                 return NotFound();
             }
-            return Ok(new { article = _mapper.Map<ArticleDto>(article) });
 
+            var ArticleToReturn = _mapper.Map<ArticleDto>(Article);
+
+            return Ok(new { article = ArticleToReturn });
         }
 
         [HttpPost]
-        public ActionResult<ArticleDto> CreateArticle(ArticleForCreationDto article)
+        public ActionResult<ArticleDto> CreateArticle(ArticleForCreationDto ArticleForCreation)
         {
-            var articleEntity = _mapper.Map<Article>(article);
-        
-            articleEntity.Slug = Slug.GenerateSlug(articleEntity.Title);
+            var ArticleEntityForCreation = _mapper.Map<Article>(ArticleForCreation);
+            ArticleEntityForCreation.Slug = Slug.GenerateSlug(ArticleEntityForCreation.Title);
 
-            var username = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
-            var CurrentUser = _IUserRepository.GetUser(username);
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
+            ArticleEntityForCreation.UserId = CurrentUser.UserId;
 
-            articleEntity.UserId = CurrentUser.UserId;
-            _IArticleRepository.CreateArticle(articleEntity, article.tagList);
+            _IArticleRepository.CreateArticle(ArticleEntityForCreation, ArticleForCreation.tagList);
             _IArticleRepository.Save();
-            
-            var xx = _mapper.Map<ArticleDto>(articleEntity);
-            xx.favorited = _IArticleRepository.Isfave(CurrentUser, articleEntity);
-         
-            return Ok(new { article = xx });
+
+            var ArticleToReturn = _mapper.Map<ArticleDto>(ArticleEntityForCreation);
+            ArticleToReturn.favorited = _IArticleRepository.Isfavorite(CurrentUser, ArticleEntityForCreation);
+
+            return Ok(new { article = ArticleToReturn });
         }
 
         [HttpPut("{slug}")]
-        public ActionResult<ArticleDto> UpdateArticle(string slug, ArticleForUpdateDto articleforupdate)
+        public ActionResult<ArticleDto> UpdateArticle(string slug, ArticleForUpdateDto ArticleForUpdate)
         {
-            var article = _IArticleRepository.GetArticle(slug);
-
-            if (article == null)
+            var Article = _IArticleRepository.GetArticle(slug);
+            if (Article == null)
             {
                 return NotFound();
             }
-            var xx = _mapper.Map<Article>(articleforupdate);
-            // _mapper.Map(articleforupdate, article);
-            var username = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
-            var CurrentUser = _IUserRepository.GetUser(username);
 
-            var x =_IArticleRepository.UpdateArticle(CurrentUser,slug, xx);
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
+
+            var ArticleEntityForUpdate = _mapper.Map<Article>(ArticleForUpdate);
+
+            var UpdatedArticle = _IArticleRepository.UpdateArticle(CurrentUser, slug, ArticleEntityForUpdate);
             _IArticleRepository.Save();
 
-            return Ok(new { article = _mapper.Map<ArticleDto>(x) });
+            var ArticleToReturn = _mapper.Map<ArticleDto>(UpdatedArticle);
+
+            return Ok(new { article = ArticleToReturn });
         }
 
         [HttpDelete("{slug}")]
         public IActionResult DeleteArticle(string slug)
         {
-            var article = _IArticleRepository.GetArticle(slug);
-
-            if (article == null)
+            var Article = _IArticleRepository.GetArticle(slug);
+            if (Article == null)
             {
                 return NotFound();
             }
 
-            _IArticleRepository.DeleteArticle(article);
+            _IArticleRepository.DeleteArticle(Article);
             _ICommentRepository.Save();
 
             return NoContent();
@@ -140,53 +145,54 @@ namespace RealWord.Web.controllers
         [HttpPost("{slug}/favorite")]
         public ActionResult<ArticleDto> FavoriteArticle(string slug)
         {
-            var article = _IArticleRepository.GetArticle(slug);
-
-            if (article == null)
+            var Article = _IArticleRepository.GetArticle(slug);
+            if (Article == null)
             {
                 return NotFound();
             }
 
-            var currUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
+            
 
-            var currUser = _IUserRepository.GetUser(currUsername);
-            ////
-
-            var f = _IArticleRepository.FavoriteArticle(currUser, article);
-            if (f)
+            var ArticleFavorited = _IArticleRepository.FavoriteArticle(CurrentUser, Article);
+            if (ArticleFavorited)
             {
                 _IArticleRepository.Save();
-                var article1 = _mapper.Map<ArticleDto>(article);
-                article1.favorited = true;
-                return Ok(new { article = article1 });
+
+                var ArticleToReturn = _mapper.Map<ArticleDto>(Article);
+                ArticleToReturn.favorited = true;
+
+                return Ok(new { article = ArticleToReturn });
             }
-            return BadRequest($"You alredy favarte the user with slug {slug}");
-             //var ff = _IUserRepository.FollowUser(currUser, user);
+
+            return BadRequest($"You already favorite the article with slug {slug}");
+            //var ff = _IUserRepository.FollowUser(currUser, user);
         }
 
         [HttpDelete("{slug}/favorite")]
         public IActionResult UnFavoriteArticle(string slug)
         {
-            var article = _IArticleRepository.GetArticle(slug);
-
-            if (article == null)
+            var Article = _IArticleRepository.GetArticle(slug);
+            if (Article == null)
             {
                 return NotFound();
             }
 
-            var currUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
-            var currUser = _IUserRepository.GetUser(currUsername);
-
-            var f = _IArticleRepository.UnFavoriteArticle(currUser, article);
-            if (f)
+            var ArticleUnfavorited = _IArticleRepository.UnfavoriteArticle(CurrentUser, Article);
+            if (ArticleUnfavorited)
             {
                 _IArticleRepository.Save();
-                var article1 = _mapper.Map<ArticleDto>(article);
-                article1.favorited = false;
-                return Ok(new { article = article1 });
+
+                var ArticleToReturn = _mapper.Map<ArticleDto>(Article);
+                ArticleToReturn.favorited = false;
+
+                return Ok(new { article = ArticleToReturn });
             }
-            return BadRequest($"You alredy not favarte the article with slug {slug}");
+            return BadRequest($" You aren't favorite the article with slug {slug}");
         }
 
     }

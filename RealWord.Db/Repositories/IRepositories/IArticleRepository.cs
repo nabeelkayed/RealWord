@@ -7,18 +7,17 @@ namespace RealWord.Db.Repositories
 {
     public interface IArticleRepository
     {
-        Article GetArticle(string slug);
-        public void CreateArticle(Article article, List<string> tagList);
-        public Article UpdateArticle(User u,string slug, Article article);
-        void DeleteArticle(Article article);
-        bool FavoriteArticle(User currUser, Article article);
-        bool UnFavoriteArticle(User currUser, Article article);
-        public bool Isfave(User currUser, Article article);
-        List<Article> GetArticles(string tag, string author, string favorited, int limit, int offset);
+        Article GetArticle(string Slug);
+        public void CreateArticle(Article Article, List<string> TagList);
+        public Article UpdateArticle(User User,string Slug, Article Article);
+        void DeleteArticle(Article Article);
+        bool FavoriteArticle(User CurrentUser, Article Article);
+        bool UnfavoriteArticle(User CurrentUser, Article Article); 
+        public bool Isfavorite(User CurrentUser, Article Article);
+        List<Article> GetArticles(string Tag, string Author, string Favorited, int Limit, int Offset);
+        List<Article> GetFeedArticles(User CurrentUser, int Limit, int Offset);
         //List<Article> GetArticles(QueryString query);
-
-        bool ArticleExists(string slug);
-        void Save(); 
-        List<Article> GetFeedArticles(User currUser,int limit, int offset);
+        bool ArticleExists(string Slug);
+        void Save();  
     }
 }

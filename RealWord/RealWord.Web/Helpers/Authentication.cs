@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using RealWord.Db.Entities;
@@ -14,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace RealWord.Web.Helpers
 {
-    public class Authentication : IAuthentication
+    public class Authentication : ControllerBase, IAuthentication
     {
         private IConfiguration _config;
         private readonly IUserRepository _IUserRepository;
@@ -31,6 +33,7 @@ namespace RealWord.Web.Helpers
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
         }
+     
         public User LoginUser(UserLoginDto userLogin)
         {
             var a = _IUserRepository.LoginUser(_mapper.Map<User>(userLogin));
@@ -56,5 +59,6 @@ namespace RealWord.Web.Helpers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
     }
 }

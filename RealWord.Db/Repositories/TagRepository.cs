@@ -16,11 +16,9 @@ namespace RealWord.Db.Repositories
         }
         public List<Tag> GetTags()
         {
-            //
-            //return _context.Tags.ToList();
-            var x=_context.Tags.ToList();
+            var Tags = _context.Tags.ToList();
 
-            return x;
+            return Tags;
         }
     }
 }

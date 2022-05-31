@@ -16,30 +16,30 @@ namespace RealWord.Db.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public bool ArticleExists(string slug)
+        public bool ArticleExists(string Slug)
         {
-            if (String.IsNullOrEmpty(slug))
+            if (String.IsNullOrEmpty(Slug))///هذا الفحص لازم نفعمله على كل انبت
             {
-                throw new ArgumentNullException(nameof(slug));
+                throw new ArgumentNullException(nameof(Slug));
             }
 
-            return _context.Articles.Any(a => a.Slug == slug);
+            return _context.Articles.Any(a => a.Slug == Slug);
         }
-        public Article GetArticle(string slug)
+        public Article GetArticle(string Slug)
         {
-            return _context.Articles.FirstOrDefault(a => a.Slug == slug);
+            return _context.Articles.FirstOrDefault(a => a.Slug == Slug);
         }
-        public void CreateArticle(Article article, List<string> tagList)
+        public void CreateArticle(Article Article, List<string> tagList)
         {
-            var timestamp = DateTime.Now;
-            article.CreatedAt = timestamp;
-            article.UpdatedAt = timestamp;
+            var TimeStamp = DateTime.Now;
+            Article.CreatedAt = TimeStamp;
+            Article.UpdatedAt = TimeStamp;
 
-            var allslugs = _context.Articles.Select(s => s.Slug).ToList();
+            var AllSlugs = _context.Articles.Select(s => s.Slug).ToList();
             //فحص اذا كان العنوان مكرر
-            if (!allslugs.Contains(article.Slug))
+            if (!AllSlugs.Contains(Article.Slug))
             {
-                _context.Articles.Add(article);
+                _context.Articles.Add(Article);
             }
             else
             {
@@ -53,24 +53,18 @@ namespace RealWord.Db.Repositories
                 {
                     _context.Tags.Add(new Tag { TagId = t });
                 }
-                _context.ArticleTags.Add(new ArticleTags { TagId = t, ArticleId = article.ArticleId });
+                _context.ArticleTags.Add(new ArticleTags { TagId = t, ArticleId = Article.ArticleId });
             }
-
-            /* var timestamp = DateTime.Now;
-             _context.Entry(article).Property("CreatedAt").CurrentValue = timestamp;
-             _context.Entry(article).Property("UpdatedAt").CurrentValue = timestamp;*/
         }
-        public Article UpdateArticle(User u,string slug, Article article)
+        public Article UpdateArticle(User u, string slug, Article article)
         {
             //لازم اتأكد انها المقال تبعته لأنه ما بقدر يعدل على أي مقال 
+            var a = _context.Articles.Where(a => a.UserId == u.UserId).FirstOrDefault(a => a.Slug == slug);
 
-            var a = _context.Articles.Where(a=>a.UserId==u.UserId).FirstOrDefault(a => a.Slug == slug);
-            
-            //title, description, body
             if (!string.IsNullOrWhiteSpace(article.Title))
             {
                 a.Title = article.Title;
-               // a.Slug= Slug.GenerateSlug(articleEntity.Title);
+                // a.Slug= Slug.GenerateSlug(articleEntity.Title);
             }
 
             if (!string.IsNullOrWhiteSpace(article.Description))
@@ -82,10 +76,10 @@ namespace RealWord.Db.Repositories
             {
                 a.Body = article.Body;
             }
-            a.UpdatedAt = DateTime.Now;
-            return a;
 
-            //_context.Entry(article).Property("UpdatedAt").CurrentValue = DateTime.Now;
+            a.UpdatedAt = DateTime.Now;
+
+            return a;
         }
         public void DeleteArticle(Article article)
         {
@@ -149,35 +143,37 @@ namespace RealWord.Db.Repositories
         }
         public bool FavoriteArticle(User currUser, Article article)//هل يرجع مقال والا لا
         {
-            bool ff = Isfave(currUser, article);
-            if (ff)
+            if (Isfavorite(currUser, article))
             {
                 return false;
             }
+
             var ArticleFavorite = new ArticleFavorites { ArticleId = article.ArticleId, UserId = currUser.UserId };
             _context.ArticleFavorites.Add(ArticleFavorite);
+
             return true;
             /*var currUser = _context.Users.Find("");
             var ArticleFavorite = new ArticleFavorites { ArticleId = article.ArticleId, UserId = currUser.UserId };
             _context.ArticleFavorites.Add(ArticleFavorite);*/
         }
 
-        public bool UnFavoriteArticle(User currUser, Article article)
+        public bool UnfavoriteArticle(User CurrentUser, Article Article)
         {
-            bool ff = Isfave(currUser, article);
-            if (!ff)
+            if (!Isfavorite(CurrentUser, Article))
             {
                 return false;
             }
-            var ArticleFavorite = new ArticleFavorites { ArticleId = article.ArticleId, UserId = currUser.UserId };
+
+            var ArticleFavorite = new ArticleFavorites { ArticleId = Article.ArticleId, UserId = CurrentUser.UserId };
             _context.ArticleFavorites.Remove(ArticleFavorite);
+
             return true;
         }
 
-        public bool Isfave(User currUser, Article article)
+        public bool Isfavorite(User CurrentUser, Article Article)
         {
-            return _context.ArticleFavorites.Any(af => af.UserId == currUser.UserId
-                       && af.ArticleId == article.ArticleId);
+            return _context.ArticleFavorites.Any(af => af.UserId == CurrentUser.UserId
+                       && af.ArticleId == Article.ArticleId);
         }
 
         public void Save()
