@@ -12,7 +12,10 @@ namespace RealWord.Web.Profiles
     {
         public TagProfile()
         {
-            CreateMap<Tag, TagDto>();
+            CreateMap<List<Tag>, TagDto>()
+                .ForMember(
+                    dest => dest.tags,
+                    opt => opt.MapFrom(src => src.Select(a=>a.TagId).ToList()));
         }
     }
 }

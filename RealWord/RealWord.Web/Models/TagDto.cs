@@ -7,6 +7,6 @@ namespace RealWord.Web.Models
 {
     public class TagDto
     {
-        public string tagId { get; set; }
+        public List<string> tags { get; set; }
     }
 }

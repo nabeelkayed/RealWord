@@ -14,9 +14,13 @@ namespace RealWord.Db.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public List<string> GetTags()
+        public List<Tag> GetTags()
         {
-            return _context.Tags.Select(t => t.TagId).ToList();
+            //
+            //return _context.Tags.ToList();
+            var x=_context.Tags.ToList();
+
+            return x;
         }
     }
 }

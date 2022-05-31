@@ -27,12 +27,13 @@ namespace RealWord.Web.Controllers
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
         }
+
         [AllowAnonymous]
         [HttpGet]
-        public ActionResult<IEnumerable<TagDto>> GetTags()
+        public ActionResult<TagDto> GetTags()
         {
             var Tags = _ITagRepository.GetTags();
-            return Ok(new { user = _mapper.Map<List<TagDto>>(Tags) });
+            return Ok(_mapper.Map<TagDto>(Tags));
         }
     }
 }

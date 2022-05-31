@@ -6,6 +6,6 @@ namespace RealWord.Db.Repositories
 {
     public interface ITagRepository
     {
-        List<string> GetTags();
+        List<Tag> GetTags();
     }
 }
