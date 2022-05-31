@@ -29,7 +29,7 @@ namespace RealWord.Db.Repositories
         {
             return _context.Articles.FirstOrDefault(a => a.Slug == slug);
         }
-        public void CreateArticle(Article article)
+        public void CreateArticle(Article article, List<string> tagList)
         {
             var timestamp = DateTime.Now;
             article.CreatedAt = timestamp;
@@ -37,6 +37,11 @@ namespace RealWord.Db.Repositories
 
             _context.Articles.Add(article);
 
+            foreach (var t in tagList)
+            {
+                _context.Tags.Add(new Tag { TagId = t });
+                _context.ArticleTags.Add(new ArticleTags { TagId = t , ArticleId = article.ArticleId});
+            }
             /* var timestamp = DateTime.Now;
              _context.Entry(article).Property("CreatedAt").CurrentValue = timestamp;
              _context.Entry(article).Property("UpdatedAt").CurrentValue = timestamp;*/
@@ -57,7 +62,7 @@ namespace RealWord.Db.Repositories
 
             if (!string.IsNullOrEmpty(tag))
             {
-               // Articles = Articles.Where(a => a.Tags.Contains(tag)).ToList();
+                // Articles = Articles.Where(a => a.Tags.Contains(tag)).ToList();
 
                 // Articles = Articles.Include(a => a.Tags.Where(a => a.TagId == tag));
             }

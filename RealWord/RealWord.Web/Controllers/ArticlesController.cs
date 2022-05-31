@@ -85,7 +85,7 @@ namespace RealWord.Web.controllers
             var CurrentUser = _IUserRepository.GetUser(username);
 
             articleEntity.UserId = CurrentUser.UserId;
-            _IArticleRepository.CreateArticle(articleEntity);
+            _IArticleRepository.CreateArticle(articleEntity, article.tagList);
             _IArticleRepository.Save();
 
             return Ok(new { article = _mapper.Map<ArticleDto>(articleEntity) });

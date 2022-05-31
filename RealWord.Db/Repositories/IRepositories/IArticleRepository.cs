@@ -8,7 +8,7 @@ namespace RealWord.Db.Repositories
     public interface IArticleRepository
     {
         Article GetArticle(string slug);
-        void CreateArticle(Article article); 
+        public void CreateArticle(Article article, List<string> tagList);
         void UpdateArticle(Article article);
         void DeleteArticle(Article article);
         bool FavoriteArticle(User currUser, Article article);
