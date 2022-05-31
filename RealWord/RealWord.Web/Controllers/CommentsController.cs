@@ -47,17 +47,23 @@ namespace RealWord.Web.controllers
 
             var CommentEntityForCreation = _mapper.Map<Comment>(CommentForCreation);
 
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
             CommentEntityForCreation.UserId = CurrentUser.UserId;
 
             var Article = _IArticleRepository.GetArticle(slug);
             CommentEntityForCreation.ArticleId = Article.ArticleId;
 
-            var CreatedComment = _ICommentRepository.CreateComment(CommentEntityForCreation);
+            var TimeStamp = DateTime.Now;
+            CommentEntityForCreation.CreatedAt = TimeStamp;
+            CommentEntityForCreation.UpdatedAt = TimeStamp;
+
+            CommentEntityForCreation.CommentId = Guid.NewGuid();
+
+            _ICommentRepository.CreateComment(CommentEntityForCreation);
             _ICommentRepository.Save();
 
-            var CreatedCommentToReturn = _mapper.Map<CommentDto>(CreatedComment);
+            var CreatedCommentToReturn = _mapper.Map<CommentDto>(CommentEntityForCreation);
             return Ok(new { comment = CreatedCommentToReturn });
         }
 
@@ -70,16 +76,16 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var Comments = _ICommentRepository.GetAllComments(slug);
+            var Comments = _ICommentRepository.GetCommentsForArticle(slug);
             var CommentsToReturn = _mapper.Map<IEnumerable<CommentDto>>(Comments);
 
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier)?.Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (CurrentUsername != null)
             {
                 //أفحص اذا هاي الكومنتات اله وشو ارجع الفلو
                 foreach (var x in CommentsToReturn)
                 {//هون بدي اعمل موضوع الفلو لما يكون مسجل دخول 
-                    x.author.following = true;
+                    x.Author.Following = true;
                     //أعمل كود برجعلي برفايل مع انه متابعه أو لا
                 }
             }

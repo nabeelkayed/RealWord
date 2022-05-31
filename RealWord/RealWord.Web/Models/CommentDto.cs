@@ -8,11 +8,11 @@ namespace RealWord.Web.Models
 {
     public class CommentDto
     {
-        public Guid id { get; set; }
-        public DateTime createdAt { get; set; }
-        public DateTime updatedAt { get; set; }
-        public string body { get; set; }
-        public ProfileDto author { get; set; }
+        public Guid Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public string Body { get; set; }
+        public ProfileDto Author { get; set; }
     }
 }
  

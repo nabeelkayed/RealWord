@@ -13,10 +13,10 @@ namespace RealWord.Web.Profiles
         {
             CreateMap<Article, ArticleDto>()
                 .ForMember(
-                    dest => dest.favoritesCount,
+                    dest => dest.FavoritesCount,
                     opt => opt.MapFrom(src => src.Favorites.Count))
                 .ForMember(
-                    dest => dest.tagList,
+                    dest => dest.TagList,
                     opt => opt.MapFrom(src => src.Tags.Select(s => s.TagId).ToList()));
             /*  .ForMember(
                   dest => dest.tagList,

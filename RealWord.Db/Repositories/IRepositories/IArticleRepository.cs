@@ -7,6 +7,9 @@ namespace RealWord.Db.Repositories
 {
     public interface IArticleRepository
     {
+        bool ArticleExists(string Slug);
+        List<Article> GetArticles(string Tag, string Author, string Favorited, int Limit, int Offset);
+        List<Article> GetFeedArticles(User CurrentUser, int Limit, int Offset);
         Article GetArticle(string Slug);
         public void CreateArticle(Article Article, List<string> TagList);
         public Article UpdateArticle(User User,string Slug, Article Article);
@@ -14,10 +17,7 @@ namespace RealWord.Db.Repositories
         bool FavoriteArticle(User CurrentUser, Article Article);
         bool UnfavoriteArticle(User CurrentUser, Article Article); 
         public bool Isfavorite(User CurrentUser, Article Article);
-        List<Article> GetArticles(string Tag, string Author, string Favorited, int Limit, int Offset);
-        List<Article> GetFeedArticles(User CurrentUser, int Limit, int Offset);
         //List<Article> GetArticles(QueryString query);
-        bool ArticleExists(string Slug);
         void Save();  
     }
 }

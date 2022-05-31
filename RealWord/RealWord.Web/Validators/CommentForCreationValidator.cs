@@ -11,7 +11,7 @@ namespace RealWord.Web.Validators
     {
         public CommentForCreationValidator()
         { 
-            RuleFor(c => c.body).NotEmpty().WithErrorCode("422");
+            RuleFor(c => c.Body).NotEmpty().WithErrorCode("422");
         }
     }
 }

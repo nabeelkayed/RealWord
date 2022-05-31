@@ -47,11 +47,11 @@ namespace RealWord.Web.controllers
             {
                 var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
-                ProfileToReturn.following = _IUserRepository.IsFollow(CurrentUser, User);
+                ProfileToReturn.Following = _IUserRepository.IsFollow(CurrentUser, User);
 
                 if (CurrentUsername == username)
                 {
-                    ProfileToReturn.following = false;
+                    ProfileToReturn.Following = false;
                 }                 
             }
 
@@ -80,7 +80,7 @@ namespace RealWord.Web.controllers
                 _IUserRepository.Save();
 
                 var ProfileToReturn = _mapper.Map<ProfileDto>(User);
-                ProfileToReturn.following = true;
+                ProfileToReturn.Following = true;
 
                 return Ok(new { profile = ProfileToReturn });
             }
@@ -89,7 +89,7 @@ namespace RealWord.Web.controllers
         }
 
         [HttpDelete("{username}/follow")]
-        public ActionResult<ProfileDto> UnFollow(string username)
+        public ActionResult<ProfileDto> UnFollow(string username)//هل كل انبت بفحصه
         {
             var User = _IUserRepository.GetUser(username);
             if (User == null)
@@ -110,7 +110,7 @@ namespace RealWord.Web.controllers
                 _IUserRepository.Save();
 
                 var ProfileToReturn = _mapper.Map<ProfileDto>(User);
-                ProfileToReturn.following = false;
+                ProfileToReturn.Following = false;
 
                 return Ok(new { profile = ProfileToReturn });
             }

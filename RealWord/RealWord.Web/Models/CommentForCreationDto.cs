@@ -7,6 +7,6 @@ namespace RealWord.Web.Models
 {
     public class CommentForCreationDto
     {
-        public string body { get; set; }
+        public string Body { get; set; }
     }
 }

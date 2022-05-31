@@ -11,9 +11,9 @@ namespace RealWord.Web.Validators
     {
         public ArticleForCreationValidator()
         {
-            RuleFor(E => E.title).NotEmpty();
-            RuleFor(E => E.description).NotEmpty();
-            RuleFor(E => E.body).NotEmpty();  
+            RuleFor(E => E.Title).NotEmpty();
+            RuleFor(E => E.Description).NotEmpty();
+            RuleFor(E => E.Body).NotEmpty();  
         }
     }
 }

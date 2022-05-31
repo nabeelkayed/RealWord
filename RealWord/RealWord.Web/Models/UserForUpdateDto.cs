@@ -7,10 +7,10 @@ namespace RealWord.Web.Models
 {
     public class UserForUpdateDto
     {
-        public string email { get; set; }
-        public string username { get; set; }
-        public string password { get; set; }
-        public string image { get; set; }
-        public string bio { get; set; }
+        public string Email { get; set; }
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string Image { get; set; }
+        public string Bio { get; set; }
     }
 }

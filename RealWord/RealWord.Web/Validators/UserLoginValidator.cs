@@ -11,8 +11,8 @@ namespace RealWord.Web.Validators
     {
         public UserLoginValidator()
         {
-            RuleFor(u => u.email).NotEmpty().EmailAddress().WithErrorCode("422"); ;//.WithMessage("");
-            RuleFor(u => u.password).NotEmpty()
+            RuleFor(u => u.Email).NotEmpty().EmailAddress().WithErrorCode("422"); ;//.WithMessage("");
+            RuleFor(u => u.Password).NotEmpty()
                           .NotNull()
                           .MinimumLength(8)
                           .MaximumLength(16)

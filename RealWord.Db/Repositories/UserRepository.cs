@@ -15,9 +15,14 @@ namespace RealWord.Db.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public User GetUser(string username)
+        public bool UserExists(string Username)
         {
-            return _context.Users.FirstOrDefault(u => u.Username == username);
+            if (String.IsNullOrEmpty(Username))
+            {
+                throw new ArgumentNullException(nameof(Username));
+            }
+
+            return _context.Users.Any(u => u.Username == Username);
         }
         public User LoginUser(User User)
         {
@@ -28,9 +33,18 @@ namespace RealWord.Db.Repositories
         {
             _context.Users.Add(user);
         }
+        public User GetUser(string Username)
+        {
+            if (String.IsNullOrEmpty(Username))
+            {
+                throw new ArgumentNullException(nameof(Username));
+            }
+
+            return _context.Users.FirstOrDefault(u => u.Username == Username);
+        }
         public User UpdateUser(User CurrUser, User User)
         {
-            var UpdatedUser = _context.Users.FirstOrDefault(a => a.Username == CurrUser.Username);
+            var UpdatedUser = _context.Users.FirstOrDefault(u => u.Username == CurrUser.Username);
 
             if (!string.IsNullOrWhiteSpace(User.Email))
             {
@@ -66,16 +80,9 @@ namespace RealWord.Db.Repositories
             _context.UserFollowers.Add(UserFollower);
             return true;
         }
-
-        public bool IsFollow(User CurrentUser, User user)
-        {
-            return _context.UserFollowers.Any(uf => uf.FollowerId == CurrentUser.UserId
-                        && uf.FolloweingId == user.UserId);
-        }
-
         public bool UnfollowUser(User CurrentUser, User User)
         {
-            if (!IsFollow(CurrentUser, User)) 
+            if (!IsFollow(CurrentUser, User))
             {
                 return false;
             }
@@ -85,19 +92,14 @@ namespace RealWord.Db.Repositories
 
             return true;
         }
+        public bool IsFollow(User CurrentUser, User user)
+        {
+            return _context.UserFollowers.Any(uf => uf.FollowerId == CurrentUser.UserId
+                        && uf.FolloweingId == user.UserId);
+        }
         public void Save()
         {
             _context.SaveChanges();
-        }
-
-        public bool UserExists(string Username)
-        {
-            if (String.IsNullOrEmpty(Username))
-            {
-                throw new ArgumentNullException(nameof(Username));
-            }
-
-            return _context.Users.Any(a => a.Username == Username);
         }
     }
 }

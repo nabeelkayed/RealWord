@@ -7,14 +7,14 @@ namespace RealWord.Web.Models
 {
     public class ArticleForUpdateDto
     {
-        public string slug { get; set; }
-        public string title { get; set; }
-        public string description { get; set; }
-        public string body { get; set; }
-        public List<TagDto> tagList { get; set; }
-        public DateTime createdAt { get; set; }
-        public DateTime updatedAt { get; set; }
-        public bool favorited { get; set; }
-        public int favoritesCount { get; set; }
+        public string Slug { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Body { get; set; }
+        public List<TagDto> TagList { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public bool Favorited { get; set; }
+        public int FavoritesCount { get; set; }
     }
 }

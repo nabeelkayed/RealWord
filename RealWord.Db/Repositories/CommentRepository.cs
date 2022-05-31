@@ -15,32 +15,25 @@ namespace RealWord.Db.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public Comment GetComment(Guid id)
+        public void CreateComment(Comment Comment)
         {
-            return _context.Comments.Find(id);
+            _context.Comments.Add(Comment);
         }
-        public List<Comment> GetAllComments(string Slug)
+        public List<Comment> GetCommentsForArticle(string Slug)
         {
             var Article = _context.Articles.FirstOrDefault(a => a.Slug == Slug);
             var Comments = _context.Comments.Where(c => c.ArticleId == Article.ArticleId).ToList();
-            
+
             return Comments;
         }
-        public Comment CreateComment(Comment Comment)
+        public Comment GetComment(Guid Id)//id مش لازم Guid
         {
-            Comment.CommentId = Guid.NewGuid();
+            if (Id == null || Id == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(Id));
+            }
 
-            var TimeStamp = DateTime.Now;
-            Comment.CreatedAt = TimeStamp;
-            Comment.UpdatedAt = TimeStamp;
-
-            _context.Comments.Add(Comment);
-
-
-           var xx = _context.Comments.Find(Comment.CommentId);
-          /*  var xx = _context.Comments.Where(c => c.CommentId == comment.CommentId)
-                .Select(c=>new {c.Article,c.ArticleId,c.Body,c.CommentId,c.User,c.UserId, createdAt =EF.Property<DateTime>(c, "CreatedAt") }).ToList();*/
-            return xx;
+            return _context.Comments.Find(Id);
         }
         public void DeleteComment(Comment comment)
         {

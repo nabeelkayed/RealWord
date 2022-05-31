@@ -53,7 +53,7 @@ namespace RealWord.Web.controllers
         [HttpGet("feed")]
         public ActionResult<IEnumerable<ArticleDto>> FeedArticle(int limit = 20, int offset = 0)
         {
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
 
@@ -92,15 +92,19 @@ namespace RealWord.Web.controllers
             var ArticleEntityForCreation = _mapper.Map<Article>(ArticleForCreation);
             ArticleEntityForCreation.Slug = Slug.GenerateSlug(ArticleEntityForCreation.Title);
 
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
             ArticleEntityForCreation.UserId = CurrentUser.UserId;
 
-            _IArticleRepository.CreateArticle(ArticleEntityForCreation, ArticleForCreation.tagList);
+            var TimeStamp = DateTime.Now;
+            ArticleEntityForCreation.CreatedAt = TimeStamp;
+            ArticleEntityForCreation.UpdatedAt = TimeStamp;
+
+            _IArticleRepository.CreateArticle(ArticleEntityForCreation, ArticleForCreation.TagList);
             _IArticleRepository.Save();
 
             var ArticleToReturn = _mapper.Map<ArticleDto>(ArticleEntityForCreation);
-            ArticleToReturn.favorited = _IArticleRepository.Isfavorite(CurrentUser, ArticleEntityForCreation);
+            ArticleToReturn.Favorited = _IArticleRepository.Isfavorite(CurrentUser, ArticleEntityForCreation);
 
             return Ok(new { article = ArticleToReturn });
         }
@@ -114,7 +118,7 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
             var ArticleEntityForUpdate = _mapper.Map<Article>(ArticleForUpdate);
@@ -151,7 +155,7 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
             
 
@@ -161,7 +165,7 @@ namespace RealWord.Web.controllers
                 _IArticleRepository.Save();
 
                 var ArticleToReturn = _mapper.Map<ArticleDto>(Article);
-                ArticleToReturn.favorited = true;
+                ArticleToReturn.Favorited = true;
 
                 return Ok(new { article = ArticleToReturn });
             }
@@ -179,7 +183,7 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
             var ArticleUnfavorited = _IArticleRepository.UnfavoriteArticle(CurrentUser, Article);
@@ -188,7 +192,7 @@ namespace RealWord.Web.controllers
                 _IArticleRepository.Save();
 
                 var ArticleToReturn = _mapper.Map<ArticleDto>(Article);
-                ArticleToReturn.favorited = false;
+                ArticleToReturn.Favorited = false;
 
                 return Ok(new { article = ArticleToReturn });
             }

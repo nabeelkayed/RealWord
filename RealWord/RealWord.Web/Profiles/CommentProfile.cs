@@ -14,10 +14,10 @@ namespace RealWord.Web.Profiles
         {
             CreateMap<Comment, CommentDto>()
                 .ForMember(
-                    dest => dest.id,
+                    dest => dest.Id,
                     opt => opt.MapFrom(src => src.CommentId))
                 .ForMember(
-                    dest => dest.author,
+                    dest => dest.Author,
                     opt => opt.MapFrom(src => src.User));
             CreateMap<CommentForCreationDto, Comment>();
         }

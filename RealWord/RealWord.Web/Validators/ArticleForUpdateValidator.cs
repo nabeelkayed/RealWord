@@ -11,9 +11,9 @@ namespace RealWord.Web.Validators
     {
         public ArticleForUpdateValidator()
         {
-            RuleFor(E => E.title).MaximumLength(100);
-            RuleFor(E => E.description).MaximumLength(100);
-            RuleFor(E => E.body).MaximumLength(10000);
+            RuleFor(E => E.Title).MaximumLength(100);
+            RuleFor(E => E.Description).MaximumLength(100);
+            RuleFor(E => E.Body).MaximumLength(10000);
         }
     }
 }

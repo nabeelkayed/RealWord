@@ -7,9 +7,9 @@ namespace RealWord.Web.Models
 {
     public class ArticleForCreationDto
     {
-        public string title { get; set; }
-        public string description { get; set; }
-        public string body { get; set; }
-        public List<string> tagList { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Body { get; set; }
+        public List<string> TagList { get; set; }
     }
 }

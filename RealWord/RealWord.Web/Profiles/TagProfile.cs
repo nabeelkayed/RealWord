@@ -14,7 +14,7 @@ namespace RealWord.Web.Profiles
         {
             CreateMap<List<Tag>, TagDto>()
                 .ForMember(
-                    dest => dest.tags,
+                    dest => dest.Tags,
                     opt => opt.MapFrom(src => src.Select(a=>a.TagId).ToList()));
         }
     }

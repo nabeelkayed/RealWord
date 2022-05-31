@@ -11,8 +11,8 @@ namespace RealWord.Web.Validators
     {
         public UserForUpdateValidator()
         {
-            RuleFor(u => u.email).EmailAddress();
-            RuleFor(u => u.bio).MaximumLength(200);
+            RuleFor(u => u.Email).EmailAddress();
+            RuleFor(u => u.Bio).MaximumLength(200);
           /*  RuleFor(u => u.password)//.NotEmpty() عشان ممكن ما ينضاف 
                          //.NotNull()
                          .MinimumLength(8)

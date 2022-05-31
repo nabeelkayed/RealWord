@@ -53,7 +53,7 @@ namespace RealWord.Web.controllers
             }
 
             var UserToReturn = _mapper.Map<UserDto>(UserLogedin);
-            UserToReturn.token = _IAuthentication.Generate(UserLogedin);
+            UserToReturn.Token = _IAuthentication.Generate(UserLogedin);
 
             return Ok(new { user = UserToReturn });
         }
@@ -62,7 +62,7 @@ namespace RealWord.Web.controllers
         public ActionResult<UserDto> CreateUser(UserForCreationDto UserForCreation)
         {
             //لازم أعمل فحص اذا كانت الإيميلات متشابهة أو لا
-            if (_IUserRepository.UserExists(UserForCreation.username))
+            if (_IUserRepository.UserExists(UserForCreation.Username))
             {
                 return NotFound("The user is exist");//لازم الي برجع يكون أفضل من هيك مع ستاتس كود
             }
@@ -72,7 +72,7 @@ namespace RealWord.Web.controllers
             _IUserRepository.Save();
 
             var UserToReturn = _mapper.Map<UserDto>(UserEntityForCreation);
-            UserToReturn.token = Request.Headers[HeaderNames.Authorization];
+            UserToReturn.Token = Request.Headers[HeaderNames.Authorization];
 
             return Ok(new { user = UserToReturn });
         }
@@ -80,11 +80,11 @@ namespace RealWord.Web.controllers
         [HttpGet("user")]
         public ActionResult<UserDto> GetCurrentUser()
         {
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
             var UserToReturn = _mapper.Map<UserDto>(CurrentUser);
-            UserToReturn.token = Request.Headers[HeaderNames.Authorization].ToString();
+            UserToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
 
             return Ok(new { user = UserToReturn });
         }
@@ -92,7 +92,7 @@ namespace RealWord.Web.controllers
         [HttpPut("user")]
         public ActionResult<UserDto> UpdateUser(UserForUpdateDto UserForUpdate)
         {
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
             var UserEntityForUpdate = _mapper.Map<User>(UserForUpdate);
@@ -100,7 +100,7 @@ namespace RealWord.Web.controllers
             _IUserRepository.Save();
 
             var UserToReturn = _mapper.Map<UserDto>(UpdatedUser);
-            UserToReturn.token = Request.Headers[HeaderNames.Authorization].ToString();
+            UserToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
 
             return Ok(new { user = UserToReturn });
         }
