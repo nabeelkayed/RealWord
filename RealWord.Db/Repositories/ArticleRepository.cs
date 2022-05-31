@@ -35,12 +35,25 @@ namespace RealWord.Db.Repositories
             article.CreatedAt = timestamp;
             article.UpdatedAt = timestamp;
 
-            _context.Articles.Add(article);
+            var allslugs = _context.Articles.Select(s => s.Slug).ToList();
+            //فحص اذا كان العنوان مكرر
+            if (!allslugs.Contains(article.Slug))
+            {
+                _context.Articles.Add(article);
+            }
+            else
+            {
 
+            }
+
+            var alltags = _context.Tags.Select(s => s.TagId).ToList();
             foreach (var t in tagList)
             {
-                _context.Tags.Add(new Tag { TagId = t });
-                _context.ArticleTags.Add(new ArticleTags { TagId = t , ArticleId = article.ArticleId});
+                if (!alltags.Contains(t))
+                {
+                    _context.Tags.Add(new Tag { TagId = t });
+                }
+                _context.ArticleTags.Add(new ArticleTags { TagId = t, ArticleId = article.ArticleId });
             }
             /* var timestamp = DateTime.Now;
              _context.Entry(article).Property("CreatedAt").CurrentValue = timestamp;
@@ -83,6 +96,7 @@ namespace RealWord.Db.Repositories
 
             //أفحص اذا ما كان فيه ولا مقال
             // Articles = Articles.Skip(offset).Take(limit);
+           // .OrderByDescending(x => x.CreatedAt) الترتيب مهم
 
             return Articles.ToList();
         }
@@ -94,7 +108,7 @@ namespace RealWord.Db.Repositories
             var x = _context.UserFollowers.Where(u => u.FollowerId == curruser.UserId).Select(a => a.FolloweingId).ToList();
             // أفحص اذا ما كان فيه ولا مقال أو ولا متابع
 
-            var xx = _context.Articles.Where(a => x.Contains(a.UserId))
+            var xx = _context.Articles.Where(a => x.Contains(a.UserId)).OrderByDescending(x => x.CreatedAt)
                 .Skip(offset).Take(limit).ToList();
             return xx;
             // xx=xx.Skip(offset).Take(limit);

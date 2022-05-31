@@ -14,13 +14,16 @@ namespace RealWord.Web.Profiles
             CreateMap<Article, ArticleDto>()
                 .ForMember(
                     dest => dest.favoritesCount,
-                    opt => opt.MapFrom(src => src.Favorites.Count)) 
+                    opt => opt.MapFrom(src => src.Favorites.Count))
                 .ForMember(
                     dest => dest.tagList,
-                    opt => opt.MapFrom(src => new TagDto { tags= src.Tags.Select(s => s.TagId).ToList() }));
-          /*   .ForMember(////need test
-                    dest => dest.author, 
-                    opt => opt.MapFrom(src => src.User))*/
+                    opt => opt.MapFrom(src => src.Tags.Select(s => s.TagId).ToList()));
+            /*  .ForMember(
+                  dest => dest.tagList,
+                  opt => opt.MapFrom(src => new TagDto { tags= src.Tags.Select(s => s.TagId).ToList() }));*/
+            /*   .ForMember(////need test
+                      dest => dest.author, 
+                      opt => opt.MapFrom(src => src.User))*/
             /*  .ForMember(
                   dest => dest.favorited,
                   opt => opt.MapFrom(src => src.User.Favorites.Any(a=>a.UserId==src.Favorites.Contains());*/

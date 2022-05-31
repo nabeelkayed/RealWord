@@ -54,10 +54,17 @@ namespace RealWord.Web.controllers
             var currUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
             var currUser = _IUserRepository.GetUser(currUsername);
 
-
+             
             var articles = _IArticleRepository.GetFeedArticles(currUser, limit, offset);
+
+            var x = _mapper.Map<IEnumerable<ArticleDto>>(articles);
+            //أضيف fave and vave count
+          /*  foreach(var c in x)
+            {
+                c.favorited = _IArticleRepository.Isfave(currUser, c.slug);
+            }*/
             int articlesCount = articles.Count();
-            return Ok(new { articles = articles, articlesCount = articlesCount });
+            return Ok(new { articles = x, articlesCount = articlesCount });
         }
 
         [AllowAnonymous]
@@ -78,7 +85,7 @@ namespace RealWord.Web.controllers
         public ActionResult<ArticleDto> CreateArticle(ArticleForCreationDto article)
         {
             var articleEntity = _mapper.Map<Article>(article);
-
+        
             articleEntity.Slug = Slug.GenerateSlug(articleEntity.Title);
 
             var username = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
@@ -87,8 +94,11 @@ namespace RealWord.Web.controllers
             articleEntity.UserId = CurrentUser.UserId;
             _IArticleRepository.CreateArticle(articleEntity, article.tagList);
             _IArticleRepository.Save();
-
-            return Ok(new { article = _mapper.Map<ArticleDto>(articleEntity) });
+            
+            var xx = _mapper.Map<ArticleDto>(articleEntity);
+            xx.favorited = _IArticleRepository.Isfave(CurrentUser, articleEntity);
+         
+            return Ok(new { article = xx });
         }
 
         [HttpPut("{slug}")]
