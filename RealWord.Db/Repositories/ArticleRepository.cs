@@ -104,19 +104,37 @@ namespace RealWord.Db.Repositories
             // return Articles.ToList();
 
         }
-        public void FavoriteArticle(User currUser, Article article)//هل يرجع مقال والا لا
+        public bool FavoriteArticle(User currUser, Article article)//هل يرجع مقال والا لا
         {
+            bool ff = Isfave(currUser, article);
+            if (ff)
+            {
+                return false;
+            }
             var ArticleFavorite = new ArticleFavorites { ArticleId = article.ArticleId, UserId = currUser.UserId };
             _context.ArticleFavorites.Add(ArticleFavorite);
+            return true;
             /*var currUser = _context.Users.Find("");
             var ArticleFavorite = new ArticleFavorites { ArticleId = article.ArticleId, UserId = currUser.UserId };
             _context.ArticleFavorites.Add(ArticleFavorite);*/
         }
 
-        public void UnFavoriteArticle(User currUser, Article article)
+        public bool UnFavoriteArticle(User currUser, Article article)
         {
+            bool ff = Isfave(currUser, article);
+            if (!ff)
+            {
+                return false;
+            }
             var ArticleFavorite = new ArticleFavorites { ArticleId = article.ArticleId, UserId = currUser.UserId };
             _context.ArticleFavorites.Remove(ArticleFavorite);
+            return true;
+        }
+
+        public bool Isfave(User currUser, Article article)
+        {
+            return _context.ArticleFavorites.Any(af => af.UserId == currUser.UserId
+                       && af.ArticleId == article.ArticleId);
         }
 
         public void Save()

@@ -53,9 +53,9 @@ namespace RealWord.Web.controllers
         {
             var currUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
             var currUser = _IUserRepository.GetUser(currUsername);
-            
 
-            var articles = _IArticleRepository.GetFeedArticles(currUser,limit, offset);
+
+            var articles = _IArticleRepository.GetFeedArticles(currUser, limit, offset);
             int articlesCount = articles.Count();
             return Ok(new { articles = articles, articlesCount = articlesCount });
         }
@@ -138,11 +138,18 @@ namespace RealWord.Web.controllers
             var currUsername = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
 
             var currUser = _IUserRepository.GetUser(currUsername);
+            ////
 
-            _IArticleRepository.FavoriteArticle(currUser, article);
-            _IArticleRepository.Save();
-
-            return Ok(new { article = _mapper.Map<ArticleDto>(article) });
+            var f = _IArticleRepository.FavoriteArticle(currUser, article);
+            if (f)
+            {
+                _IArticleRepository.Save();
+                var article1 = _mapper.Map<ArticleDto>(article);
+                article1.favorited = true;
+                return Ok(new { article = article1 });
+            }
+            return BadRequest($"You alredy favarte the user with slug {slug}");
+             //var ff = _IUserRepository.FollowUser(currUser, user);
         }
 
         [HttpDelete("{slug}/favorite")]
@@ -159,10 +166,15 @@ namespace RealWord.Web.controllers
 
             var currUser = _IUserRepository.GetUser(currUsername);
 
-            _IArticleRepository.UnFavoriteArticle(currUser, article);
-            _IArticleRepository.Save();
-
-            return Ok(new { article = _mapper.Map<ArticleDto>(article) });
+            var f = _IArticleRepository.UnFavoriteArticle(currUser, article);
+            if (f)
+            {
+                _IArticleRepository.Save();
+                var article1 = _mapper.Map<ArticleDto>(article);
+                article1.favorited = false;
+                return Ok(new { article = article1 });
+            }
+            return BadRequest($"You alredy not favarte the article with slug {slug}");
         }
 
     }

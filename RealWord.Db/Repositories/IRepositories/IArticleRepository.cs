@@ -11,8 +11,9 @@ namespace RealWord.Db.Repositories
         void CreateArticle(Article article); 
         void UpdateArticle(Article article);
         void DeleteArticle(Article article);
-        void FavoriteArticle(User currUser, Article article);
-        void UnFavoriteArticle(User currUser, Article article);
+        bool FavoriteArticle(User currUser, Article article);
+        bool UnFavoriteArticle(User currUser, Article article);
+        public bool Isfave(User currUser, Article article);
         List<Article> GetArticles(string tag, string author, string favorited, int limit, int offset);
         //List<Article> GetArticles(QueryString query);
 
