@@ -102,12 +102,14 @@ namespace RealWord.Web.controllers
             // apply the updated field values to that dto
             // map the CourseForUpdateDto back to an entity
             var user1 = _IUserRepository.GetUser(username);
-            _mapper.Map(user, user1);
 
-            _IUserRepository.UpdateUser(user1);
+            //_mapper.Map(user, user1);
+            var x =_mapper.Map<User>(user);
+            //x.Username = username;
+            var xx = _IUserRepository.UpdateUser(user1, x);
             _IUserRepository.Save();
 
-            var ss = _mapper.Map<UserDto>(user1);
+            var ss = _mapper.Map<UserDto>(xx);
             ss.token = Request.Headers[HeaderNames.Authorization].ToString();
 
             return Ok(new { user = ss });

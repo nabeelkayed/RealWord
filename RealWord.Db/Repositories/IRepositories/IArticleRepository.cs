@@ -9,7 +9,7 @@ namespace RealWord.Db.Repositories
     {
         Article GetArticle(string slug);
         public void CreateArticle(Article article, List<string> tagList);
-        void UpdateArticle(Article article);
+        public Article UpdateArticle(User u,string slug, Article article);
         void DeleteArticle(Article article);
         bool FavoriteArticle(User currUser, Article article);
         bool UnFavoriteArticle(User currUser, Article article);

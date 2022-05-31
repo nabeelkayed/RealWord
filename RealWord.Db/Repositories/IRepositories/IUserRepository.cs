@@ -8,7 +8,7 @@ namespace RealWord.Db.Repositories
         User GetUser(string username);
         User LoginUser(User user);
         void CreateUser(User user);
-        void UpdateUser(User user); 
+        User UpdateUser(User currUser,User user); 
         bool FollowUser(User currUser, User user);
         bool UnFollowUser(User currUser, User user);
         public bool Isfolo(User currUser, User user);

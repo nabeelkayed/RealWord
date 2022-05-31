@@ -110,13 +110,15 @@ namespace RealWord.Web.controllers
             {
                 return NotFound();
             }
+            var xx = _mapper.Map<Article>(articleforupdate);
+            // _mapper.Map(articleforupdate, article);
+            var username = HttpContext.User.Claims.FirstOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;
+            var CurrentUser = _IUserRepository.GetUser(username);
 
-            _mapper.Map(articleforupdate, article);
-
-            _IArticleRepository.UpdateArticle(article);
+            var x =_IArticleRepository.UpdateArticle(CurrentUser,slug, xx);
             _IArticleRepository.Save();
 
-            return Ok(new { article = _mapper.Map<ArticleDto>(articleforupdate) });
+            return Ok(new { article = _mapper.Map<ArticleDto>(x) });
         }
 
         [HttpDelete("{slug}")]

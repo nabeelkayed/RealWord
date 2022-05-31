@@ -13,11 +13,11 @@ namespace RealWord.Web.Validators
         {
             RuleFor(u => u.email).EmailAddress();
             RuleFor(u => u.bio).MaximumLength(200);
-            RuleFor(u => u.password).NotEmpty()
-                         .NotNull()
+          /*  RuleFor(u => u.password)//.NotEmpty() عشان ممكن ما ينضاف 
+                         //.NotNull()
                          .MinimumLength(8)
                          .MaximumLength(16)
-                         .Matches("^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$").WithMessage("regex error");
+                         .Matches("^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$").WithMessage("regex error");*/
         }
     }
 }

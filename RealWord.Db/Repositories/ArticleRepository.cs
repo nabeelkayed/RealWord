@@ -55,12 +55,36 @@ namespace RealWord.Db.Repositories
                 }
                 _context.ArticleTags.Add(new ArticleTags { TagId = t, ArticleId = article.ArticleId });
             }
+
             /* var timestamp = DateTime.Now;
              _context.Entry(article).Property("CreatedAt").CurrentValue = timestamp;
              _context.Entry(article).Property("UpdatedAt").CurrentValue = timestamp;*/
         }
-        public void UpdateArticle(Article article)
+        public Article UpdateArticle(User u,string slug, Article article)
         {
+            //لازم اتأكد انها المقال تبعته لأنه ما بقدر يعدل على أي مقال 
+
+            var a = _context.Articles.Where(a=>a.UserId==u.UserId).FirstOrDefault(a => a.Slug == slug);
+            
+            //title, description, body
+            if (!string.IsNullOrWhiteSpace(article.Title))
+            {
+                a.Title = article.Title;
+               // a.Slug= Slug.GenerateSlug(articleEntity.Title);
+            }
+
+            if (!string.IsNullOrWhiteSpace(article.Description))
+            {
+                a.Description = article.Description;
+            }
+
+            if (!string.IsNullOrWhiteSpace(article.Body))
+            {
+                a.Body = article.Body;
+            }
+            a.UpdatedAt = DateTime.Now;
+            return a;
+
             //_context.Entry(article).Property("UpdatedAt").CurrentValue = DateTime.Now;
         }
         public void DeleteArticle(Article article)
@@ -96,7 +120,7 @@ namespace RealWord.Db.Repositories
 
             //أفحص اذا ما كان فيه ولا مقال
             // Articles = Articles.Skip(offset).Take(limit);
-           // .OrderByDescending(x => x.CreatedAt) الترتيب مهم
+            // .OrderByDescending(x => x.CreatedAt) الترتيب مهم
 
             return Articles.ToList();
         }

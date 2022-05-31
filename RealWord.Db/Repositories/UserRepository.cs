@@ -28,8 +28,33 @@ namespace RealWord.Db.Repositories
         {
             _context.Users.Add(user);
         }
-        public void UpdateUser(User User)
+        public User UpdateUser(User currUser, User user)
         {
+            var u = _context.Users.FirstOrDefault(a => a.Username == currUser.Username);
+
+            if (!string.IsNullOrWhiteSpace(user.Email))
+            {
+                u.Email = user.Email;
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Image))
+            {
+                u.Image = user.Image;
+            }
+
+            if (!string.IsNullOrWhiteSpace(user.Bio))
+            {
+                u.Bio = user.Bio;
+            }
+            if (!string.IsNullOrWhiteSpace(user.Password))
+            {
+                u.Password = user.Password;
+            }
+            if (!string.IsNullOrWhiteSpace(user.Username))
+            {
+                u.Username = user.Username;
+            }
+            return u;
             /*var user = _context.Users.Single(u=>u.Username == usrname);
             //Author.AuthorName += "Kayed";
             return user;*/
