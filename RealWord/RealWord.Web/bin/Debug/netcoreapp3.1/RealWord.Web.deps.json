@@ -40,6 +40,7 @@
           "Microsoft.EntityFrameworkCore.Tools": "5.0.17",
           "RealWord.Db": "1.0.0",
           "System.IdentityModel.Tokens.Jwt": "6.18.0",
+          "Utils": "1.0.0",
           "Microsoft.AspNetCore.Antiforgery": "3.1.0.0",
           "Microsoft.AspNetCore.Authentication.Abstractions.Reference": "3.1.0.0",
           "Microsoft.AspNetCore.Authentication.Cookies.Reference": "3.1.0.0",
@@ -1722,13 +1723,22 @@
       "RealWord.Db/1.0.0": {
         "dependencies": {
           "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
-          "Microsoft.EntityFrameworkCore.SqlServer": "5.0.17"
+          "Microsoft.EntityFrameworkCore.SqlServer": "5.0.17",
+          "Utils": "1.0.0"
         },
         "runtime": {
           "RealWord.Db.dll": {}
         },
         "compile": {
           "RealWord.Db.dll": {}
+        }
+      },
+      "Utils/1.0.0": {
+        "runtime": {
+          "Utils.dll": {}
+        },
+        "compile": {
+          "Utils.dll": {}
         }
       },
       "Microsoft.AspNetCore.Antiforgery/3.1.0.0": {
@@ -4261,6 +4271,11 @@
       "hashPath": "system.xml.xmlserializer.4.3.0.nupkg.sha512"
     },
     "RealWord.Db/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Utils/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""

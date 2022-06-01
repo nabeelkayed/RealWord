@@ -2,22 +2,22 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
+using RealWord.Utils.ResourceParameters;
 
 namespace RealWord.Db.Repositories
 {
     public interface IArticleRepository
     {
-        bool ArticleExists(string Slug);
-        List<Article> GetArticles(string Tag, string Author, string Favorited, int Limit, int Offset);
-        List<Article> GetFeedArticles(User CurrentUser, int Limit, int Offset);
-        Article GetArticle(string Slug);
-        public void CreateArticle(Article Article, List<string> TagList);
-        public Article UpdateArticle(User User,string Slug, Article Article);
-        void DeleteArticle(Article Article);
-        bool FavoriteArticle(User CurrentUser, Article Article);
-        bool UnfavoriteArticle(User CurrentUser, Article Article); 
-        public bool Isfavorite(User CurrentUser, Article Article);
-        //List<Article> GetArticles(QueryString query);
-        void Save();  
+        bool ArticleExists(string slug);
+        Article GetArticle(string slug);
+        List<Article> GetArticles(ArticlesParameters articlesParameters);
+        List<Article> GetFeedArticles(Guid currentUserId, FeedArticlesParameters feedArticlesParameters);
+        public void CreateArticle(Article article, List<string> tagList); 
+        public Article UpdateArticle(Guid currentUserId, string slug, Article articleForUpdate);
+        void DeleteArticle(Article article);
+        bool FavoriteArticle(Guid currentUserId, Guid articleToFavoriteId);
+        bool UnfavoriteArticle(Guid currentUserId, Guid articleToUnfavoriteId);
+        public bool Isfavorited(Guid UserId, Guid articleId);
+        void Save();
     }
 }

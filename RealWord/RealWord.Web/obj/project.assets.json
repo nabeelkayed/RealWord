@@ -2008,13 +2008,24 @@
         "framework": ".NETCoreApp,Version=v3.1",
         "dependencies": {
           "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
-          "Microsoft.EntityFrameworkCore.SqlServer": "5.0.17"
+          "Microsoft.EntityFrameworkCore.SqlServer": "5.0.17",
+          "Utils": "1.0.0"
         },
         "compile": {
           "bin/placeholder/RealWord.Db.dll": {}
         },
         "runtime": {
           "bin/placeholder/RealWord.Db.dll": {}
+        }
+      },
+      "Utils/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "compile": {
+          "bin/placeholder/Utils.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Utils.dll": {}
         }
       }
     }
@@ -6829,6 +6840,11 @@
       "type": "project",
       "path": "../../RealWord.Db/RealWord.Db.csproj",
       "msbuildProject": "../../RealWord.Db/RealWord.Db.csproj"
+    },
+    "Utils/1.0.0": {
+      "type": "project",
+      "path": "../../Utils/Utils.csproj",
+      "msbuildProject": "../../Utils/Utils.csproj"
     }
   },
   "projectFileDependencyGroups": {
@@ -6841,7 +6857,8 @@
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore >= 5.0.17",
       "Microsoft.EntityFrameworkCore.Tools >= 5.0.17",
       "RealWord.Db >= 1.0.0",
-      "System.IdentityModel.Tokens.Jwt >= 6.18.0"
+      "System.IdentityModel.Tokens.Jwt >= 6.18.0",
+      "Utils >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -6877,6 +6894,9 @@
           "projectReferences": {
             "C:\\Users\\hp\\Desktop\\RealWord\\RealWord.Db\\RealWord.Db.csproj": {
               "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord.Db\\RealWord.Db.csproj"
+            },
+            "C:\\Users\\hp\\Desktop\\RealWord\\Utils\\Utils.csproj": {
+              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\Utils\\Utils.csproj"
             }
           }
         }

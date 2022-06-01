@@ -44,65 +44,64 @@ namespace RealWord.Web.controllers
 
         [AllowAnonymous]
         [HttpPost("users/login")]
-        public IActionResult login(UserLoginDto UserLogin)
+        public IActionResult login(UserLoginDto userLogin)
         {
-            var UserLogedin = _IAuthentication.LoginUser(UserLogin);
-            if (UserLogedin == null)
+            var userLogedin = _IAuthentication.LoginUser(userLogin);
+            if (userLogedin == null)
             {
                 return Unauthorized();
             }
 
-            var UserToReturn = _mapper.Map<UserDto>(UserLogedin);
-            UserToReturn.Token = _IAuthentication.Generate(UserLogedin);
+            var userToReturn = _mapper.Map<UserDto>(userLogedin);
+            userToReturn.Token = _IAuthentication.Generate(userLogedin);
 
-            return Ok(new { user = UserToReturn });
+            return Ok(new { user = userToReturn });
         }
         [AllowAnonymous]
         [HttpPost("users")]
-        public ActionResult<UserDto> CreateUser(UserForCreationDto UserForCreation)
+        public ActionResult<UserDto> CreateUser(UserForCreationDto userForCreation)
         {
-            //لازم أعمل فحص اذا كانت الإيميلات متشابهة أو لا
-            if (_IUserRepository.UserExists(UserForCreation.Username))
+            if (_IUserRepository.UserExists(userForCreation.Username))
             {
-                return NotFound("The user is exist");//لازم الي برجع يكون أفضل من هيك مع ستاتس كود
+                return NotFound("The user is exist");
             }
 
-            var UserEntityForCreation = _mapper.Map<User>(UserForCreation);
-            _IUserRepository.CreateUser(UserEntityForCreation);//هل الكريت ترجع والا ما بلزم 
+            var userEntityForCreation = _mapper.Map<User>(userForCreation);
+            _IUserRepository.CreateUser(userEntityForCreation); 
             _IUserRepository.Save();
 
-            var UserToReturn = _mapper.Map<UserDto>(UserEntityForCreation);
-            UserToReturn.Token = Request.Headers[HeaderNames.Authorization];
+            var userToReturn = _mapper.Map<UserDto>(userEntityForCreation);
+            userToReturn.Token = Request.Headers[HeaderNames.Authorization];
 
-            return Ok(new { user = UserToReturn });
+            return Ok(new { user = userToReturn });
         }
 
         [HttpGet("user")]
         public ActionResult<UserDto> GetCurrentUser()
         {
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
+            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var currentUser = _IUserRepository.GetUser(currentUsername);
 
-            var UserToReturn = _mapper.Map<UserDto>(CurrentUser);
-            UserToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
+            var userToReturn = _mapper.Map<UserDto>(currentUser);
+            userToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
 
-            return Ok(new { user = UserToReturn });
+            return Ok(new { user = userToReturn });
         }
 
         [HttpPut("user")]
-        public ActionResult<UserDto> UpdateUser(UserForUpdateDto UserForUpdate)
+        public ActionResult<UserDto> UpdateUser(UserForUpdateDto userForUpdate)
         {
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
+            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            //var currentUser = _IUserRepository.GetUser(currentUsername);
 
-            var UserEntityForUpdate = _mapper.Map<User>(UserForUpdate);
-            var UpdatedUser = _IUserRepository.UpdateUser(CurrentUser, UserEntityForUpdate);
+            var userEntityForUpdate = _mapper.Map<User>(userForUpdate);
+            var updatedUser = _IUserRepository.UpdateUser(currentUsername, userEntityForUpdate);
             _IUserRepository.Save();
 
-            var UserToReturn = _mapper.Map<UserDto>(UpdatedUser);
-            UserToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
+            var userToReturn = _mapper.Map<UserDto>(updatedUser);
+            userToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
 
-            return Ok(new { user = UserToReturn });
+            return Ok(new { user = userToReturn });
         }
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace RealWord.Web.Utils
+namespace RealWord.Utils.Utils
 {
     public static class Slug
     {

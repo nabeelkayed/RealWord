@@ -5,14 +5,14 @@ namespace RealWord.Db.Repositories
 {
     public interface IUserRepository
     {
-        bool UserExists(string Username);
-        User LoginUser(User User);
-        void CreateUser(User User);
-        User GetUser(string Username);
-        User UpdateUser(User CurrentUser,User User); 
-        bool FollowUser(User CurrentUser, User User); 
-        bool UnfollowUser(User CurrentUser, User User); 
-        public bool IsFollow(User CurrentUser, User User);
+        bool UserExists(string username);
+        User GetUser(string username);
+        User LoginUser(User user);
+        void CreateUser(User user);
+        User UpdateUser(string currentUsername, User userForUpdate);//تصغير الإسم
+        bool FollowUser(Guid currentUserId, Guid userToFollowId);
+        bool UnfollowUser(Guid currentUserId, Guid userToUnfollowId);
+        public bool IsFollowed(Guid FollowerId, Guid FolloweingId);
         void Save();
     }
 }

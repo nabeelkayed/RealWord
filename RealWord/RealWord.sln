@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.32228.343
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealWord.Web", "RealWord.Web\RealWord.Web.csproj", "{60BECE01-6E50-4298-BA06-5DD051285A1E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RealWord.Web", "RealWord.Web\RealWord.Web.csproj", "{60BECE01-6E50-4298-BA06-5DD051285A1E}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RealWord.Db", "..\RealWord.Db\RealWord.Db.csproj", "{151496F2-BFE9-41F1-816F-59801D54E86A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "..\Utils\Utils.csproj", "{0105EAF9-8780-40B0-9AB2-D7B599377177}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{151496F2-BFE9-41F1-816F-59801D54E86A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{151496F2-BFE9-41F1-816F-59801D54E86A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{151496F2-BFE9-41F1-816F-59801D54E86A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0105EAF9-8780-40B0-9AB2-D7B599377177}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0105EAF9-8780-40B0-9AB2-D7B599377177}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0105EAF9-8780-40B0-9AB2-D7B599377177}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0105EAF9-8780-40B0-9AB2-D7B599377177}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

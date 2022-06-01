@@ -1542,6 +1542,16 @@
         "runtime": {
           "lib/netstandard1.3/System.Xml.XmlSerializer.dll": {}
         }
+      },
+      "Utils/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v3.1",
+        "compile": {
+          "bin/placeholder/Utils.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Utils.dll": {}
+        }
       }
     }
   },
@@ -5785,13 +5795,19 @@
         "system.xml.xmlserializer.4.3.0.nupkg.sha512",
         "system.xml.xmlserializer.nuspec"
       ]
+    },
+    "Utils/1.0.0": {
+      "type": "project",
+      "path": "../Utils/Utils.csproj",
+      "msbuildProject": "../Utils/Utils.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
       "Microsoft.AspNetCore.Http.Abstractions >= 2.2.0",
       "Microsoft.EntityFrameworkCore.Design >= 5.0.17",
-      "Microsoft.EntityFrameworkCore.SqlServer >= 5.0.17"
+      "Microsoft.EntityFrameworkCore.SqlServer >= 5.0.17",
+      "Utils >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -5824,7 +5840,11 @@
       "frameworks": {
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
-          "projectReferences": {}
+          "projectReferences": {
+            "C:\\Users\\hp\\Desktop\\RealWord\\Utils\\Utils.csproj": {
+              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\Utils\\Utils.csproj"
+            }
+          }
         }
       },
       "warningProperties": {

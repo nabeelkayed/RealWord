@@ -94,3 +94,5 @@ C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Micro
 C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\FluentValidation.AspNetCore.dll
 C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\FluentValidation.DependencyInjectionExtensions.dll
 C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\obj\Debug\netcoreapp3.1\RealWord.Web.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Utils.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Utils.pdb

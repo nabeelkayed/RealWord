@@ -36,9 +36,9 @@ namespace RealWord.Web.Helpers
      
         public User LoginUser(UserLoginDto userLogin)
         {
-            var a = _IUserRepository.LoginUser(_mapper.Map<User>(userLogin));
+            var user = _IUserRepository.LoginUser(_mapper.Map<User>(userLogin));
 
-            return a;
+            return user;
         }
         public string Generate(User user)
         {

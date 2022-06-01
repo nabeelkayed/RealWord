@@ -47,12 +47,12 @@ namespace RealWord.Web.controllers
             {
                 var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
-                ProfileToReturn.Following = _IUserRepository.IsFollow(CurrentUser, User);
-
                 if (CurrentUsername == username)
                 {
                     ProfileToReturn.Following = false;
-                }                 
+                }
+
+                ProfileToReturn.Following = _IUserRepository.IsFollowed(CurrentUser.UserId, User.UserId);          
             }
 
             return Ok(new { profile = ProfileToReturn });
@@ -61,8 +61,8 @@ namespace RealWord.Web.controllers
         [HttpPost("{username}/follow")]
         public ActionResult<ProfileDto> Follow(string username)
         {
-            var User = _IUserRepository.GetUser(username);
-            if (User == null)
+            var userToFollow = _IUserRepository.GetUser(username);
+            if (userToFollow == null) 
             { 
                 return NotFound();
             }
@@ -74,7 +74,7 @@ namespace RealWord.Web.controllers
             }
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
-            var UserFollowed = _IUserRepository.FollowUser(CurrentUser, User);
+            var UserFollowed = _IUserRepository.FollowUser(CurrentUser.UserId, userToFollow.UserId);
             if (UserFollowed)
             {
                 _IUserRepository.Save();
@@ -91,8 +91,8 @@ namespace RealWord.Web.controllers
         [HttpDelete("{username}/follow")]
         public ActionResult<ProfileDto> UnFollow(string username)//هل كل انبت بفحصه
         {
-            var User = _IUserRepository.GetUser(username);
-            if (User == null)
+            var userToUnfollow = _IUserRepository.GetUser(username);
+            if (userToUnfollow == null)
             {
                 return NotFound();
             }
@@ -104,7 +104,7 @@ namespace RealWord.Web.controllers
             }
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
-            var UserUnfollowed = _IUserRepository.UnfollowUser(CurrentUser, User);
+            var UserUnfollowed = _IUserRepository.UnfollowUser(CurrentUser.UserId, userToUnfollow.UserId);
             if (UserUnfollowed)
             {
                 _IUserRepository.Save();

@@ -32,8 +32,9 @@ namespace RealWord.Web.Controllers
         [HttpGet]
         public ActionResult<TagDto> GetTags()
         {
-            var Tags = _ITagRepository.GetTags();
-            return Ok(_mapper.Map<TagDto>(Tags));
+            var tags = _ITagRepository.GetTags();
+
+            return Ok(_mapper.Map<TagDto>(tags));
         }
     }
 }

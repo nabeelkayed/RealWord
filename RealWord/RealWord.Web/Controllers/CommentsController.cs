@@ -38,33 +38,35 @@ namespace RealWord.Web.controllers
         }
 
         [HttpPost("{slug}/comments")]
-        public ActionResult<CommentDto> AddCommentToArticle(string slug, CommentForCreationDto CommentForCreation)
+        public ActionResult<CommentDto> AddCommentToArticle(string slug, CommentForCreationDto commentForCreation)
         {
             if (!_IArticleRepository.ArticleExists(slug))
             {
                 return NotFound();
             }
 
-            var CommentEntityForCreation = _mapper.Map<Comment>(CommentForCreation);
 
             var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
-            CommentEntityForCreation.UserId = CurrentUser.UserId;
+
+            var commentEntityForCreation = _mapper.Map<Comment>(commentForCreation);
+            
+            commentEntityForCreation.UserId = CurrentUser.UserId;
 
             var Article = _IArticleRepository.GetArticle(slug);
-            CommentEntityForCreation.ArticleId = Article.ArticleId;
+            commentEntityForCreation.ArticleId = Article.ArticleId;
 
-            var TimeStamp = DateTime.Now;
-            CommentEntityForCreation.CreatedAt = TimeStamp;
-            CommentEntityForCreation.UpdatedAt = TimeStamp;
+            var timeStamp = DateTime.Now;
+            commentEntityForCreation.CreatedAt = timeStamp;
+            commentEntityForCreation.UpdatedAt = timeStamp;
 
-            CommentEntityForCreation.CommentId = Guid.NewGuid();
+            commentEntityForCreation.CommentId = Guid.NewGuid();
 
-            _ICommentRepository.CreateComment(CommentEntityForCreation);
+            _ICommentRepository.CreateComment(commentEntityForCreation);
             _ICommentRepository.Save();
 
-            var CreatedCommentToReturn = _mapper.Map<CommentDto>(CommentEntityForCreation);
-            return Ok(new { comment = CreatedCommentToReturn });
+            var createdCommentToReturn = _mapper.Map<CommentDto>(commentEntityForCreation);
+            return Ok(new { comment = createdCommentToReturn });
         }
 
         [AllowAnonymous]
@@ -76,21 +78,22 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var Comments = _ICommentRepository.GetCommentsForArticle(slug);
-            var CommentsToReturn = _mapper.Map<IEnumerable<CommentDto>>(Comments);
+            var comments = _ICommentRepository.GetCommentsForArticle(slug);
+            var commentsToReturn = _mapper.Map<IEnumerable<CommentDto>>(comments);
 
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (CurrentUsername != null)
+            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            
+            if (currentUsername != null)
             {
                 //أفحص اذا هاي الكومنتات اله وشو ارجع الفلو
-                foreach (var x in CommentsToReturn)
+                foreach (var x in commentsToReturn)
                 {//هون بدي اعمل موضوع الفلو لما يكون مسجل دخول 
                     x.Author.Following = true;
                     //أعمل كود برجعلي برفايل مع انه متابعه أو لا
                 }
             }
 
-            return Ok(new { comments = CommentsToReturn });
+            return Ok(new { comments = commentsToReturn });
         }
 
         [HttpDelete("{slug}/comments/{id}")]
@@ -101,13 +104,13 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var Comment = _ICommentRepository.GetComment(id);
-            if (Comment == null)
+            var comment = _ICommentRepository.GetComment(id);
+            if (comment == null)
             {
                 return NotFound();
             }
 
-            _ICommentRepository.DeleteComment(Comment);
+            _ICommentRepository.DeleteComment(comment);
             _ICommentRepository.Save();
 
             return NoContent();

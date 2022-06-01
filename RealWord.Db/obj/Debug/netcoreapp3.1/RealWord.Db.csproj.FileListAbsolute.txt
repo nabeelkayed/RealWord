@@ -24,3 +24,6 @@ C:\Users\hp\Desktop\RealWord\RealWord.Db\obj\Debug\netcoreapp3.1\RealWord.Db.csp
 C:\Users\hp\Desktop\RealWord\RealWord.Db\obj\Debug\netcoreapp3.1\RealWord.Db.dll
 C:\Users\hp\Desktop\RealWord\RealWord.Db\obj\Debug\netcoreapp3.1\RealWord.Db.pdb
 C:\Users\hp\Desktop\RealWord\RealWord.Db\obj\Debug\netcoreapp3.1\RealWord.Db.genruntimeconfig.cache
+C:\Users\hp\Desktop\RealWord\RealWord.Db\bin\Debug\netcoreapp3.1\Utils.dll
+C:\Users\hp\Desktop\RealWord\RealWord.Db\bin\Debug\netcoreapp3.1\Utils.pdb
+C:\Users\hp\Desktop\RealWord\RealWord.Db\obj\Debug\netcoreapp3.1\RealWord.Db.csproj.CopyComplete

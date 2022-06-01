@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using RealWord.Db.Entities;
+using RealWord.Utils.ResourceParameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using RealWord.Utils.Utils;
+
 
 namespace RealWord.Db.Repositories
 {
@@ -16,156 +19,169 @@ namespace RealWord.Db.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public bool ArticleExists(string Slug)
+        public bool ArticleExists(string slug)
         {
-            if (String.IsNullOrEmpty(Slug))///هذا الفحص لازم نفعمله على كل انبت
+            if (String.IsNullOrEmpty(slug))
             {
-                throw new ArgumentNullException(nameof(Slug));
+                throw new ArgumentNullException(nameof(slug));
             }
 
-            return _context.Articles.Any(a => a.Slug == Slug);//هل لازم أفصل الجملة عن الريتيرن
+            bool articleExists = _context.Articles.Any(a => a.Slug == slug);
+
+            return articleExists;
         }
-        public Article GetArticle(string Slug)
+        public Article GetArticle(string slug)
         {
-            return _context.Articles.FirstOrDefault(a => a.Slug == Slug);
+            if (String.IsNullOrEmpty(slug))
+            {
+                throw new ArgumentNullException(nameof(slug));
+            }
+
+            var article = _context.Articles.FirstOrDefault(a => a.Slug == slug);
+
+            return article;
         }
-        public void CreateArticle(Article Article, List<string> TagList)
+        public List<Article> GetArticles(ArticlesParameters articlesParameters)
         {
-            var Slugs = _context.Articles.Select(a => a.Slug).ToList();
-            //فحص اذا كان العنوان مكرر
-            if (!Slugs.Contains(Article.Slug))
+            var articles = _context.Articles.AsQueryable();
+
+            if (!string.IsNullOrEmpty(articlesParameters.tag))
             {
-                _context.Articles.Add(Article);
+                var tag = articlesParameters.tag.Trim();
+                var userfavarets = _context.ArticleTags.Where(af => af.TagId == tag)
+                                                            .Select(a => a.ArticleId).ToList();
+                articles = articles.Where(a => userfavarets.Contains(a.ArticleId));
             }
-            else
+            if (!string.IsNullOrEmpty(articlesParameters.author))
             {
-
+                var authorname = articlesParameters.author.Trim();
+                var user = _context.Users.Where(u => u.Username == authorname).FirstOrDefault();
+                articles = articles.Where(a => a.UserId == user.UserId);
             }
-
-            var Tags = _context.Tags.Select(t => t.TagId).ToList();
-            foreach (var Tag in TagList)
+            if (!string.IsNullOrEmpty(articlesParameters.favorited))
             {
-                if (!Tags.Contains(Tag))
-                {
-                    _context.Tags.Add(new Tag { TagId = Tag });
-                }
-                _context.ArticleTags.Add(new ArticleTags { TagId = Tag, ArticleId = Article.ArticleId });
-            }
-        }
-        public Article UpdateArticle(User User, string Slug, Article Article)
-        {
-            //لازم اتأكد انها المقال تبعته لأنه ما بقدر يعدل على أي مقال 
-            var UpdatedArticle = _context.Articles.Where(a => a.UserId == User.UserId).FirstOrDefault(a => a.Slug == Slug);
+                var username = articlesParameters.favorited.Trim();
+                var user = _context.Users.Where(u => u.Username == username).FirstOrDefault();
 
-            if (!string.IsNullOrWhiteSpace(Article.Title))
-            {
-                UpdatedArticle.Title = Article.Title;
-                // a.Slug= Slug.GenerateSlug(articleEntity.Title);
-            }
-
-            if (!string.IsNullOrWhiteSpace(Article.Description))
-            {
-                UpdatedArticle.Description = Article.Description;
-            }
-
-            if (!string.IsNullOrWhiteSpace(Article.Body))
-            {
-                UpdatedArticle.Body = Article.Body;
-            }
-
-            UpdatedArticle.UpdatedAt = DateTime.Now;
-
-            return UpdatedArticle;
-        }
-        public void DeleteArticle(Article Article)
-        {
-            _context.Articles.Remove(Article);
-        }
-
-        public List<Article> GetArticles(string Tag, string Author, string Favorited, int Limit, int Offset)
-        {
-            var user = new User();
-            var Articles = _context.Articles.ToList();//.AsQueryable();
-
-            if (!string.IsNullOrEmpty(Tag))
-            {
-                // Articles = Articles.Where(a => a.Tags.Contains(tag)).ToList();
-
-                // Articles = Articles.Include(a => a.Tags.Where(a => a.TagId == tag));
-            }
-            if (!string.IsNullOrEmpty(Author))
-            {
-                //بدنا اليوزر الحالي
-                //بعدين بدنا كل المقالات الهو كاتبها
-                Articles = Articles.Where(a => a.UserId == user.UserId).ToList();
-                //Articles = Articles.Include(a => a.User.Username == author);
-            }
-            if (!string.IsNullOrEmpty(Favorited))
-            {
-                // بدنا اليوزر الحالي
-                //بعدين بدنا نجيب كل المقالات الي اليوزر الحالي متابعها
-                Articles = Articles.Where(a => a.UserId == user.UserId).ToList();
+                var userfavarets = _context.ArticleFavorites.Where(af => af.UserId == user.UserId)
+                                                            .Select(a => a.ArticleId).ToList();
+                articles = articles.Where(a => userfavarets.Contains(a.ArticleId));
                 //Articles = Articles.Include(a => a.Favorites.Where(a => a.User.Username == favorited));
             }
+            //هل اذا كامنت المقالات فاضية بصير مشكلة عند take
+            articles = articles.Skip(articlesParameters.offset)
+                               .Take(articlesParameters.limit)
+                               .OrderByDescending(x => x.CreatedAt);
 
-            //أفحص اذا ما كان فيه ولا مقال
-            // Articles = Articles.Skip(offset).Take(limit);
-            // .OrderByDescending(x => x.CreatedAt) الترتيب مهم
-
-            return Articles.ToList();
+            return articles.ToList();
         }
-        public List<Article> GetFeedArticles(User CurrentUser, int Limit, int Offset)
+        public List<Article> GetFeedArticles(Guid currentUserId, FeedArticlesParameters feedArticlesParameters)
         {
-            var Articles = _context.Articles.AsQueryable();
-            //مين الناس الي متابعهم اليوزر الحالي 
-            //اجيب مقالات كل واحد فيهم
             //أعدل كلمة folloing في كل مكان
-            var UseFollowings = _context.UserFollowers.Where(u => u.FollowerId == CurrentUser.UserId).Select(a => a.FolloweingId).ToList();
-            // أفحص اذا ما كان فيه ولا مقال أو ولا متابع
+            var userFollowings = _context.UserFollowers.Where(uf => uf.FollowerId == currentUserId)
+                                                      .Select(uf => uf.FolloweingId).ToList();
+            if (!userFollowings.Any())
+            {
+                throw new ArgumentNullException(nameof(userFollowings));
+            }
 
-            var FeedArticles = _context.Articles.Where(a => UseFollowings.Contains(a.UserId)).OrderByDescending(x => x.CreatedAt)
-                .Skip(Offset).Take(Limit).ToList();
-            return FeedArticles;
-            // xx=xx.Skip(offset).Take(limit);
-            /* foreach(var f in x)
-             {
-                 var g = _context.Articles.Where(a => a.UserId==f);
-             }*/
-            // Articles = Articles.Skip(offset).Take(limit);
-
-            // Articles = Articles.Where(a => a.User == currUser).Skip(offset).Take(limit);
-
-            // return Articles.ToList();
-
+            var feedArticles = _context.Articles.Where(a => userFollowings.Contains(a.UserId))
+                                                .OrderByDescending(x => x.CreatedAt)
+                                                .Skip(feedArticlesParameters.offset)
+                                                .Take(feedArticlesParameters.limit).ToList();
+            return feedArticles;
         }
-        public bool FavoriteArticle(User CurrentUser, Article Article)//هل يرجع مقال والا لا
+        public void CreateArticle(Article article, List<string> tagList)
         {
-            if (Isfavorite(CurrentUser, Article))
+            var Slugs = _context.Articles.Select(a => a.Slug).ToList();
+            if (Slugs.Contains(article.Slug))
+            {
+                throw new ArgumentNullException(nameof(article.Slug));
+            }
+            _context.Articles.Add(article);
+
+            if (tagList != null && tagList.Any())
+            {
+                var tags = _context.Tags.Select(t => t.TagId).ToList();
+
+                foreach (var tag in tagList)
+                {
+                    if (!tags.Contains(tag))
+                    {
+                        _context.Tags.Add(new Tag { TagId = tag });
+                    }
+                    _context.ArticleTags.Add(new ArticleTags { TagId = tag, ArticleId = article.ArticleId });
+                }
+            }
+        }
+        public Article UpdateArticle(Guid currentUserId, string slug, Article articleForUpdate)
+        {
+            var updatedArticle = _context.Articles.Where(a => a.UserId == currentUserId)
+                                                  .FirstOrDefault(a => a.Slug == slug);
+            if (updatedArticle == null)
+            {
+                throw new ArgumentNullException(nameof(updatedArticle));
+            }
+
+            if (!string.IsNullOrWhiteSpace(articleForUpdate.Title))
+            {
+                updatedArticle.Title = articleForUpdate.Title;
+                updatedArticle.Slug = Slug.GenerateSlug(articleForUpdate.Title);
+            }
+
+            if (!string.IsNullOrWhiteSpace(articleForUpdate.Description))
+            {
+                updatedArticle.Description = articleForUpdate.Description;
+            }
+
+            if (!string.IsNullOrWhiteSpace(articleForUpdate.Body))
+            {
+                updatedArticle.Body = articleForUpdate.Body;
+            }
+
+            updatedArticle.UpdatedAt = DateTime.Now;
+
+            return updatedArticle;
+        }
+        public void DeleteArticle(Article article)
+        {
+            _context.Articles.Remove(article);
+        }
+        public bool FavoriteArticle(Guid currentUserId, Guid articleToFavoriteId)
+        {
+            bool isFavorited = Isfavorited(currentUserId, articleToFavoriteId);
+            if (isFavorited)
             {
                 return false;
             }
 
-            var ArticleFavorite = new ArticleFavorites { ArticleId = Article.ArticleId, UserId = CurrentUser.UserId };
-            _context.ArticleFavorites.Add(ArticleFavorite);
+            var articleFavorite =
+                new ArticleFavorites { ArticleId = articleToFavoriteId, UserId = currentUserId };
+            _context.ArticleFavorites.Add(articleFavorite);
 
             return true;
         }
-        public bool UnfavoriteArticle(User CurrentUser, Article Article)
+        public bool UnfavoriteArticle(Guid currentUserId, Guid articleToUnFavoriteId)
         {
-            if (!Isfavorite(CurrentUser, Article))
+            bool isUnfavorited = !Isfavorited(currentUserId, articleToUnFavoriteId);
+            if (isUnfavorited)
             {
                 return false;
             }
 
-            var ArticleFavorite = new ArticleFavorites { ArticleId = Article.ArticleId, UserId = CurrentUser.UserId };
-            _context.ArticleFavorites.Remove(ArticleFavorite);
+            var articleFavorite =
+                new ArticleFavorites { ArticleId = articleToUnFavoriteId, UserId = currentUserId };
+
+            _context.ArticleFavorites.Remove(articleFavorite);
 
             return true;
         }
-        public bool Isfavorite(User CurrentUser, Article Article)
+        public bool Isfavorited(Guid UserId, Guid articleId)
         {
-            return _context.ArticleFavorites.Any(af => af.UserId == CurrentUser.UserId
-                       && af.ArticleId == Article.ArticleId);
+            var isfavorited =
+                _context.ArticleFavorites.Any(af => af.UserId == UserId && af.ArticleId == articleId);
+
+            return isfavorited;
         }
         public void Save()
         {

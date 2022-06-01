@@ -15,87 +15,105 @@ namespace RealWord.Db.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public bool UserExists(string Username)
+        public bool UserExists(string username)
         {
-            if (String.IsNullOrEmpty(Username))
+            if (String.IsNullOrEmpty(username))
             {
-                throw new ArgumentNullException(nameof(Username));
+                throw new ArgumentNullException(nameof(username));
             }
 
-            return _context.Users.Any(u => u.Username == Username);
+            bool userExists = _context.Users.Any(u => u.Username == username);
+
+            return userExists;
         }
-        public User LoginUser(User User)
+        public User GetUser(string username)
         {
-            var user = _context.Users.FirstOrDefault(u => u.Email == User.Email && u.Password == User.Password);
+            if (String.IsNullOrEmpty(username))
+            {
+                throw new ArgumentNullException(nameof(username));
+            }
+
+            var user = _context.Users.FirstOrDefault(u => u.Username == username);
+
             return user;
         }
-        public void CreateUser(User user)
+        public User LoginUser(User user)///بده دراسة
         {
+            var LoginUser = _context.Users.FirstOrDefault(u => u.Email == user.Email
+                                                            && u.Password == user.Password);
+            return LoginUser;
+        }
+        public void CreateUser(User user)
+        { 
+            var Emails = _context.Users.Select(a => a.Email).ToList();
+            if (Emails.Contains(user.Email))
+            {
+                throw new ArgumentNullException(nameof(user.Email));
+            }
+
             _context.Users.Add(user);
         }
-        public User GetUser(string Username)
+        public User UpdateUser(string currentUsername, User userForUpdate)
         {
-            if (String.IsNullOrEmpty(Username))
+            var updatedUser = _context.Users.FirstOrDefault(u => u.Username == currentUsername);
+
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Email))
             {
-                throw new ArgumentNullException(nameof(Username));
+                updatedUser.Email = userForUpdate.Email;
+            }
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Image))
+            {
+                updatedUser.Image = userForUpdate.Image;
+            }
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Bio))
+            {
+                updatedUser.Bio = userForUpdate.Bio;
+            }
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Password))
+            {
+                updatedUser.Password = userForUpdate.Password;
+            }
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Username))
+            {
+                updatedUser.Username = userForUpdate.Username;
             }
 
-            return _context.Users.FirstOrDefault(u => u.Username == Username);
+            return updatedUser;
         }
-        public User UpdateUser(User CurrUser, User User)
+        public bool FollowUser(Guid currentUserId, Guid userToFollowId)
         {
-            var UpdatedUser = _context.Users.FirstOrDefault(u => u.Username == CurrUser.Username);
-
-            if (!string.IsNullOrWhiteSpace(User.Email))
-            {
-                UpdatedUser.Email = User.Email;
-            }
-
-            if (!string.IsNullOrWhiteSpace(User.Image))
-            {
-                UpdatedUser.Image = User.Image;
-            }
-
-            if (!string.IsNullOrWhiteSpace(User.Bio))
-            {
-                UpdatedUser.Bio = User.Bio;
-            }
-            if (!string.IsNullOrWhiteSpace(User.Password))
-            {
-                UpdatedUser.Password = User.Password;
-            }
-            if (!string.IsNullOrWhiteSpace(User.Username))
-            {
-                UpdatedUser.Username = User.Username;
-            }
-            return UpdatedUser;
-        }
-        public bool FollowUser(User CurrentUser, User User)
-        {
-            if (IsFollow(CurrentUser, User))
-            {
-                return false;
-            }
-            var UserFollower = new UserFollowers { FollowerId = CurrentUser.UserId, FolloweingId = User.UserId };
-            _context.UserFollowers.Add(UserFollower);
-            return true;
-        }
-        public bool UnfollowUser(User CurrentUser, User User)
-        {
-            if (!IsFollow(CurrentUser, User))
+            bool isFollowed = IsFollowed(currentUserId, userToFollowId);
+            if (isFollowed)
             {
                 return false;
             }
 
-            var UserFollower = new UserFollowers { FollowerId = CurrentUser.UserId, FolloweingId = User.UserId };
-            _context.UserFollowers.Remove(UserFollower);
+            var userFollower =
+                new UserFollowers { FollowerId = currentUserId, FolloweingId = userToFollowId };
+            _context.UserFollowers.Add(userFollower);
 
             return true;
         }
-        public bool IsFollow(User CurrentUser, User user)
+        public bool UnfollowUser(Guid currentUserId, Guid userToUnfollowId)
         {
-            return _context.UserFollowers.Any(uf => uf.FollowerId == CurrentUser.UserId
-                        && uf.FolloweingId == user.UserId);
+            bool isUnfollowed = !IsFollowed(currentUserId, userToUnfollowId);
+            if (isUnfollowed)
+            {
+                return false;
+            }
+
+            var userFollower =
+                new UserFollowers { FollowerId = currentUserId, FolloweingId = userToUnfollowId };
+            _context.UserFollowers.Remove(userFollower);
+
+            return true;
+        }
+        public bool IsFollowed(Guid FollowerId, Guid FolloweingId)
+        {
+            bool isFollowed =
+                _context.UserFollowers.Any(uf => uf.FollowerId == FollowerId && uf.FolloweingId == FolloweingId);
+
+            return isFollowed;
         }
         public void Save()
         {
