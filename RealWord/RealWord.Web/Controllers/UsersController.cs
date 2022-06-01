@@ -55,6 +55,9 @@ namespace RealWord.Web.controllers
             var userToReturn = _mapper.Map<UserDto>(userLogedin);
             userToReturn.Token = _IAuthentication.Generate(userLogedin);
 
+           // var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+           // var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
+
             return Ok(new { user = userToReturn });
         }
         [AllowAnonymous]

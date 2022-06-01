@@ -45,7 +45,6 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-
             var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
 
@@ -60,12 +59,13 @@ namespace RealWord.Web.controllers
             commentEntityForCreation.CreatedAt = timeStamp;
             commentEntityForCreation.UpdatedAt = timeStamp;
 
-            commentEntityForCreation.CommentId = Guid.NewGuid();
+            //commentEntityForCreation.CommentId = Guid.NewGuid();
 
             _ICommentRepository.CreateComment(commentEntityForCreation);
             _ICommentRepository.Save();
 
             var createdCommentToReturn = _mapper.Map<CommentDto>(commentEntityForCreation);
+         
             return Ok(new { comment = createdCommentToReturn });
         }
 
@@ -86,9 +86,9 @@ namespace RealWord.Web.controllers
             if (currentUsername != null)
             {
                 //أفحص اذا هاي الكومنتات اله وشو ارجع الفلو
-                foreach (var x in commentsToReturn)
+                foreach (var comment in commentsToReturn)
                 {//هون بدي اعمل موضوع الفلو لما يكون مسجل دخول 
-                    x.Author.Following = true;
+                    comment.Author.Following = true;
                     //أعمل كود برجعلي برفايل مع انه متابعه أو لا
                 }
             }

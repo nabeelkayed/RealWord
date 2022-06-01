@@ -10,8 +10,8 @@ namespace RealWord.Web.Validators
     public class CommentForCreationValidator : AbstractValidator<CommentForCreationDto>
     {
         public CommentForCreationValidator()
-        { 
-            RuleFor(c => c.Body).NotEmpty().WithErrorCode("422");
+        {
+            RuleFor(c => c.Body).NotEmpty();
         }
     }
 }

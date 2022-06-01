@@ -10,7 +10,7 @@ namespace RealWord.Utils.ResourceParameters
         public string tag { get; set; }
         public string author { get; set; }
         public string favorited { get; set; }
-        public int limit { get; set; }
-        public int offset { get; set; }
+        public int limit { get; set; } = 20;
+        public int offset { get; set; } = 0;
     }
 }

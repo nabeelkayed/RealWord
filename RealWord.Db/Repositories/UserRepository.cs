@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using RealWord.Db.Entities;
 using System;
 using System.Collections.Generic;
@@ -33,7 +34,7 @@ namespace RealWord.Db.Repositories
                 throw new ArgumentNullException(nameof(username));
             }
 
-            var user = _context.Users.FirstOrDefault(u => u.Username == username);
+            var user = _context.Users.Include(a=>a.Articles).FirstOrDefault(u => u.Username == username);
 
             return user;
         }

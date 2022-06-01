@@ -28,7 +28,7 @@ namespace RealWord.Db.Repositories
         public List<Comment> GetCommentsForArticle(string slug)
         {
             var article = _context.Articles.FirstOrDefault(a => a.Slug == slug);
-            var articleComments = _context.Comments.Where(c => c.ArticleId == article.ArticleId).ToList();
+            var articleComments = _context.Comments.Where(c => c.ArticleId == article.ArticleId).Include(c=>c.User).ToList();
 
             return articleComments;
         }

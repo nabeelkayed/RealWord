@@ -7,7 +7,7 @@ namespace RealWord.Utils.ResourceParameters
 {
     public class FeedArticlesParameters
     {
-        public int limit { get; set; }
-        public int offset { get; set; }
+        public int limit { get; set; } = 20;
+        public int offset { get; set; } = 0;
     }
 }

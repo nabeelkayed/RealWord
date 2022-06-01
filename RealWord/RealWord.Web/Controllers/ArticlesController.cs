@@ -40,7 +40,7 @@ namespace RealWord.Web.controllers
         }
         [AllowAnonymous]
         [HttpGet]
-        public ActionResult<IEnumerable<ArticleDto>> GetArticles(ArticlesParameters articlesParameters)
+        public ActionResult<IEnumerable<ArticleDto>> GetArticles([FromQuery]ArticlesParameters articlesParameters)
         {
             var articles = _IArticleRepository.GetArticles(articlesParameters);
 
@@ -63,11 +63,10 @@ namespace RealWord.Web.controllers
         }
 
         [HttpGet("feed")]
-        public ActionResult<IEnumerable<ArticleDto>> FeedArticle(FeedArticlesParameters feedArticlesParameters)
+        public ActionResult<IEnumerable<ArticleDto>> FeedArticle([FromQuery] FeedArticlesParameters feedArticlesParameters)
         {
             var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
-
 
             var articles = _IArticleRepository.GetFeedArticles(CurrentUser.UserId, feedArticlesParameters);
 
@@ -75,8 +74,16 @@ namespace RealWord.Web.controllers
             {
                 //the followings have no articles
             }
+            var x = articles.Select(a => a.User).ToList();
+            var y= _mapper.Map<IEnumerable<ProfileDto>>(x);
 
             var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles);
+
+           /* foreach(var x in articlesToReturn)
+            {
+                x.Author.Following = _IArticleRepository.Isfavorited(CurrentUser.UserId,x.Author.);
+            }*/
+            // var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a=>a.Items["currentUserId"] = CurrentUser.UserId );
             int articlesCount = articles.Count();
 
             return Ok(new { articles = articlesToReturn, articlesCount = articlesCount });

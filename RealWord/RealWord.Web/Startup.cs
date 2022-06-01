@@ -18,6 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
+using RealWord.Web.Profiles;
 
 namespace RealWord.Web
 {
@@ -77,9 +78,11 @@ namespace RealWord.Web
             services.AddTransient<IValidator<UserLoginDto>, UserLoginValidator>();
 
 
-
+            services.AddHttpContextAccessor();
+           // services.AddTransient<IUserService, UserService>();
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
 
             services.AddControllers().AddFluentValidation();
             services.AddRazorPages();

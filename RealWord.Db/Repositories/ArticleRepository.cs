@@ -71,6 +71,10 @@ namespace RealWord.Db.Repositories
             //هل اذا كامنت المقالات فاضية بصير مشكلة عند take
             articles = articles.Skip(articlesParameters.offset)
                                .Take(articlesParameters.limit)
+                               .Include(a => a.User)
+                               .ThenInclude(a => a.Followerings)
+                               .Include(a => a.Tags)
+                               .Include(a => a.Favorites)
                                .OrderByDescending(x => x.CreatedAt);
 
             return articles.ToList();
@@ -86,11 +90,15 @@ namespace RealWord.Db.Repositories
             }
 
             var feedArticles = _context.Articles.Where(a => userFollowings.Contains(a.UserId))
+                                                .Include(a => a.User)
+                                                .ThenInclude(a => a.Followerings)
+                                                .Include(a => a.Tags)
+                                                .Include(a => a.Favorites)
                                                 .OrderByDescending(x => x.CreatedAt)
                                                 .Skip(feedArticlesParameters.offset)
                                                 .Take(feedArticlesParameters.limit).ToList();
             return feedArticles;
-        }
+        } 
         public void CreateArticle(Article article, List<string> tagList)
         {
             var Slugs = _context.Articles.Select(a => a.Slug).ToList();
