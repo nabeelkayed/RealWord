@@ -46,11 +46,11 @@ namespace RealWord.Web.controllers
             }
 
             var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
+            var CurrentUserId = _IUserRepository.GetUser(CurrentUsername).UserId;
 
             var commentEntityForCreation = _mapper.Map<Comment>(commentForCreation);
 
-            commentEntityForCreation.UserId = CurrentUser.UserId;
+            commentEntityForCreation.UserId = CurrentUserId;
 
             var Article = _IArticleRepository.GetArticle(slug);
             commentEntityForCreation.ArticleId = Article.ArticleId;
@@ -59,13 +59,10 @@ namespace RealWord.Web.controllers
             commentEntityForCreation.CreatedAt = timeStamp;
             commentEntityForCreation.UpdatedAt = timeStamp;
 
-            //commentEntityForCreation.CommentId = Guid.NewGuid();
-
             _ICommentRepository.CreateComment(commentEntityForCreation);
             _ICommentRepository.Save();
 
             var createdCommentToReturn = _mapper.Map<CommentDto>(commentEntityForCreation);
-
             return Ok(new { comment = createdCommentToReturn });
         }
 
@@ -79,34 +76,26 @@ namespace RealWord.Web.controllers
             }
 
             var comments = _ICommentRepository.GetCommentsForArticle(slug);
-            //var commentsToReturn = _mapper.Map<IEnumerable<CommentDto>>(comments,a => a.Items["currentUserId"] = Guid.NewGuid());
 
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (currentUsername != null)
             {
-                var currentUser = _IUserRepository.GetUser(currentUsername);
-                var commentsToReturn = new List<CommentDto>();
-
-               
+                var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
+                var commentsWhenLogin = new List<CommentDto>();
 
                 foreach (var comment in comments)
                 {
-                    var commentDto = _mapper.Map<CommentDto>(comment, a => a.Items["currentUserId"] = currentUser.UserId);
-                    var profileDto = _mapper.Map<ProfileDto>(comment.User, a => a.Items["currentUserId"] = currentUser.UserId);
+                    var commentDto = _mapper.Map<CommentDto>(comment, a => a.Items["currentUserId"] = currentUserId);
+                    var profileDto = _mapper.Map<ProfileDto>(comment.User, a => a.Items["currentUserId"] = currentUserId);
                     commentDto.Author = profileDto;
-                    commentsToReturn.Add(commentDto);
+                    commentsWhenLogin.Add(commentDto);
                 }
 
-                return Ok(new { comments = commentsToReturn });
+                return Ok(new { comments = commentsWhenLogin });
             }
-            var Final = _mapper.Map<IEnumerable<CommentDto>>(comments/*, a => a.Items["currentUserId"] = Guid.NewGuid()*/);
-            return Ok(new { comments = Final });
-            /* //أفحص اذا هاي الكومنتات اله وشو ارجع الفلو
-                 foreach (var comment in commentsToReturn)
-                 {//هون بدي اعمل موضوع الفلو لما يكون مسجل دخول 
-                     comment.Author.Following = true;
-                     //أعمل كود برجعلي برفايل مع انه متابعه أو لا
-                 }*/
+
+            var commentsToReturn1 = _mapper.Map<IEnumerable<CommentDto>>(comments);
+            return Ok(new { comments = commentsToReturn1 });
         }
 
         [HttpDelete("{slug}/comments/{id}")]
@@ -121,6 +110,13 @@ namespace RealWord.Web.controllers
             if (comment == null)
             {
                 return NotFound();
+            }
+
+            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
+            if (currentUserId != comment.UserId)
+            {
+                return BadRequest();
             }
 
             _ICommentRepository.DeleteComment(comment);

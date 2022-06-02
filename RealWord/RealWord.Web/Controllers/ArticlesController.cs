@@ -38,6 +38,7 @@ namespace RealWord.Web.controllers
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
         }
+
         [AllowAnonymous]
         [HttpGet]
         public ActionResult<IEnumerable<ArticleDto>> GetArticles([FromQuery] ArticlesParameters articlesParameters)
@@ -52,19 +53,19 @@ namespace RealWord.Web.controllers
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (currentUsername != null)
             {
-                var currentUser = _IUserRepository.GetUser(currentUsername);
+                var currentUserId = _IUserRepository.GetUser(currentUsername);
                 var articlesWhenLogin = new List<ArticleDto>();
 
                 foreach (var article in articles)
                 {
-                    var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
-                    var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUser.UserId);
+                    var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
+                    var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUserId);
                     articleDto.Author = profileDto;
                     articlesWhenLogin.Add(articleDto);
                 }
 
                 return Ok(new { articles = articlesWhenLogin, articlesCount = articlesCount });
-            } 
+            }
 
             var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a => a.Items["currentUserId"] = Guid.NewGuid());
 
@@ -84,7 +85,6 @@ namespace RealWord.Web.controllers
             }
             int articlesCount = articles.Count();
 
-
             var articlesToReturn = new List<ArticleDto>();
             foreach (var article in articles)
             {
@@ -95,24 +95,6 @@ namespace RealWord.Web.controllers
             }
 
             return Ok(new { articles = articlesToReturn, articlesCount = articlesCount });
-
-            // var x = articles.Select(a => a.User).ToList();
-            // var y = _mapper.Map<IEnumerable<ProfileDto>>(x, a => a.Items["currentUserId"] = currentUser.UserId);
-
-            //var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles);
-
-            /* foreach(var x in articlesToReturn)
-             {
-                 x.Author.Following = _IArticleRepository.Isfavorited(CurrentUser.UserId,x.Author.);
-             }*/
-            // var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a => a.Items["currentUserId"] = currentUser.UserId);
-
-
-            //أضيف fave and vave count
-            /*  foreach(var c in x)
-              {
-                  c.favorited = _IArticleRepository.Isfave(currUser, c.slug);
-              }*/
         }
 
         [AllowAnonymous]
@@ -125,8 +107,7 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var articleToReturn = _mapper.Map<ArticleDto>(article);
-
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = Guid.NewGuid());
             return Ok(new { article = articleToReturn });
         }
 
@@ -137,8 +118,8 @@ namespace RealWord.Web.controllers
             articleEntityForCreation.Slug = Slug.GenerateSlug(articleEntityForCreation.Title);
 
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var currentUser = _IUserRepository.GetUser(currentUsername);
-            articleEntityForCreation.UserId = currentUser.UserId;
+            var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
+            articleEntityForCreation.UserId = currentUserId;
 
             var timeStamp = DateTime.Now;
             articleEntityForCreation.CreatedAt = timeStamp;
@@ -147,10 +128,7 @@ namespace RealWord.Web.controllers
             _IArticleRepository.CreateArticle(articleEntityForCreation, articleForCreation.TagList);
             _IArticleRepository.Save();
 
-            var ArticleToReturn = _mapper.Map<ArticleDto>(articleEntityForCreation);
-            ArticleToReturn.Favorited = _IArticleRepository
-                                       .Isfavorited(currentUser.UserId, articleEntityForCreation.ArticleId);
-
+            var ArticleToReturn = _mapper.Map<ArticleDto>(articleEntityForCreation, a => a.Items["currentUserId"] = currentUserId);
             return Ok(new { article = ArticleToReturn });
         }
 
@@ -164,15 +142,19 @@ namespace RealWord.Web.controllers
             }
 
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var currentUser = _IUserRepository.GetUser(currentUsername);
+            var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
+
+            if (currentUserId != article.UserId)
+            {
+                return BadRequest();
+            }
 
             var articleEntityForUpdate = _mapper.Map<Article>(articleForUpdate);
 
-            var updatedArticle = _IArticleRepository.UpdateArticle(currentUser.UserId, slug, articleEntityForUpdate);
+            _IArticleRepository.UpdateArticle(article, articleEntityForUpdate);
             _IArticleRepository.Save();
 
-            var articleToReturn = _mapper.Map<ArticleDto>(updatedArticle);
-
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
             return Ok(new { article = articleToReturn });
         }
 
@@ -183,6 +165,13 @@ namespace RealWord.Web.controllers
             if (article == null)
             {
                 return NotFound();
+            }
+
+            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
+            if (currentUserId != article.UserId)
+            {
+                return BadRequest();
             }
 
             _IArticleRepository.DeleteArticle(article);
@@ -201,22 +190,18 @@ namespace RealWord.Web.controllers
             }
 
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var currentUser = _IUserRepository.GetUser(currentUsername);
+            var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
 
-
-            var articleFavorited = _IArticleRepository.FavoriteArticle(currentUser.UserId, article.ArticleId);
+            var articleFavorited = _IArticleRepository.FavoriteArticle(currentUserId, article.ArticleId);
             if (articleFavorited)
             {
                 _IArticleRepository.Save();
-
-                var articleToReturn = _mapper.Map<ArticleDto>(article);
-                articleToReturn.Favorited = true;
-
+             
+                var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
                 return Ok(new { article = articleToReturn });
             }
 
             return BadRequest($"You already favorite the article with slug {slug}");
-            //var ff = _IUserRepository.FollowUser(currUser, user);
         }
 
         [HttpDelete("{slug}/favorite")]
@@ -229,20 +214,18 @@ namespace RealWord.Web.controllers
             }
 
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var currentUser = _IUserRepository.GetUser(currentUsername);
+            var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
 
-            var articleUnfavorited = _IArticleRepository.UnfavoriteArticle(currentUser.UserId, article.ArticleId);
+            var articleUnfavorited = _IArticleRepository.UnfavoriteArticle(currentUserId, article.ArticleId);
             if (articleUnfavorited)
             {
                 _IArticleRepository.Save();
 
-                var articleToReturn = _mapper.Map<ArticleDto>(article);
-                articleToReturn.Favorited = false;
-
+                var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
                 return Ok(new { article = articleToReturn });
             }
-            return BadRequest($" You aren't favorite the article with slug {slug}");
-        }
 
+            return BadRequest($" You aren't favorite the article with slug {slug}");//لازم احذفها
+        }
     }
 }

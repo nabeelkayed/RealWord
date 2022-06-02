@@ -12,20 +12,6 @@ namespace RealWord.Web.Profiles
     {
         public CommentsProfile()
         {
-            /*var config = new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Comment, CommentDto>();
-
-                cfg.CreateMap<User, ProfileDto>()
-               .ForMember(
-                    dest => dest.Following,
-                    opt => opt.MapFrom((src, dest, destMember, context) => src.Followers.Select(s => s.FollowerId).ToList()
-                              .Contains((Guid)context.Items["currentUserId"])));
-            });
-            config.AssertConfigurationIsValid();
-
-            var mapper = config.CreateMapper();*/
-
             CreateMap<Comment, CommentDto>()
                 .ForMember(
                     dest => dest.Id,
@@ -45,5 +31,21 @@ namespace RealWord.Web.Profiles
                   opt => opt.MapFrom(src => src.User));*/
             CreateMap<CommentForCreationDto, Comment>();
         }
+        /*public IMapper nn()
+        {
+            var config = new MapperConfiguration(cfg =>
+            {
+                cfg.CreateMap<Comment, CommentDto>();
+
+                cfg.CreateMap<User, ProfileDto>()
+               .ForMember(
+                    dest => dest.Following,
+                    opt => opt.MapFrom((src, dest, destMember, context) => src.Followers.Select(s => s.FollowerId).ToList()
+                              .Contains((Guid)context.Items["currentUserId"])));
+            });
+            config.AssertConfigurationIsValid();
+
+            return config.CreateMapper();
+        }*/
     }
 }

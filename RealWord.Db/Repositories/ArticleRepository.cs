@@ -66,9 +66,7 @@ namespace RealWord.Db.Repositories
                 var userfavarets = _context.ArticleFavorites.Where(af => af.UserId == user.UserId)
                                                             .Select(a => a.ArticleId).ToList();
                 articles = articles.Where(a => userfavarets.Contains(a.ArticleId));
-                //Articles = Articles.Include(a => a.Favorites.Where(a => a.User.Username == favorited));
             }
-            //هل اذا كامنت المقالات فاضية بصير مشكلة عند take
             articles = articles.Skip(articlesParameters.offset)
                                .Take(articlesParameters.limit)
                                .Include(a => a.User)
@@ -81,7 +79,6 @@ namespace RealWord.Db.Repositories
         }
         public List<Article> GetFeedArticles(Guid currentUserId, FeedArticlesParameters feedArticlesParameters)
         {
-            //أعدل كلمة folloing في كل مكان
             var userFollowings = _context.UserFollowers.Where(uf => uf.FollowerId == currentUserId)
                                                       .Select(uf => uf.FolloweingId).ToList();
             if (!userFollowings.Any())
@@ -122,10 +119,8 @@ namespace RealWord.Db.Repositories
                 }
             }
         }
-        public Article UpdateArticle(Guid currentUserId, string slug, Article articleForUpdate)
+        public void UpdateArticle(Article updatedArticle, Article articleForUpdate)
         {
-            var updatedArticle = _context.Articles.Where(a => a.UserId == currentUserId)
-                                                  .FirstOrDefault(a => a.Slug == slug);
             if (updatedArticle == null)
             {
                 throw new ArgumentNullException(nameof(updatedArticle));
@@ -148,8 +143,6 @@ namespace RealWord.Db.Repositories
             }
 
             updatedArticle.UpdatedAt = DateTime.Now;
-
-            return updatedArticle;
         }
         public void DeleteArticle(Article article)
         {

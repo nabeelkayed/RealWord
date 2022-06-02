@@ -31,20 +31,21 @@ namespace RealWord.Web.Profiles
                 .ForMember(
                     dest => dest.FavoritesCount,
                     opt => opt.MapFrom(src => src.Favorites.Count))
-                .ForMember(
-                    dest => dest.Author,
-                    opt => opt.MapFrom(src => src.User))
+                /*  .ForMember(
+                      dest => dest.Author,
+                      opt => opt.MapFrom(src => src.User))*/
                 .ForMember(
                     dest => dest.TagList,
                     opt => opt.MapFrom(src => src.Tags.Select(s => s.TagId).ToList()))
                 .ForMember(
                     dest => dest.Favorited,
                     opt => opt.MapFrom((src, dest, destMember, context) => src.Favorites.Select(s => s.UserId).ToList()
-                              .Contains((Guid)context.Items["currentUserId"])))
-                .ForPath(
+                              .Contains((Guid)context.Items["currentUserId"])));
+               /* .ForPath(
                     dest => dest.Author.Following,
                     opt => opt.MapFrom(src => src.User.Followerings.Select(s => s.FolloweingId).ToList()
-                    .Contains(src.UserId)));
+                    .Contains(src.UserId)));*/
+               /////////////////////////////////////////
             /* .ForMember(
                  dest => dest.Author.Following,
                  opt => opt.MapFrom((Article src, ArticleDto dest, bool destMember, ResolutionContext context) => src.User.Followerings.Select(s => s.FolloweingId).ToList()

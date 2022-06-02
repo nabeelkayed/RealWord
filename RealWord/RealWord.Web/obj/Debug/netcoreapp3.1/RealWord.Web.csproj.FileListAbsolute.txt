@@ -96,3 +96,10 @@ C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Fluen
 C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\obj\Debug\netcoreapp3.1\RealWord.Web.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Utils.dll
 C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Utils.pdb
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Microsoft.AspNetCore.JsonPatch.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Microsoft.DotNet.PlatformAbstractions.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Microsoft.Extensions.DependencyModel.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Microsoft.OpenApi.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Swashbuckle.AspNetCore.Swagger.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Swashbuckle.AspNetCore.SwaggerGen.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Web\bin\Debug\netcoreapp3.1\Swashbuckle.AspNetCore.SwaggerUI.dll

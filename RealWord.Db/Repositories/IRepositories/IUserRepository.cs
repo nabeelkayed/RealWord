@@ -9,10 +9,10 @@ namespace RealWord.Db.Repositories
         User GetUser(string username);
         User LoginUser(User user);
         void CreateUser(User user);
-        User UpdateUser(string currentUsername, User userForUpdate);//تصغير الإسم
+        void UpdateUser(User updatedUser, User userForUpdate);
         bool FollowUser(Guid currentUserId, Guid userToFollowId);
         bool UnfollowUser(Guid currentUserId, Guid userToUnfollowId);
-        public bool IsFollowed(Guid FollowerId, Guid FolloweingId);
+        bool IsFollowed(Guid FollowerId, Guid FolloweingId);
         void Save();
     }
 }

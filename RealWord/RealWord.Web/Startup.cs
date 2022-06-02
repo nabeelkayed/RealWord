@@ -19,6 +19,7 @@ using System.Text;
 using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
 using RealWord.Web.Profiles;
+using Microsoft.AspNetCore.Mvc;
 
 namespace RealWord.Web
 {
@@ -38,7 +39,38 @@ namespace RealWord.Web
             {
                 setupAction.ReturnHttpNotAcceptable = true;
 
+               /* var jsonOutputFormatter = setupAction.OutputFormatters
+                   .OfType<JsonOutputFormatter>().FirstOrDefault();
+
+                if (jsonOutputFormatter != null)
+                {
+                    // remove text/json as it isn't the approved media type
+                    // for working with JSON at API level
+                    if (jsonOutputFormatter.SupportedMediaTypes.Contains("text/json"))
+                    {
+                        jsonOutputFormatter.SupportedMediaTypes.Remove("text/json");
+                    }
+                }*/
+
+
             }).AddXmlDataContractSerializerFormatters();
+
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    var actionExecutingContext =
+                        actionContext as Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext;
+
+                    if (actionContext.ModelState.ErrorCount > 0
+                        && actionExecutingContext?.ActionArguments.Count == actionContext.ActionDescriptor.Parameters.Count)
+                    {
+                        return new UnprocessableEntityObjectResult(actionContext.ModelState);
+                    }
+
+                    return new BadRequestObjectResult(actionContext.ModelState);
+                };
+            });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
               .AddJwtBearer(options =>
@@ -77,15 +109,22 @@ namespace RealWord.Web
             services.AddTransient<IValidator<ArticleForUpdateDto>, ArticleForUpdateValidator>();
             services.AddTransient<IValidator<UserLoginDto>, UserLoginValidator>();
 
-
-            services.AddHttpContextAccessor();
-           // services.AddTransient<IUserService, UserService>();
-
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
-
 
             services.AddControllers().AddFluentValidation();
             services.AddRazorPages();
+
+
+            services.AddSwaggerGen(setupAction =>
+            {
+                setupAction.SwaggerDoc(
+                    "RealWordAPISpecification",
+                    new Microsoft.OpenApi.Models.OpenApiInfo()
+                    {
+                        Title = "Real Word API",
+                        Version = "1",
+                    });
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -99,6 +138,16 @@ namespace RealWord.Web
             {
                 app.UseExceptionHandler("/Error");
             }
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(setupAction =>
+            {
+                setupAction.SwaggerEndpoint(
+                    "/swagger/RealWordAPISpecification/swagger.json",
+                    "Real Word API");
+                setupAction.RoutePrefix = "";
+            });
 
             app.UseStaticFiles();
 

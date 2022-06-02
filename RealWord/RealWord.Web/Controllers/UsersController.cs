@@ -43,7 +43,7 @@ namespace RealWord.Web.controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("users/login")]
+        [HttpPost("users/login")] 
         public IActionResult login(UserLoginDto userLogin)
         {
             var userLogedin = _IAuthentication.LoginUser(userLogin);
@@ -54,12 +54,9 @@ namespace RealWord.Web.controllers
 
             var userToReturn = _mapper.Map<UserDto>(userLogedin);
             userToReturn.Token = _IAuthentication.Generate(userLogedin);
-
-           // var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-           // var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
-
             return Ok(new { user = userToReturn });
         }
+
         [AllowAnonymous]
         [HttpPost("users")]
         public ActionResult<UserDto> CreateUser(UserForCreationDto userForCreation)
@@ -75,7 +72,6 @@ namespace RealWord.Web.controllers
 
             var userToReturn = _mapper.Map<UserDto>(userEntityForCreation);
             userToReturn.Token = Request.Headers[HeaderNames.Authorization];
-
             return Ok(new { user = userToReturn });
         }
 
@@ -87,7 +83,6 @@ namespace RealWord.Web.controllers
 
             var userToReturn = _mapper.Map<UserDto>(currentUser);
             userToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
-
             return Ok(new { user = userToReturn });
         }
 
@@ -95,15 +90,14 @@ namespace RealWord.Web.controllers
         public ActionResult<UserDto> UpdateUser(UserForUpdateDto userForUpdate)
         {
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            //var currentUser = _IUserRepository.GetUser(currentUsername);
+            var currentUser = _IUserRepository.GetUser(currentUsername);
 
             var userEntityForUpdate = _mapper.Map<User>(userForUpdate);
-            var updatedUser = _IUserRepository.UpdateUser(currentUsername, userEntityForUpdate);
+            _IUserRepository.UpdateUser(currentUser, userEntityForUpdate);
             _IUserRepository.Save();
-
-            var userToReturn = _mapper.Map<UserDto>(updatedUser);
+             
+            var userToReturn = _mapper.Map<UserDto>(currentUser);
             userToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
-
             return Ok(new { user = userToReturn });
         }
     }

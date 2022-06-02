@@ -24,7 +24,6 @@ namespace RealWord.Db.Repositories
             }
 
             bool userExists = _context.Users.Any(u => u.Username == username);
-
             return userExists;
         }
         public User GetUser(string username)
@@ -35,10 +34,9 @@ namespace RealWord.Db.Repositories
             }
 
             var user = _context.Users.Include(a=>a.Articles).FirstOrDefault(u => u.Username == username);
-
             return user;
         }
-        public  User LoginUser(User user)///بده دراسة
+        public  User LoginUser(User user)
         {
             var LoginUser = _context.Users.FirstOrDefault(u => u.Email == user.Email
                                                             && u.Password == user.Password);
@@ -54,10 +52,8 @@ namespace RealWord.Db.Repositories
 
             _context.Users.Add(user);
         }
-        public User UpdateUser(string currentUsername, User userForUpdate)
+        public void UpdateUser(User updatedUser, User userForUpdate)
         {
-            var updatedUser = _context.Users.FirstOrDefault(u => u.Username == currentUsername);
-
             if (!string.IsNullOrWhiteSpace(userForUpdate.Email))
             {
                 updatedUser.Email = userForUpdate.Email;
@@ -78,8 +74,6 @@ namespace RealWord.Db.Repositories
             {
                 updatedUser.Username = userForUpdate.Username;
             }
-
-            return updatedUser;
         }
         public bool FollowUser(Guid currentUserId, Guid userToFollowId)
         {
@@ -92,7 +86,6 @@ namespace RealWord.Db.Repositories
             var userFollower =
                 new UserFollowers { FollowerId = currentUserId, FolloweingId = userToFollowId };
             _context.UserFollowers.Add(userFollower);
-
             return true;
         }
         public bool UnfollowUser(Guid currentUserId, Guid userToUnfollowId)
@@ -106,14 +99,12 @@ namespace RealWord.Db.Repositories
             var userFollower =
                 new UserFollowers { FollowerId = currentUserId, FolloweingId = userToUnfollowId };
             _context.UserFollowers.Remove(userFollower);
-
             return true;
         }
         public bool IsFollowed(Guid FollowerId, Guid FolloweingId)
         {
             bool isFollowed =
                 _context.UserFollowers.Any(uf => uf.FollowerId == FollowerId && uf.FolloweingId == FolloweingId);
-
             return isFollowed;
         }
         public void Save()

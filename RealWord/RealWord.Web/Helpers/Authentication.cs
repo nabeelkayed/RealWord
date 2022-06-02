@@ -48,8 +48,7 @@ namespace RealWord.Web.Helpers
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Username),
-                new Claim(ClaimTypes.Email, user.Email)/*,
-                new Claim("UserId", user.UserId.ToString())*/
+                new Claim(ClaimTypes.Email, user.Email)
         };
 
 

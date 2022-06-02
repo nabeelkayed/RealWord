@@ -15,7 +15,7 @@ namespace RealWord.Db.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
-        public Comment GetComment(Guid id)//id مش لازم Guid
+        public Comment GetComment(Guid id)
         {
             if (id == null || id == Guid.Empty)
             {
