@@ -45,7 +45,7 @@ namespace RealWord.Web.controllers
             {
                 var CurrentUserId = _IUserRepository.GetUser(CurrentUsername).UserId;
                 var ProfileToReturnlogin = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = CurrentUserId);
-                return Ok(new { profile = ProfileToReturnlogin }); 
+                return Ok(new { profile = ProfileToReturnlogin });
             }
 
             var ProfileToReturn = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = Guid.NewGuid());
@@ -56,8 +56,8 @@ namespace RealWord.Web.controllers
         public ActionResult<ProfileDto> Follow(string username)
         {
             var userToFollow = _IUserRepository.GetUser(username);
-            if (userToFollow == null) 
-            { 
+            if (userToFollow == null)
+            {
                 return NotFound();
             }
 
@@ -66,17 +66,19 @@ namespace RealWord.Web.controllers
             {
                 return BadRequest("You can't follow yourself");
             }
-            var CurrentUserId = _IUserRepository.GetUser(CurrentUsername).UserId;
+            var currentUserId = _IUserRepository.GetUser(CurrentUsername).UserId;
 
-            var UserFollowed = _IUserRepository.FollowUser(CurrentUserId, userToFollow.UserId);
-            if (UserFollowed)
+            bool isFollowed = _IUserRepository.IsFollowed(currentUserId, userToFollow.UserId);
+            if (isFollowed)
             {
-                _IUserRepository.Save();
-                var ProfileToReturn = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = CurrentUserId);
-                return Ok(new { profile = ProfileToReturn });
+                return BadRequest($"You already follow the user with username {username}");
             }
 
-            return BadRequest($"You already follow the user with username {username}");
+            _IUserRepository.FollowUser(currentUserId, userToFollow.UserId);
+            _IUserRepository.Save();
+
+            var ProfileToReturn = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = currentUserId);
+            return Ok(new { profile = ProfileToReturn });
         }
 
         [HttpDelete("{username}/follow")]
@@ -93,17 +95,21 @@ namespace RealWord.Web.controllers
             {
                 return BadRequest("You can't unfollow yourself");
             }
-            var CurrentUserId = _IUserRepository.GetUser(CurrentUsername).UserId;
+            var currentUserId = _IUserRepository.GetUser(CurrentUsername).UserId;
 
-            var UserUnfollowed = _IUserRepository.UnfollowUser(CurrentUserId, userToUnfollow.UserId);
-            if (UserUnfollowed)
+            bool isUnfollowed = !_IUserRepository.IsFollowed(currentUserId, userToUnfollow.UserId);
+
+            if (isUnfollowed)
             {
-                _IUserRepository.Save();
-                var ProfileToReturn = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = CurrentUserId);
-                return Ok(new { profile = ProfileToReturn });
+                return BadRequest($"You aren't follow the user of username {username}");
             }
 
-            return BadRequest($"You aren't follow the user of username {username}");
+            _IUserRepository.UnfollowUser(currentUserId, userToUnfollow.UserId);
+            _IUserRepository.Save();
+
+            var ProfileToReturn = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = currentUserId);
+            return Ok(new { profile = ProfileToReturn });
+
         }
     }
 }

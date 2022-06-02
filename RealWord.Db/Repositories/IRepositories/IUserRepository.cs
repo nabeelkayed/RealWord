@@ -10,8 +10,8 @@ namespace RealWord.Db.Repositories
         User LoginUser(User user);
         void CreateUser(User user);
         void UpdateUser(User updatedUser, User userForUpdate);
-        bool FollowUser(Guid currentUserId, Guid userToFollowId);
-        bool UnfollowUser(Guid currentUserId, Guid userToUnfollowId);
+        void FollowUser(Guid currentUserId, Guid userToFollowId);
+        void UnfollowUser(Guid currentUserId, Guid userToUnfollowId);
         bool IsFollowed(Guid FollowerId, Guid FolloweingId);
         void Save();
     }

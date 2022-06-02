@@ -151,6 +151,22 @@ namespace RealWord.Web.controllers
 
             var articleEntityForUpdate = _mapper.Map<Article>(articleForUpdate);
 
+            if (!string.IsNullOrWhiteSpace(articleForUpdate.Title))
+            {
+                article.Title = articleForUpdate.Title;
+                article.Slug = Slug.GenerateSlug(articleForUpdate.Title);
+            }
+            if (!string.IsNullOrWhiteSpace(articleForUpdate.Description))
+            {
+                article.Description = articleForUpdate.Description;
+            }
+            if (!string.IsNullOrWhiteSpace(articleForUpdate.Body))
+            {
+                article.Body = articleForUpdate.Body;
+            }
+
+            article.UpdatedAt = DateTime.Now;
+
             _IArticleRepository.UpdateArticle(article, articleEntityForUpdate);
             _IArticleRepository.Save();
 
@@ -192,16 +208,17 @@ namespace RealWord.Web.controllers
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
 
-            var articleFavorited = _IArticleRepository.FavoriteArticle(currentUserId, article.ArticleId);
-            if (articleFavorited)
+            var isFavorited = _IArticleRepository.IsFavorited(currentUserId, article.ArticleId);
+            if (isFavorited)
             {
-                _IArticleRepository.Save();
-             
-                var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
-                return Ok(new { article = articleToReturn });
+                return BadRequest($"You already favorite the article with slug {slug}");
             }
 
-            return BadRequest($"You already favorite the article with slug {slug}");
+            _IArticleRepository.FavoriteArticle(currentUserId, article.ArticleId);
+            _IArticleRepository.Save();
+
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
+            return Ok(new { article = articleToReturn });
         }
 
         [HttpDelete("{slug}/favorite")]
@@ -216,16 +233,17 @@ namespace RealWord.Web.controllers
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
             var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
 
-            var articleUnfavorited = _IArticleRepository.UnfavoriteArticle(currentUserId, article.ArticleId);
-            if (articleUnfavorited)
+            var isUnfavorited = !_IArticleRepository.IsFavorited(currentUserId, article.ArticleId);
+
+            if (isUnfavorited)
             {
-                _IArticleRepository.Save();
-
-                var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
-                return Ok(new { article = articleToReturn });
+                return BadRequest($" You aren't favorite the article with slug {slug}");
             }
+            _IArticleRepository.UnfavoriteArticle(currentUserId, article.ArticleId);
+            _IArticleRepository.Save();
 
-            return BadRequest($" You aren't favorite the article with slug {slug}");//لازم احذفها
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
+            return Ok(new { article = articleToReturn });
         }
     }
 }

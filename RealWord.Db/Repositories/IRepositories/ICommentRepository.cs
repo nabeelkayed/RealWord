@@ -7,7 +7,7 @@ namespace RealWord.Db.Repositories
     public interface ICommentRepository
     {
         Comment GetComment(Guid id);
-        List<Comment> GetCommentsForArticle(string slug);
+        List<Comment> GetCommentsForArticle(Guid articleId);
         void CreateComment(Comment comment);
         void DeleteComment(Comment comment);
         void Save();

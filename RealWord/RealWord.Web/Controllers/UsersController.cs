@@ -93,6 +93,28 @@ namespace RealWord.Web.controllers
             var currentUser = _IUserRepository.GetUser(currentUsername);
 
             var userEntityForUpdate = _mapper.Map<User>(userForUpdate);
+
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Email))
+            {
+                currentUser.Email = userForUpdate.Email;
+            }
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Image))
+            {
+                currentUser.Image = userForUpdate.Image;
+            }
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Bio))
+            {
+                currentUser.Bio = userForUpdate.Bio;
+            }
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Password))
+            {
+                currentUser.Password = userForUpdate.Password;
+            }
+            if (!string.IsNullOrWhiteSpace(userForUpdate.Username))
+            {
+                currentUser.Username = userForUpdate.Username;
+            }
+
             _IUserRepository.UpdateUser(currentUser, userEntityForUpdate);
             _IUserRepository.Save();
              

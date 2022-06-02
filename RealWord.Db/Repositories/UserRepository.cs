@@ -44,7 +44,7 @@ namespace RealWord.Db.Repositories
         }
         public void CreateUser(User user)
         { 
-            var Emails = _context.Users.Select(a => a.Email).ToList();
+            var Emails = _context.Users.Select(a => a.Email).ToList();//يطلع برة 
             if (Emails.Contains(user.Email))
             {
                 throw new ArgumentNullException(nameof(user.Email));
@@ -53,53 +53,19 @@ namespace RealWord.Db.Repositories
             _context.Users.Add(user);
         }
         public void UpdateUser(User updatedUser, User userForUpdate)
-        {
-            if (!string.IsNullOrWhiteSpace(userForUpdate.Email))
-            {
-                updatedUser.Email = userForUpdate.Email;
-            }
-            if (!string.IsNullOrWhiteSpace(userForUpdate.Image))
-            {
-                updatedUser.Image = userForUpdate.Image;
-            }
-            if (!string.IsNullOrWhiteSpace(userForUpdate.Bio))
-            {
-                updatedUser.Bio = userForUpdate.Bio;
-            }
-            if (!string.IsNullOrWhiteSpace(userForUpdate.Password))
-            {
-                updatedUser.Password = userForUpdate.Password;
-            }
-            if (!string.IsNullOrWhiteSpace(userForUpdate.Username))
-            {
-                updatedUser.Username = userForUpdate.Username;
-            }
+        { 
         }
-        public bool FollowUser(Guid currentUserId, Guid userToFollowId)
+        public void FollowUser(Guid currentUserId, Guid userToFollowId)
         {
-            bool isFollowed = IsFollowed(currentUserId, userToFollowId);
-            if (isFollowed)
-            {
-                return false;
-            }
-
             var userFollower =
                 new UserFollowers { FollowerId = currentUserId, FolloweingId = userToFollowId };
             _context.UserFollowers.Add(userFollower);
-            return true;
         }
-        public bool UnfollowUser(Guid currentUserId, Guid userToUnfollowId)
+        public void UnfollowUser(Guid currentUserId, Guid userToUnfollowId)
         {
-            bool isUnfollowed = !IsFollowed(currentUserId, userToUnfollowId);
-            if (isUnfollowed)
-            {
-                return false;
-            }
-
             var userFollower =
                 new UserFollowers { FollowerId = currentUserId, FolloweingId = userToUnfollowId };
             _context.UserFollowers.Remove(userFollower);
-            return true;
         }
         public bool IsFollowed(Guid FollowerId, Guid FolloweingId)
         {

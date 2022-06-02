@@ -40,7 +40,8 @@ namespace RealWord.Web.controllers
         [HttpPost("{slug}/comments")]
         public ActionResult<CommentDto> AddCommentToArticle(string slug, CommentForCreationDto commentForCreation)
         {
-            if (!_IArticleRepository.ArticleExists(slug))
+            var ArticleNotExists = !_IArticleRepository.ArticleExists(slug);
+            if (ArticleNotExists)
             {
                 return NotFound();
             }
@@ -70,12 +71,14 @@ namespace RealWord.Web.controllers
         [HttpGet("{slug}/comments")]
         public ActionResult<IEnumerable<CommentDto>> GetCommentsFromArticle(string slug)
         {
-            if (!_IArticleRepository.ArticleExists(slug))
+            var article = _IArticleRepository.GetArticle(slug);
+
+            if (article == null)
             {
                 return NotFound();
             }
 
-            var comments = _ICommentRepository.GetCommentsForArticle(slug);
+            var comments = _ICommentRepository.GetCommentsForArticle(article.ArticleId);
 
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (currentUsername != null)

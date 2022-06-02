@@ -19,20 +19,18 @@ namespace RealWord.Db.Repositories
         {
             if (id == null || id == Guid.Empty)
             {
-                throw new ArgumentNullException(nameof(id));
+                throw new ArgumentNullException(nameof(id)); 
             }
 
             var comment = _context.Comments.Find(id);
             return comment;
         }
-        public List<Comment> GetCommentsForArticle(string slug)
+        public List<Comment> GetCommentsForArticle(Guid articleId)
         {
-            var article = _context.Articles.FirstOrDefault(a => a.Slug == slug);
-            var articleComments = _context.Comments.Where(c => c.ArticleId == article.ArticleId)
+            var articleComments = _context.Comments.Where(c => c.ArticleId == articleId)
                                                    .Include(c=>c.User)
                                                    .ThenInclude(c=>c.Followers)
                                                    .ToList();
-
             return articleComments;
         }
         public void CreateComment(Comment comment)

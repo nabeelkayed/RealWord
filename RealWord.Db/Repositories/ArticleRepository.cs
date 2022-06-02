@@ -27,7 +27,6 @@ namespace RealWord.Db.Repositories
             }
 
             bool articleExists = _context.Articles.Any(a => a.Slug == slug);
-
             return articleExists;
         }
         public Article GetArticle(string slug)
@@ -38,7 +37,6 @@ namespace RealWord.Db.Repositories
             }
 
             var article = _context.Articles.FirstOrDefault(a => a.Slug == slug);
-
             return article;
         }
         public List<Article> GetArticles(ArticlesParameters articlesParameters)
@@ -49,24 +47,27 @@ namespace RealWord.Db.Repositories
             {
                 var tag = articlesParameters.tag.Trim();
                 var userfavarets = _context.ArticleTags.Where(af => af.TagId == tag)
-                                                            .Select(a => a.ArticleId).ToList();
+                                                       .Select(a => a.ArticleId)
+                                                       .ToList();
                 articles = articles.Where(a => userfavarets.Contains(a.ArticleId));
             }
             if (!string.IsNullOrEmpty(articlesParameters.author))
             {
                 var authorname = articlesParameters.author.Trim();
-                var user = _context.Users.Where(u => u.Username == authorname).FirstOrDefault();
+                var user = _context.Users.FirstOrDefault(u => u.Username == authorname);
                 articles = articles.Where(a => a.UserId == user.UserId);
             }
             if (!string.IsNullOrEmpty(articlesParameters.favorited))
             {
                 var username = articlesParameters.favorited.Trim();
-                var user = _context.Users.Where(u => u.Username == username).FirstOrDefault();
-
+                var user = _context.Users.FirstOrDefault(u => u.Username == username);
+                
                 var userfavarets = _context.ArticleFavorites.Where(af => af.UserId == user.UserId)
-                                                            .Select(a => a.ArticleId).ToList();
+                                                            .Select(a => a.ArticleId)
+                                                            .ToList();
                 articles = articles.Where(a => userfavarets.Contains(a.ArticleId));
             }
+
             articles = articles.Skip(articlesParameters.offset)
                                .Take(articlesParameters.limit)
                                .Include(a => a.User)
@@ -80,7 +81,8 @@ namespace RealWord.Db.Repositories
         public List<Article> GetFeedArticles(Guid currentUserId, FeedArticlesParameters feedArticlesParameters)
         {
             var userFollowings = _context.UserFollowers.Where(uf => uf.FollowerId == currentUserId)
-                                                      .Select(uf => uf.FolloweingId).ToList();
+                                                       .Select(uf => uf.FolloweingId)
+                                                       .ToList();
             if (!userFollowings.Any())
             {
                 throw new ArgumentNullException(nameof(userFollowings));
@@ -98,7 +100,7 @@ namespace RealWord.Db.Repositories
         } 
         public void CreateArticle(Article article, List<string> tagList)
         {
-            var Slugs = _context.Articles.Select(a => a.Slug).ToList();
+            var Slugs = _context.Articles.Select(a => a.Slug).ToList();//نفس تبع الإيميل ما يكون متشابه عند اليوزر
             if (Slugs.Contains(article.Slug))
             {
                 throw new ArgumentNullException(nameof(article.Slug));
@@ -107,82 +109,45 @@ namespace RealWord.Db.Repositories
 
             if (tagList != null && tagList.Any())
             {
-                var tags = _context.Tags.Select(t => t.TagId).ToList();
-
+                var tags = _context.Tags.Select(t => t.TagId).ToList();//فحص تكرار التاجات ويين لازم يكون زي الإيميل والعنوان
+                
                 foreach (var tag in tagList)
                 {
                     if (!tags.Contains(tag))
                     {
-                        _context.Tags.Add(new Tag { TagId = tag });
+                        var tag1 = new Tag { TagId = tag };
+                        _context.Tags.Add(tag1);
                     }
-                    _context.ArticleTags.Add(new ArticleTags { TagId = tag, ArticleId = article.ArticleId });
+
+                    var ArticleTags = new ArticleTags { TagId = tag, ArticleId = article.ArticleId };
+                    _context.ArticleTags.Add(ArticleTags);
                 }
             }
         }
         public void UpdateArticle(Article updatedArticle, Article articleForUpdate)
         {
-            if (updatedArticle == null)
-            {
-                throw new ArgumentNullException(nameof(updatedArticle));
-            }
-
-            if (!string.IsNullOrWhiteSpace(articleForUpdate.Title))
-            {
-                updatedArticle.Title = articleForUpdate.Title;
-                updatedArticle.Slug = Slug.GenerateSlug(articleForUpdate.Title);
-            }
-
-            if (!string.IsNullOrWhiteSpace(articleForUpdate.Description))
-            {
-                updatedArticle.Description = articleForUpdate.Description;
-            }
-
-            if (!string.IsNullOrWhiteSpace(articleForUpdate.Body))
-            {
-                updatedArticle.Body = articleForUpdate.Body;
-            }
-
-            updatedArticle.UpdatedAt = DateTime.Now;
         }
         public void DeleteArticle(Article article)
         {
             _context.Articles.Remove(article);
         }
-        public bool FavoriteArticle(Guid currentUserId, Guid articleToFavoriteId)
+        public void FavoriteArticle(Guid currentUserId, Guid articleToFavoriteId)
         {
-            bool isFavorited = Isfavorited(currentUserId, articleToFavoriteId);
-            if (isFavorited)
-            {
-                return false;
-            }
-
             var articleFavorite =
                 new ArticleFavorites { ArticleId = articleToFavoriteId, UserId = currentUserId };
             _context.ArticleFavorites.Add(articleFavorite);
-
-            return true;
         }
-        public bool UnfavoriteArticle(Guid currentUserId, Guid articleToUnFavoriteId)
+        public void UnfavoriteArticle(Guid currentUserId, Guid articleToUnFavoriteId)
         {
-            bool isUnfavorited = !Isfavorited(currentUserId, articleToUnFavoriteId);
-            if (isUnfavorited)
-            {
-                return false;
-            }
-
             var articleFavorite =
                 new ArticleFavorites { ArticleId = articleToUnFavoriteId, UserId = currentUserId };
-
             _context.ArticleFavorites.Remove(articleFavorite);
-
-            return true;
         }
-        public bool Isfavorited(Guid UserId, Guid articleId)
+        public bool IsFavorited(Guid UserId, Guid articleId)
         {
-            var isfavorited =
+            var isFavorited =
                 _context.ArticleFavorites.Any(af => af.UserId == UserId && af.ArticleId == articleId);
-
-            return isfavorited;
+            return isFavorited;
         }
         public void Save()
         {
