@@ -43,34 +43,30 @@ namespace RealWord.Web.controllers
         public ActionResult<IEnumerable<ArticleDto>> GetArticles([FromQuery] ArticlesParameters articlesParameters)
         {
             var articles = _IArticleRepository.GetArticles(articlesParameters);
-
             if (articles == null)
             {
-                ///need to compleate
+                return NotFound("Their is no atricles");
             }
-            var articles11 = new List<ArticleDto>();
+            int articlesCount = articles.Count();
 
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-
             if (currentUsername != null)
             {
                 var currentUser = _IUserRepository.GetUser(currentUsername);
+                var articlesWhenLogin = new List<ArticleDto>();
 
-                foreach (var x in articles)
+                foreach (var article in articles)
                 {
-                    var y = _mapper.Map<ArticleDto>(x, a => a.Items["currentUserId"] = currentUser.UserId);
-                    var pp = _mapper.Map<ProfileDto>(x.User, a => a.Items["currentUserId"] = currentUser.UserId);
-                    y.Author = pp;
-                    articles11.Add(y);
-
+                    var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
+                    var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUser.UserId);
+                    articleDto.Author = profileDto;
+                    articlesWhenLogin.Add(articleDto);
                 }
-                int articlesCount11 = articles.Count();
-                return Ok(new { articles = articles11 , articlesCount = articlesCount11 });
 
+                return Ok(new { articles = articlesWhenLogin, articlesCount = articlesCount });
             } 
 
             var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a => a.Items["currentUserId"] = Guid.NewGuid());
-            int articlesCount = articles.Count();
 
             return Ok(new { articles = articlesToReturn, articlesCount = articlesCount });
         }
@@ -82,22 +78,26 @@ namespace RealWord.Web.controllers
             var currentUser = _IUserRepository.GetUser(currentUsername);
 
             var articles = _IArticleRepository.GetFeedArticles(currentUser.UserId, feedArticlesParameters);
-
             if (!articles.Any())
             {
-                //the followings have no articles
+                return NotFound("The followings have no articles");
             }
-            var final = new List<ArticleDto>();
-            foreach (var uu in articles)
+            int articlesCount = articles.Count();
+
+
+            var articlesToReturn = new List<ArticleDto>();
+            foreach (var article in articles)
             {
-                var pp = _mapper.Map<ProfileDto>(uu.User, a => a.Items["currentUserId"] = currentUser.UserId);
-                var aa = _mapper.Map<ArticleDto>(uu, a => a.Items["currentUserId"] = currentUser.UserId);
-                aa.Author = pp;
-                final.Add(aa);
+                var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUser.UserId);
+                var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
+                articleDto.Author = profileDto;
+                articlesToReturn.Add(articleDto);
             }
 
-            var x = articles.Select(a => a.User).ToList();
-            var y = _mapper.Map<IEnumerable<ProfileDto>>(x, a => a.Items["currentUserId"] = currentUser.UserId);
+            return Ok(new { articles = articlesToReturn, articlesCount = articlesCount });
+
+            // var x = articles.Select(a => a.User).ToList();
+            // var y = _mapper.Map<IEnumerable<ProfileDto>>(x, a => a.Items["currentUserId"] = currentUser.UserId);
 
             //var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles);
 
@@ -105,10 +105,8 @@ namespace RealWord.Web.controllers
              {
                  x.Author.Following = _IArticleRepository.Isfavorited(CurrentUser.UserId,x.Author.);
              }*/
-            var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a => a.Items["currentUserId"] = currentUser.UserId);
-            int articlesCount = articles.Count();
+            // var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a => a.Items["currentUserId"] = currentUser.UserId);
 
-            return Ok(new { articles = final, articlesCount = articlesCount });
 
             //أضيف fave and vave count
             /*  foreach(var c in x)
