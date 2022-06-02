@@ -40,7 +40,7 @@ namespace RealWord.Web.controllers
         }
         [AllowAnonymous]
         [HttpGet]
-        public ActionResult<IEnumerable<ArticleDto>> GetArticles([FromQuery]ArticlesParameters articlesParameters)
+        public ActionResult<IEnumerable<ArticleDto>> GetArticles([FromQuery] ArticlesParameters articlesParameters)
         {
             var articles = _IArticleRepository.GetArticles(articlesParameters);
 
@@ -48,15 +48,28 @@ namespace RealWord.Web.controllers
             {
                 ///need to compleate
             }
+            var articles11 = new List<ArticleDto>();
 
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
             if (currentUsername != null)
             {
+                var currentUser = _IUserRepository.GetUser(currentUsername);
 
-            }
+                foreach (var x in articles)
+                {
+                    var y = _mapper.Map<ArticleDto>(x, a => a.Items["currentUserId"] = currentUser.UserId);
+                    var pp = _mapper.Map<ProfileDto>(x.User, a => a.Items["currentUserId"] = currentUser.UserId);
+                    y.Author = pp;
+                    articles11.Add(y);
 
-            var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles);
+                }
+                int articlesCount11 = articles.Count();
+                return Ok(new { articles = articles11 , articlesCount = articlesCount11 });
+
+            } 
+
+            var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a => a.Items["currentUserId"] = Guid.NewGuid());
             int articlesCount = articles.Count();
 
             return Ok(new { articles = articlesToReturn, articlesCount = articlesCount });
@@ -65,28 +78,37 @@ namespace RealWord.Web.controllers
         [HttpGet("feed")]
         public ActionResult<IEnumerable<ArticleDto>> FeedArticle([FromQuery] FeedArticlesParameters feedArticlesParameters)
         {
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var CurrentUser = _IUserRepository.GetUser(CurrentUsername);
+            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var currentUser = _IUserRepository.GetUser(currentUsername);
 
-            var articles = _IArticleRepository.GetFeedArticles(CurrentUser.UserId, feedArticlesParameters);
+            var articles = _IArticleRepository.GetFeedArticles(currentUser.UserId, feedArticlesParameters);
 
             if (!articles.Any())
             {
                 //the followings have no articles
             }
-            var x = articles.Select(a => a.User).ToList();
-            var y= _mapper.Map<IEnumerable<ProfileDto>>(x);
-
-            var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles);
-
-           /* foreach(var x in articlesToReturn)
+            var final = new List<ArticleDto>();
+            foreach (var uu in articles)
             {
-                x.Author.Following = _IArticleRepository.Isfavorited(CurrentUser.UserId,x.Author.);
-            }*/
-            // var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a=>a.Items["currentUserId"] = CurrentUser.UserId );
+                var pp = _mapper.Map<ProfileDto>(uu.User, a => a.Items["currentUserId"] = currentUser.UserId);
+                var aa = _mapper.Map<ArticleDto>(uu, a => a.Items["currentUserId"] = currentUser.UserId);
+                aa.Author = pp;
+                final.Add(aa);
+            }
+
+            var x = articles.Select(a => a.User).ToList();
+            var y = _mapper.Map<IEnumerable<ProfileDto>>(x, a => a.Items["currentUserId"] = currentUser.UserId);
+
+            //var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles);
+
+            /* foreach(var x in articlesToReturn)
+             {
+                 x.Author.Following = _IArticleRepository.Isfavorited(CurrentUser.UserId,x.Author.);
+             }*/
+            var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a => a.Items["currentUserId"] = currentUser.UserId);
             int articlesCount = articles.Count();
 
-            return Ok(new { articles = articlesToReturn, articlesCount = articlesCount });
+            return Ok(new { articles = final, articlesCount = articlesCount });
 
             //أضيف fave and vave count
             /*  foreach(var c in x)

@@ -79,21 +79,34 @@ namespace RealWord.Web.controllers
             }
 
             var comments = _ICommentRepository.GetCommentsForArticle(slug);
-            var commentsToReturn = _mapper.Map<IEnumerable<CommentDto>>(comments);
-
+            //var commentsToReturn = _mapper.Map<IEnumerable<CommentDto>>(comments,a => a.Items["currentUserId"] = Guid.NewGuid());
+            var commentsToReturn = new List<CommentDto>();
             var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            
+
             if (currentUsername != null)
             {
-                //أفحص اذا هاي الكومنتات اله وشو ارجع الفلو
-                foreach (var comment in commentsToReturn)
-                {//هون بدي اعمل موضوع الفلو لما يكون مسجل دخول 
-                    comment.Author.Following = true;
-                    //أعمل كود برجعلي برفايل مع انه متابعه أو لا
-                }
-            }
+                var currentUser = _IUserRepository.GetUser(currentUsername);
 
-            return Ok(new { comments = commentsToReturn });
+                foreach (var x in comments)
+                {
+                   var y= _mapper.Map<CommentDto>(x, a => a.Items["currentUserId"] = currentUser.UserId);
+                    var pp = _mapper.Map<ProfileDto>(x.User, a => a.Items["currentUserId"] = currentUser.UserId);
+                    y.Author = pp;
+                    commentsToReturn.Add(y);
+
+                }
+
+                /* //أفحص اذا هاي الكومنتات اله وشو ارجع الفلو
+                 foreach (var comment in commentsToReturn)
+                 {//هون بدي اعمل موضوع الفلو لما يكون مسجل دخول 
+                     comment.Author.Following = true;
+                     //أعمل كود برجعلي برفايل مع انه متابعه أو لا
+                 }*/
+                return Ok(new { comments = commentsToReturn });
+
+            }
+            var Final = _mapper.Map<IEnumerable<CommentDto>>(comments, a => a.Items["currentUserId"] = Guid.NewGuid());
+            return Ok(new { comments = Final });
         }
 
         [HttpDelete("{slug}/comments/{id}")]

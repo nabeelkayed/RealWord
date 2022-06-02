@@ -72,7 +72,7 @@ namespace RealWord.Db.Repositories
             articles = articles.Skip(articlesParameters.offset)
                                .Take(articlesParameters.limit)
                                .Include(a => a.User)
-                               .ThenInclude(a => a.Followerings)
+                               .ThenInclude(a => a.Followers)
                                .Include(a => a.Tags)
                                .Include(a => a.Favorites)
                                .OrderByDescending(x => x.CreatedAt);
@@ -91,7 +91,7 @@ namespace RealWord.Db.Repositories
 
             var feedArticles = _context.Articles.Where(a => userFollowings.Contains(a.UserId))
                                                 .Include(a => a.User)
-                                                .ThenInclude(a => a.Followerings)
+                                                .ThenInclude(a => a.Followers)
                                                 .Include(a => a.Tags)
                                                 .Include(a => a.Favorites)
                                                 .OrderByDescending(x => x.CreatedAt)

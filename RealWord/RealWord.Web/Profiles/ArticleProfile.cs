@@ -17,15 +17,15 @@ namespace RealWord.Web.Profiles
         private readonly IUserRepository _IUserRepository;
 
 
-        
-        public ArticleProfile(IUserRepository userRepository, IHttpContextAccessor accessor)
+
+        public ArticleProfile(/*IUserRepository userRepository, IHttpContextAccessor accessor*/)
         {
-            _IUserRepository = userRepository ??
-            throw new ArgumentNullException(nameof(UserRepository));
-            this.accessor = accessor;
-            var x = accessor.HttpContext.User.Claims
-        .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            Guid userId = _IUserRepository.GetUser(x).UserId;
+            /* _IUserRepository = userRepository ??
+             throw new ArgumentNullException(nameof(UserRepository));
+             this.accessor = accessor;
+             var x = accessor.HttpContext.User.Claims
+         .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+             Guid userId = _IUserRepository.GetUser(x).UserId;*/
 
             CreateMap<Article, ArticleDto>()
                 .ForMember(
@@ -37,10 +37,14 @@ namespace RealWord.Web.Profiles
                 .ForMember(
                     dest => dest.TagList,
                     opt => opt.MapFrom(src => src.Tags.Select(s => s.TagId).ToList()))
+                .ForMember(
+                    dest => dest.Favorited,
+                    opt => opt.MapFrom((src, dest, destMember, context) => src.Favorites.Select(s => s.UserId).ToList()
+                              .Contains((Guid)context.Items["currentUserId"])))
                 .ForPath(
                     dest => dest.Author.Following,
                     opt => opt.MapFrom(src => src.User.Followerings.Select(s => s.FolloweingId).ToList()
-                    .Contains(userId)));
+                    .Contains(src.UserId)));
             /* .ForMember(
                  dest => dest.Author.Following,
                  opt => opt.MapFrom((Article src, ArticleDto dest, bool destMember, ResolutionContext context) => src.User.Followerings.Select(s => s.FolloweingId).ToList()
@@ -74,10 +78,7 @@ namespace RealWord.Web.Profiles
                  opt => opt.MapFrom(src => src.User.Followerings.Select(s => s.FolloweingId).ToList()
                  .Contains(src.UserId)))*/
 
-            /*  .ForMember(
-                dest => dest.Favorited,
-                opt => opt.MapFrom(src => src.Favorites.Select(a => a.UserId).ToList()
-                .Contains(src.UserId)));*/
+            /*  */
             ///////////////////////////////////////////////
             //User.Favorites.Any(a=>a.UserId==src.Favorites.Contains());
             CreateMap<ArticleForCreationDto, Article>();

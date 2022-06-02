@@ -51,8 +51,10 @@ namespace RealWord.Web.controllers
                 {
                     ProfileToReturn.Following = false;
                 }
-
-                ProfileToReturn.Following = _IUserRepository.IsFollowed(CurrentUser.UserId, User.UserId);          
+                else
+                {
+                    ProfileToReturn.Following = _IUserRepository.IsFollowed(CurrentUser.UserId, User.UserId);
+                }
             }
 
             return Ok(new { profile = ProfileToReturn });

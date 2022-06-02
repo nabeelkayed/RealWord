@@ -38,7 +38,7 @@ namespace RealWord.Db.Repositories
 
             return user;
         }
-        public User LoginUser(User user)///بده دراسة
+        public  User LoginUser(User user)///بده دراسة
         {
             var LoginUser = _context.Users.FirstOrDefault(u => u.Email == user.Email
                                                             && u.Password == user.Password);

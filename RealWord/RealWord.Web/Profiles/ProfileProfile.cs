@@ -12,10 +12,19 @@ namespace RealWord.Web.Profiles
     {
         public ProfileProfile()
         {
-            CreateMap<User, ProfileDto>();
-                /*.ForMember(
-                    dest => dest.following,
-                    opt => opt.MapFrom(src => src.Followers.Any(u=>u.FollowerId==)); ;*/
+            CreateMap<User, ProfileDto>()
+             .ForMember(
+                    dest => dest.Following,
+                    opt => opt.MapFrom((src, dest, destMember, context) => src.Followers.Select(s => s.FollowerId).ToList()
+                              .Contains((Guid)context.Items["currentUserId"])));
+            /*.ForPath(
+                dest => dest.Author.Following,
+                opt => opt.MapFrom(src => src.User.Followerings.Select(s => s.FolloweingId).ToList()
+                .Contains(src.UserId)));*/
+
+            /*.ForMember(
+                dest => dest.following,
+                opt => opt.MapFrom(src => src.Followers.Any(u=>u.FollowerId==)); ;*/
         }
     }
 }
