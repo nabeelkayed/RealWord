@@ -19,5 +19,20 @@ namespace RealWord.Db.Repositories
             var tags = _context.Tags.ToList();
             return tags;
         }
+        public void CreateTags(List<string> tagList, Guid articleId)
+        {
+            var tags = _context.Tags.Select(t => t.TagId).ToList();
+            foreach (var tag in tagList)
+            {
+                if (!tags.Contains(tag))
+                {
+                    var newTag = new Tag { TagId = tag };
+                    _context.Tags.Add(newTag);
+                }
+
+                var ArticleTags = new ArticleTags { TagId = tag, ArticleId = articleId };
+                _context.ArticleTags.Add(ArticleTags);
+            }
+        }
     }
 }

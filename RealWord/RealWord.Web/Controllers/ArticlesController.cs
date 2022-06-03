@@ -26,13 +26,18 @@ namespace RealWord.Web.controllers
         private readonly IUserRepository _IUserRepository;
         private readonly IMapper _mapper;
         private readonly IAuthentication _IAuthentication;
+        private readonly ITagRepository _ITagRepository;
+
+
 
         public ArticlesController(IArticleRepository articleRepository, IAuthentication authentication,
-        ICommentRepository commentRepository, IUserRepository userRepository,
-        IMapper mapper)
+               ICommentRepository commentRepository, IUserRepository userRepository,
+               ITagRepository tagRepository, IMapper mapper)
         {
             _IArticleRepository = articleRepository ??
                 throw new ArgumentNullException(nameof(articleRepository));
+            _ITagRepository = tagRepository ??
+                throw new ArgumentNullException(nameof(tagRepository));
             _IAuthentication = authentication ??
           throw new ArgumentNullException(nameof(UserRepository));
             _IUserRepository = userRepository ??
@@ -127,7 +132,11 @@ namespace RealWord.Web.controllers
             articleEntityForCreation.CreatedAt = timeStamp;//تعبئة الداتا هون والا في الداتا بيس
             articleEntityForCreation.UpdatedAt = timeStamp;
 
-            _IArticleRepository.CreateArticle(articleEntityForCreation, articleForCreation.TagList);
+            _IArticleRepository.CreateArticle(articleEntityForCreation);
+            if (articleForCreation.TagList != null && articleForCreation.TagList.Any())//هل هذا الفحص الطويل له داعي 
+            {
+                _ITagRepository.CreateTags(articleForCreation.TagList, articleEntityForCreation.ArticleId);
+            }
             _IArticleRepository.Save();
 
             var articleToReturn = _mapper.Map<ArticleDto>(articleEntityForCreation, a => a.Items["currentUserId"] = currentUser.UserId);

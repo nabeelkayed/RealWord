@@ -83,7 +83,7 @@ namespace RealWord.Web.Profiles
             ///////////////////////////////////////////////
             //User.Favorites.Any(a=>a.UserId==src.Favorites.Contains());
             CreateMap<ArticleForCreationDto, Article>();
-            /*   .ForMember(
+            /*  .ForMember(
                   dest => dest.Tags,
                   opt => opt.MapFrom(src => src.tagList));*/
             CreateMap<ArticleForUpdateDto, Article>();

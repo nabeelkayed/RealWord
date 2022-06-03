@@ -88,9 +88,7 @@ namespace RealWord.Web.controllers
             _IUserRepository.Save();
 
             var userToReturn = _mapper.Map<UserDto>(userEntityForCreation);
-            userToReturn.Token = Request.Headers[HeaderNames.Authorization];
-            // string accessToken = User.Claims.FirstOrDefault(c => c.Type == "access_token")?.Value;
-
+            userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
             return new ObjectResult(new { user = userToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
@@ -100,14 +98,13 @@ namespace RealWord.Web.controllers
             var currentUser = _IAuthentication.GetCurrentUser();
 
             var userToReturn = _mapper.Map<UserDto>(currentUser);
-           // userToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
             userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
 
             return Ok(new { user = userToReturn });
         }
 
         [HttpPut("user")]
-        public ActionResult<UserDto> UpdateUser(UserForUpdateDto userForUpdate)
+        public async Task<ActionResult<UserDto>> UpdateUser(UserForUpdateDto userForUpdate)
         {
             var currentUser = _IAuthentication.GetCurrentUser();
 
@@ -138,7 +135,7 @@ namespace RealWord.Web.controllers
             _IUserRepository.Save();
 
             var userToReturn = _mapper.Map<UserDto>(currentUser);
-            userToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
+            userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
             return Ok(new { user = userToReturn });
         }
     }

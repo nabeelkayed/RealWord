@@ -38,16 +38,16 @@ namespace RealWord.Web.controllers
 
         [AllowAnonymous]
         [HttpGet("{username}")]
-        public ActionResult<ProfileDto> GetProfile(string username)
+        public async Task<ActionResult<ProfileDto>> GetProfile(string username)
         {
             username = username.ToLower();
-            var User = _IUserRepository.GetUser(username);
+            var User = await _IUserRepository.GetUserAsync(username);
             if (User == null)
             {
                 return NotFound();
             }
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
             if (currentUser.Username != null)
             {
                 var ProfileToReturnlogin = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = currentUser.UserId);
@@ -59,61 +59,60 @@ namespace RealWord.Web.controllers
         }
 
         [HttpPost("{username}/follow")]
-        public ActionResult<ProfileDto> Follow(string username)
+        public async Task<ActionResult<ProfileDto>> Follow(string username)
         {
             username = username.ToLower();
-            var userToFollow = _IUserRepository.GetUser(username);
+            var userToFollow = await _IUserRepository.GetUserAsync(username);
             if (userToFollow == null)
             {
                 return NotFound();
             }
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
             if (currentUser.Username == username)
             {
                 return BadRequest("You can't follow yourself");
             }
 
-            bool isFollowed = _IUserRepository.IsFollowed(currentUser.UserId, userToFollow.UserId);
+            bool isFollowed = await _IUserRepository.IsFollowedAsync(currentUser.UserId, userToFollow.UserId);
             if (isFollowed)
             {
                 return BadRequest($"You already follow the user with username {username}");
             }
 
-            _IUserRepository.FollowUser(currentUser.UserId, userToFollow.UserId);
-            _IUserRepository.Save();
+            await _IUserRepository.FollowUserAsync(currentUser.UserId, userToFollow.UserId);
+            await _IUserRepository.SaveAsync();
 
             var ProfileToReturn = _mapper.Map<ProfileDto>(userToFollow, a => a.Items["currentUserId"] = currentUser.UserId);
             return new ObjectResult(new { profile = ProfileToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpDelete("{username}/follow")]
-        public ActionResult<ProfileDto> UnFollow(string username)
+        public async Task<ActionResult<ProfileDto>> UnFollow(string username)
         {
             username = username.ToLower();
-            var userToUnfollow = _IUserRepository.GetUser(username);
+            var userToUnfollow =await _IUserRepository.GetUserAsync(username);
             if (userToUnfollow == null)
             {
                 return NotFound();
             }
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
             if (currentUser.Username == username)
             {
                 return BadRequest("You can't unfollow yourself");
             }
 
-            bool isUnfollowed = !_IUserRepository.IsFollowed(currentUser.UserId, userToUnfollow.UserId);
+            bool isUnfollowed = await !_IUserRepository.IsFollowedAsync(currentUser.UserId, userToUnfollow.UserId);
             if (isUnfollowed)
             {
                 return BadRequest($"You aren't follow the user of username {username}");
             }
 
-            _IUserRepository.UnfollowUser(currentUser.UserId, userToUnfollow.UserId);
-            _IUserRepository.Save();
+            await _IUserRepository.UnfollowUserAsync(currentUser.UserId, userToUnfollow.UserId);
+            await _IUserRepository.SaveAsync();
 
             var ProfileToReturn = _mapper.Map<ProfileDto>(userToUnfollow, a => a.Items["currentUserId"] = currentUser.UserId);
-            
             return Ok(new { profile = ProfileToReturn });
 
         }

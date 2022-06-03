@@ -61,7 +61,7 @@ namespace RealWord.Db.Repositories
             {
                 var username = articlesParameters.favorited.Trim();
                 var user = _context.Users.FirstOrDefault(u => u.Username == username);
-                
+
                 var userfavarets = _context.ArticleFavorites.Where(af => af.UserId == user.UserId)
                                                             .Select(a => a.ArticleId)
                                                             .ToList();
@@ -97,27 +97,10 @@ namespace RealWord.Db.Repositories
                                                 .Skip(feedArticlesParameters.offset)
                                                 .Take(feedArticlesParameters.limit).ToList();
             return feedArticles;
-        } 
-        public void CreateArticle(Article article, List<string> tagList)
+        }
+        public void CreateArticle(Article article)
         {
             _context.Articles.Add(article);
-
-            if (tagList != null && tagList.Any())
-            {
-                var tags = _context.Tags.Select(t => t.TagId).ToList();//فحص تكرار التاجات ويين لازم يكون زي الإيميل والعنوان
-                
-                foreach (var tag in tagList)
-                {
-                    if (!tags.Contains(tag))
-                    {
-                        var tag1 = new Tag { TagId = tag };
-                        _context.Tags.Add(tag1);
-                    }
-
-                    var ArticleTags = new ArticleTags { TagId = tag, ArticleId = article.ArticleId };
-                    _context.ArticleTags.Add(ArticleTags);
-                }
-            }
         }
         public void UpdateArticle(Article updatedArticle, Article articleForUpdate)
         {

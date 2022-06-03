@@ -12,7 +12,7 @@ namespace RealWord.Db.Repositories
         Article GetArticle(string slug);
         List<Article> GetArticles(ArticlesParameters articlesParameters);
         List<Article> GetFeedArticles(Guid currentUserId, FeedArticlesParameters feedArticlesParameters);
-        void CreateArticle(Article article, List<string> tagList); 
+        void CreateArticle(Article article); 
         void UpdateArticle(Article updatedArticle, Article articleForUpdate);
         void DeleteArticle(Article article);
         void FavoriteArticle(Guid currentUserId, Guid articleToFavoriteId);
