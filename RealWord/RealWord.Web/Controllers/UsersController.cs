@@ -15,6 +15,9 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using RealWord.Web.Helpers;
 using Microsoft.Net.Http.Headers;
+using Utils.Utils;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication;
 
 namespace RealWord.Web.controllers
 {
@@ -43,13 +46,16 @@ namespace RealWord.Web.controllers
         }
 
         [AllowAnonymous]
-        [HttpPost("users/login")] 
+        [HttpPost("users/login")]
         public IActionResult login(UserLoginDto userLogin)
         {
+            userLogin.Email = userLogin.Email.ToLower();
+            //userLogin.Password.GetHash(); 
+
             var userLogedin = _IAuthentication.LoginUser(userLogin);
             if (userLogedin == null)
             {
-                return Unauthorized();
+                return NotFound();
             }
 
             var userToReturn = _mapper.Map<UserDto>(userLogedin);
@@ -59,44 +65,57 @@ namespace RealWord.Web.controllers
 
         [AllowAnonymous]
         [HttpPost("users")]
-        public ActionResult<UserDto> CreateUser(UserForCreationDto userForCreation)
+        public async Task<ActionResult<UserDto>> CreateUser(UserForCreationDto userForCreation)
         {
-            if (_IUserRepository.UserExists(userForCreation.Username))
+            userForCreation.Username = userForCreation.Username.ToLower();
+            userForCreation.Password.GetHash();
+
+            var userExists = _IUserRepository.UserExists(userForCreation.Username);
+            if (userExists)
             {
                 return NotFound("The user is exist");
             }
 
-            var userEntityForCreation = _mapper.Map<User>(userForCreation);
-            _IUserRepository.CreateUser(userEntityForCreation); 
+            userForCreation.Email = userForCreation.Email.ToLower();
+            var emailNotAvailable = !_IUserRepository.EmailAvailable(userForCreation.Email);
+            if (emailNotAvailable)
+            {
+                return NotFound("The user is exist");
+            }
+
+            var userEntityForCreation = _mapper.Map<User>(userForCreation);//ليش بعمل مابنج لأنه ما بصير الداتا بيس يكون الها اكسس على ال api
+            _IUserRepository.CreateUser(userEntityForCreation);
             _IUserRepository.Save();
 
             var userToReturn = _mapper.Map<UserDto>(userEntityForCreation);
             userToReturn.Token = Request.Headers[HeaderNames.Authorization];
-            return Ok(new { user = userToReturn });
+            // string accessToken = User.Claims.FirstOrDefault(c => c.Type == "access_token")?.Value;
+
+            return new ObjectResult(new { user = userToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpGet("user")]
-        public ActionResult<UserDto> GetCurrentUser()
+        public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
-            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var currentUser = _IUserRepository.GetUser(currentUsername);
+            var currentUser = _IAuthentication.GetCurrentUser();
 
             var userToReturn = _mapper.Map<UserDto>(currentUser);
-            userToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
+           // userToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
+            userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
+
             return Ok(new { user = userToReturn });
         }
 
         [HttpPut("user")]
         public ActionResult<UserDto> UpdateUser(UserForUpdateDto userForUpdate)
         {
-            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var currentUser = _IUserRepository.GetUser(currentUsername);
+            var currentUser = _IAuthentication.GetCurrentUser();
 
             var userEntityForUpdate = _mapper.Map<User>(userForUpdate);
 
             if (!string.IsNullOrWhiteSpace(userForUpdate.Email))
             {
-                currentUser.Email = userForUpdate.Email;
+                currentUser.Email = userForUpdate.Email.ToLower();
             }
             if (!string.IsNullOrWhiteSpace(userForUpdate.Image))
             {
@@ -108,16 +127,16 @@ namespace RealWord.Web.controllers
             }
             if (!string.IsNullOrWhiteSpace(userForUpdate.Password))
             {
-                currentUser.Password = userForUpdate.Password;
+                currentUser.Password = userForUpdate.Password.GetHash();
             }
             if (!string.IsNullOrWhiteSpace(userForUpdate.Username))
             {
-                currentUser.Username = userForUpdate.Username;
+                currentUser.Username = userForUpdate.Username.ToLower();
             }
 
             _IUserRepository.UpdateUser(currentUser, userEntityForUpdate);
             _IUserRepository.Save();
-             
+
             var userToReturn = _mapper.Map<UserDto>(currentUser);
             userToReturn.Token = Request.Headers[HeaderNames.Authorization].ToString();
             return Ok(new { user = userToReturn });

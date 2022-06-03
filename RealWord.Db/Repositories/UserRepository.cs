@@ -33,27 +33,26 @@ namespace RealWord.Db.Repositories
                 throw new ArgumentNullException(nameof(username));
             }
 
-            var user = _context.Users.Include(a=>a.Articles).FirstOrDefault(u => u.Username == username);
+            var user = _context.Users.Include(a => a.Articles).FirstOrDefault(u => u.Username == username);
             return user;
         }
-        public  User LoginUser(User user)
+        public User LoginUser(User user)
         {
             var LoginUser = _context.Users.FirstOrDefault(u => u.Email == user.Email
                                                             && u.Password == user.Password);
             return LoginUser;
         }
         public void CreateUser(User user)
-        { 
-            var Emails = _context.Users.Select(a => a.Email).ToList();//يطلع برة 
-            if (Emails.Contains(user.Email))
-            {
-                throw new ArgumentNullException(nameof(user.Email));
-            }
-
+        {
             _context.Users.Add(user);
         }
+        public bool EmailAvailable(string email)
+        {
+            var emailAvailable = _context.Users.Select(a => a.Email).Contains(email);
+            return emailAvailable;
+        }
         public void UpdateUser(User updatedUser, User userForUpdate)
-        { 
+        {
         }
         public void FollowUser(Guid currentUserId, Guid userToFollowId)
         {

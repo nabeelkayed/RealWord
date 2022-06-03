@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RealWord.Db.Entities;
 using RealWord.Db.Repositories;
+using RealWord.Web.Helpers;
 using RealWord.Web.Models;
 using System;
 using System.Collections.Generic;
@@ -22,15 +24,18 @@ namespace RealWord.Web.controllers
         private readonly ICommentRepository _ICommentRepository;
         private readonly IMapper _mapper;
         private readonly IUserRepository _IUserRepository;
+        private readonly IAuthentication _IAuthentication;
 
         public CommentsController(IArticleRepository ArticleRepository, IUserRepository userRepository,
-            ICommentRepository CommentRepository,
-            IMapper mapper)
+        IAuthentication authentication, ICommentRepository CommentRepository,
+        IMapper mapper)
         {
             _IArticleRepository = ArticleRepository ??
                 throw new ArgumentNullException(nameof(ArticleRepository));
+            _IAuthentication = authentication ??
+          throw new ArgumentNullException(nameof(UserRepository));
             _IUserRepository = userRepository ??
-               throw new ArgumentNullException(nameof(userRepository));
+           throw new ArgumentNullException(nameof(userRepository));
             _ICommentRepository = CommentRepository ??
                throw new ArgumentNullException(nameof(CommentRepository));
             _mapper = mapper ??
@@ -46,12 +51,10 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var CurrentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var CurrentUserId = _IUserRepository.GetUser(CurrentUsername).UserId;
-
             var commentEntityForCreation = _mapper.Map<Comment>(commentForCreation);
 
-            commentEntityForCreation.UserId = CurrentUserId;
+            var currentUser = _IAuthentication.GetCurrentUser();
+            commentEntityForCreation.UserId = currentUser.UserId;
 
             var Article = _IArticleRepository.GetArticle(slug);
             commentEntityForCreation.ArticleId = Article.ArticleId;
@@ -64,7 +67,7 @@ namespace RealWord.Web.controllers
             _ICommentRepository.Save();
 
             var createdCommentToReturn = _mapper.Map<CommentDto>(commentEntityForCreation);
-            return Ok(new { comment = createdCommentToReturn });
+            return new ObjectResult(new { comment = createdCommentToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
         [AllowAnonymous]
@@ -79,17 +82,15 @@ namespace RealWord.Web.controllers
             }
 
             var comments = _ICommentRepository.GetCommentsForArticle(article.ArticleId);
+            var commentsWhenLogin = new List<CommentDto>();
 
-            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (currentUsername != null)
+            var currentUser = _IAuthentication.GetCurrentUser();
+            if (currentUser.Username != null)
             {
-                var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
-                var commentsWhenLogin = new List<CommentDto>();
-
                 foreach (var comment in comments)
                 {
-                    var commentDto = _mapper.Map<CommentDto>(comment, a => a.Items["currentUserId"] = currentUserId);
-                    var profileDto = _mapper.Map<ProfileDto>(comment.User, a => a.Items["currentUserId"] = currentUserId);
+                    var commentDto = _mapper.Map<CommentDto>(comment, a => a.Items["currentUserId"] = currentUser.UserId);
+                    var profileDto = _mapper.Map<ProfileDto>(comment.User, a => a.Items["currentUserId"] = currentUser.UserId);
                     commentDto.Author = profileDto;
                     commentsWhenLogin.Add(commentDto);
                 }
@@ -115,9 +116,8 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var currentUsername = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            var currentUserId = _IUserRepository.GetUser(currentUsername).UserId;
-            if (currentUserId != comment.UserId)
+            var currentUser = _IAuthentication.GetCurrentUser();
+            if (currentUser.UserId != comment.UserId)
             {
                 return BadRequest();
             }

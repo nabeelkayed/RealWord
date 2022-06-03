@@ -11,5 +11,6 @@ namespace RealWord.Web.Helpers
     {
         string Generate(User user);
         User LoginUser(UserLoginDto userLogin);
+        User GetCurrentUser();
     }
 }

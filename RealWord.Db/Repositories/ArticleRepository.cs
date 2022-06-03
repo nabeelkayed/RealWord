@@ -100,11 +100,6 @@ namespace RealWord.Db.Repositories
         } 
         public void CreateArticle(Article article, List<string> tagList)
         {
-            var Slugs = _context.Articles.Select(a => a.Slug).ToList();//نفس تبع الإيميل ما يكون متشابه عند اليوزر
-            if (Slugs.Contains(article.Slug))
-            {
-                throw new ArgumentNullException(nameof(article.Slug));
-            }
             _context.Articles.Add(article);
 
             if (tagList != null && tagList.Any())

@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Security.Cryptography;
+using System.Text;
+using Utils.Utils;
 
 namespace RealWord.Utils.Utils
 {
     public static class Slug
     {
-        public static string? GenerateSlug(this string? phrase)
+        public static string GenerateSlug(this string slug, string phrase, Guid Id)
         {
             if (phrase is null)
             {
@@ -22,7 +25,10 @@ namespace RealWord.Utils.Utils
             // cut and trim
             str = str.Substring(0, str.Length <= 45 ? str.Length : 45).Trim();
             str = Regex.Replace(str, @"\s", "-"); // hyphens
-            return str;
+
+            var idHash = Hash.GetHash(Id.ToString());
+
+            return str + "-" + idHash;
         }
     }
 }

@@ -16,29 +16,38 @@ using System.Threading.Tasks;
 
 namespace RealWord.Web.Helpers
 {
-    public class Authentication : ControllerBase, IAuthentication
+    public class Authentication : IAuthentication
     {
         private IConfiguration _config;
         private readonly IUserRepository _IUserRepository;
         private readonly IMapper _mapper;
+        private readonly IHttpContextAccessor _accessor;
 
-
-        public Authentication(IUserRepository userRepository,
+        public Authentication(IUserRepository userRepository, IHttpContextAccessor accessor,
             IConfiguration config, IMapper mapper)
         {
             _IUserRepository = userRepository ??
                 throw new ArgumentNullException(nameof(UserRepository));
+            _accessor = accessor ??
+                throw new ArgumentNullException(nameof(accessor));
             _config = config ??
                 throw new ArgumentNullException(nameof(config));
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
         }
-     
+
         public User LoginUser(UserLoginDto userLogin)
         {
             var user = _IUserRepository.LoginUser(_mapper.Map<User>(userLogin));
 
             return user;
+        }
+        public User GetCurrentUser()
+        {
+            var currentUsername = _accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
+            var currentUser = _IUserRepository.GetUser(currentUsername);
+
+            return currentUser;
         }
         public string Generate(User user)
         {
