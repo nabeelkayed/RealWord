@@ -12,7 +12,8 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-
+using AutoMapper;
+//PrivateAssets="All" 
 namespace RealWord.Core.Auth
 {
     public class Authentication : IAuthentication
@@ -20,9 +21,10 @@ namespace RealWord.Core.Auth
         private readonly IConfiguration _config;
         private readonly IUserRepository _IUserRepository;
         private readonly IHttpContextAccessor _accessor;
+        private readonly IMapper _mapper;
 
         public Authentication(IUserRepository userRepository, IHttpContextAccessor accessor,
-            IConfiguration config)
+        IConfiguration config, IMapper mapper)
         {
             _IUserRepository = userRepository ??
                 throw new ArgumentNullException(nameof(UserRepository));
@@ -30,26 +32,31 @@ namespace RealWord.Core.Auth
                 throw new ArgumentNullException(nameof(accessor));
             _config = config ??
                 throw new ArgumentNullException(nameof(config));
+            _mapper = mapper ??
+          throw new ArgumentNullException(nameof(mapper));
         }
-
-        public async Task<User> LoginUserAsync(User userLogin)
-        {
-            var user =await _IUserRepository.LoginUserAsync(userLogin);
-
-            return user;
-        }
-        public async Task<User> GetCurrentUserAsync()
+        public async Task<UserDto> GetCurrentUserAsync()
         {
             var currentUsername = _accessor?.HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (!String.IsNullOrEmpty(currentUsername))
             {
                 var currentUser = await _IUserRepository.GetUserAsync(currentUsername);
-                return currentUser;
 
+                var userToReturn = _mapper.Map<UserDto>(currentUser);
+                return userToReturn;
             }
 
             return null;
         }
+        public async Task<UserDto> GetCurrentUserIdAsync()
+        {
+            var currentUsername = _accessor?.HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (!String.IsNullOrEmpty(currentUsername))
+            {
+                var currentUser = await _IUserRepository.GetUserAsync(currentUsername);
+            }
+        }
+
         public string Generate(User user)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));

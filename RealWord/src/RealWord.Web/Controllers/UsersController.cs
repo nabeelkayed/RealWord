@@ -18,6 +18,7 @@ using Microsoft.Net.Http.Headers;
 using RealWord.Utils.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
+using RealWord.Core.Repositories;
 
 namespace RealWord.Web.controllers
 {
@@ -30,11 +31,14 @@ namespace RealWord.Web.controllers
         private readonly IAuthentication _IAuthentication;
         private readonly IMapper _mapper;
         private readonly IConfiguration _config;
-
+        private readonly IUserService _IUserService;
 
         public UsersController(IUserRepository userRepository, IAuthentication authentication,
-            IConfiguration config, IMapper mapper)
+            IConfiguration config, IMapper mapper, IUserService userService)
         {
+            _IUserService = userService ??
+               throw new ArgumentNullException(nameof(userService));
+
             _IUserRepository = userRepository ??
                 throw new ArgumentNullException(nameof(UserRepository));
             _IAuthentication = authentication ??
@@ -49,19 +53,13 @@ namespace RealWord.Web.controllers
         [HttpPost("users/login")]
         public async Task<IActionResult> Login(UserLoginDto userLogin)
         {
-            userLogin.Email = userLogin.Email.ToLower();
-            //userLogin.Password.GetHash(); 
-
-            var u=_mapper.Map<User>(userLogin);
-
-            var userLogedin = await _IAuthentication.LoginUserAsync(u);
-            if (userLogedin == null)
+            var ValidLoginUser = await _IUserService.ValidLoginUserAsync(userLogin);
+            if (ValidLoginUser == null)
             {
                 return NotFound();
             }
 
-            var userToReturn = _mapper.Map<UserDto>(userLogedin);
-            userToReturn.Token = _IAuthentication.Generate(userLogedin);
+            var userToReturn = _IUserService.LoginUserAsync(ValidLoginUser);
             return Ok(new { user = userToReturn });
         }
 
@@ -97,9 +95,8 @@ namespace RealWord.Web.controllers
         [HttpGet("user")]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
-            var currentUser = _IAuthentication.GetCurrentUserAsync();
+            var userToReturn =await _IAuthentication.GetCurrentUserAsync();
 
-            var userToReturn = _mapper.Map<UserDto>(currentUser);
             userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
             return Ok(new { user = userToReturn });
         }
