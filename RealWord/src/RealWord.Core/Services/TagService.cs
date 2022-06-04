@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RealWord.Core.Models;
 using RealWord.Data;
 using RealWord.Data.Entities;
 using System;
@@ -6,40 +7,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
+using RealWord.Data.Repositories;
 
 namespace RealWord.Core.Repositories
 {
     public class TagService : ITagService
     {
-        private readonly RealWordDbContext _context;
+        private readonly ITagRepository _ITagRepository;
+        private readonly IMapper _mapper;
 
-        public TagService(RealWordDbContext context)
+        public TagService(ITagRepository tagRepository,
+            IMapper mapper)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _ITagRepository = tagRepository ??
+                throw new ArgumentNullException(nameof(tagRepository));
+            _mapper = mapper ??
+                throw new ArgumentNullException(nameof(mapper));
         }
-        public async Task<List<Tag>> GetTagsAsync()
+        public async Task<TagDto> GetTagsAsync()
         {
-            var tags = await _context.Tags.ToListAsync();
-            return tags;
-        }
-        public void CreateTags(List<string> tagList, Guid articleId)
-        {
-            var tags = _context.Tags.Select(t => t.TagId).ToList();
-            foreach (var tag in tagList)
-            {
-                if (!tags.Contains(tag))
-                {
-                    var newTag = new Tag { TagId = tag };
-                    _context.Tags.Add(newTag);
-                }
-
-                var ArticleTags = new ArticleTags { TagId = tag, ArticleId = articleId };
-                _context.ArticleTags.Add(ArticleTags);
-            }
-        }
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
+            var tags = await _ITagRepository.GetTagsAsync();
+            var tagsToReturn = _mapper.Map<TagDto>(tags);
+            return tagsToReturn;
         }
     }
 }

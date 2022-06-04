@@ -31,7 +31,6 @@
     ".NETCoreApp,Version=v3.1": {
       "RealWord.Web/1.0.0": {
         "dependencies": {
-          "AutoMapper.Extensions.Microsoft.DependencyInjection": "11.0.0",
           "FluentValidation": "11.0.1",
           "FluentValidation.AspNetCore": "11.0.1",
           "Microsoft.AspNetCore.Identity": "2.2.0",

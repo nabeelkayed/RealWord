@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
 using RealWord.Core.Profiles;
 using Microsoft.AspNetCore.Mvc;
+using RealWord.Core.Repositories;
 
 namespace RealWord.Web
 {
@@ -86,7 +87,13 @@ namespace RealWord.Web
             services.AddScoped<IArticleRepository, ArticleRepository>();
             services.AddScoped<ICommentRepository, CommentRepository>();
             services.AddScoped<IUserRepository, UserRepository>();
+
             services.AddScoped<IAuthentication, Authentication>();
+
+            services.AddScoped<ITagService, TagService>();
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IArticleService, ArticleService>();
+            services.AddScoped<ICommentService, CommentService>();
 
             services.AddTransient<IValidator<UserForCreationDto>, UserForCreationValidator>();
             services.AddTransient<IValidator<UserForUpdateDto>, UserForUpdateValidator>();

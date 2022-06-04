@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using RealWord.Data.Repositories;
 using RealWord.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
+using RealWord.Core.Repositories;
 
 namespace RealWord.Web.Controllers
 {
@@ -16,24 +17,19 @@ namespace RealWord.Web.Controllers
     [Route("api/tags")]
     public class TagsController : ControllerBase
     {
-        private readonly ITagRepository _ITagRepository;
-        private readonly IMapper _mapper;
+        private readonly ITagService _ITagService;
 
-        public TagsController(ITagRepository tagRepository,
-            IMapper mapper)
+        public TagsController(ITagService tagService)
         {
-            _ITagRepository = tagRepository ??
-                throw new ArgumentNullException(nameof(tagRepository));
-            _mapper = mapper ??
-                throw new ArgumentNullException(nameof(mapper));
+            _ITagService = tagService ??
+                throw new ArgumentNullException(nameof(tagService));
         }
 
         [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<TagDto>> GetTags()
         {
-            var tags = await _ITagRepository.GetTagsAsync();
-            var tagsToReturn = _mapper.Map<TagDto>(tags);
+            var tagsToReturn = await _ITagService.GetTagsAsync();
             return Ok(tagsToReturn);
         }
     }
