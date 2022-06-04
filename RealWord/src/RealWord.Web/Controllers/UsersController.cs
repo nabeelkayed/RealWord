@@ -4,16 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RealWord.Web.Models;
-using RealWord.Db.Repositories;
-using RealWord.Db.Entities;
+using RealWord.Core.Models;
+using RealWord.Data.Repositories;
+using RealWord.Data.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
-using RealWord.Web.Helpers;
+using RealWord.Core.Auth;
 using Microsoft.Net.Http.Headers;
 using RealWord.Utils.Utils;
 using Microsoft.AspNetCore.Http;
@@ -52,7 +52,9 @@ namespace RealWord.Web.controllers
             userLogin.Email = userLogin.Email.ToLower();
             //userLogin.Password.GetHash(); 
 
-            var userLogedin = await _IAuthentication.LoginUserAsync(userLogin);
+            var u=_mapper.Map<User>(userLogin);
+
+            var userLogedin = await _IAuthentication.LoginUserAsync(u);
             if (userLogedin == null)
             {
                 return NotFound();
@@ -85,7 +87,7 @@ namespace RealWord.Web.controllers
 
             var userEntityForCreation = _mapper.Map<User>(userForCreation);
             _IUserRepository.CreateUser(userEntityForCreation);
-            _IUserRepository.SaveChanges();
+            await _IUserRepository.SaveChangesAsync();
 
             var userToReturn = _mapper.Map<UserDto>(userEntityForCreation);
             userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
@@ -131,7 +133,7 @@ namespace RealWord.Web.controllers
             }
 
             _IUserRepository.UpdateUser(currentUser, userEntityForUpdate);
-            _IUserRepository.SaveChanges();
+            await _IUserRepository.SaveChangesAsync();
 
             var userToReturn = _mapper.Map<UserDto>(currentUser);
             userToReturn.Token = await HttpContext.GetTokenAsync("access_token");

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace RealWord.Db.Entities
+namespace RealWord.Data.Entities
 {
     public class User
     {

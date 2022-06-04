@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RealWord.Db.Entities;
-using RealWord.Web.Models;
+using RealWord.Data.Entities;
+using RealWord.Core.Models;
 
-namespace RealWord.Web.Profiles
+namespace RealWord.Core.Profiles
 {
     public class CommentsProfile : Profile
     {

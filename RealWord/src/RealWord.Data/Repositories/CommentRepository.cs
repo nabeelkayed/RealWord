@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RealWord.Db.Entities;
+using RealWord.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealWord.Db.Repositories
+namespace RealWord.Data.Repositories
 {
     public class CommentRepository : ICommentRepository
     {
@@ -42,9 +42,9 @@ namespace RealWord.Db.Repositories
         {
             _context.Comments.Remove(comment);
         }
-        public void SaveChanges()
+        public async Task SaveChangesAsync()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

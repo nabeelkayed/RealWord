@@ -2,10 +2,10 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using RealWord.Db.Entities;
-using RealWord.Db.Repositories;
-using RealWord.Web.Helpers;
-using RealWord.Web.Models;
+using RealWord.Data.Entities;
+using RealWord.Data.Repositories;
+using RealWord.Core.Auth;
+using RealWord.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,8 +63,8 @@ namespace RealWord.Web.controllers
             commentEntityForCreation.CreatedAt = timeStamp;
             commentEntityForCreation.UpdatedAt = timeStamp;
 
-             _ICommentRepository.CreateComment(commentEntityForCreation);
-             _ICommentRepository.SaveChanges();
+            _ICommentRepository.CreateComment(commentEntityForCreation);
+            await _ICommentRepository.SaveChangesAsync();
 
             var createdCommentToReturn = _mapper.Map<CommentDto>(commentEntityForCreation);
             return new ObjectResult(new { comment = createdCommentToReturn }) { StatusCode = StatusCodes.Status201Created };
@@ -123,8 +123,8 @@ namespace RealWord.Web.controllers
                 return BadRequest();
             }
 
-             _ICommentRepository.DeleteComment(comment);
-             _ICommentRepository.SaveChanges();
+            _ICommentRepository.DeleteComment(comment);
+            await _ICommentRepository.SaveChangesAsync();
 
             return NoContent();
         }

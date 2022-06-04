@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RealWord.Db.Entities;
+using RealWord.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealWord.Db.Repositories
+namespace RealWord.Data.Repositories
 {
     public class TagRepository : ITagRepository
     {
@@ -35,6 +35,10 @@ namespace RealWord.Db.Repositories
                 var ArticleTags = new ArticleTags { TagId = tag, ArticleId = articleId };
                 _context.ArticleTags.Add(ArticleTags);
             }
+        }
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
         }
     }
 }

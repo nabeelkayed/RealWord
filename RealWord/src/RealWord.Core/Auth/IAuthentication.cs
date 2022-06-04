@@ -1,18 +1,16 @@
-﻿using RealWord.Db.Entities;
-using RealWord.Web.Models;
+﻿using RealWord.Data.Entities;
+using RealWord.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RealWord.Web.Helpers
+namespace RealWord.Core.Auth
 {
     public interface IAuthentication
     {
         string Generate(User user);
-        Task<User> LoginUserAsync(UserLoginDto userLogin);
+        Task<User> LoginUserAsync(User userLogin);
         Task<User> GetCurrentUserAsync();
-        User GetCurrentUser();
-
     }
 }

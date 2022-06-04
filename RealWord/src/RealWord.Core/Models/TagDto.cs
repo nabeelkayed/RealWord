@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RealWord.Web.Models
+namespace RealWord.Core.Models
 {
-    public class CommentForCreationDto
+    public class TagDto
     {
-        public string Body { get; set; }
+        public List<string> Tags { get; set; }
     }
 }

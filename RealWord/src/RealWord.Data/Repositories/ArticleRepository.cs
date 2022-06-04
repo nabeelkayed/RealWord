@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using RealWord.Db.Entities;
+using RealWord.Data.Entities;
 using RealWord.Utils.ResourceParameters; 
 using System;
 using System.Collections.Generic;
@@ -9,7 +9,7 @@ using System.Text;
 using RealWord.Utils.Utils;
 using System.Threading.Tasks;
 
-namespace RealWord.Db.Repositories
+namespace RealWord.Data.Repositories
 {
     public class ArticleRepository : IArticleRepository
     {
@@ -128,9 +128,9 @@ namespace RealWord.Db.Repositories
                await _context.ArticleFavorites.AnyAsync(af => af.UserId == UserId && af.ArticleId == articleId);
             return isFavorited;
         }
-        public void SaveChanges()
+        public async Task SaveChangesAsync()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

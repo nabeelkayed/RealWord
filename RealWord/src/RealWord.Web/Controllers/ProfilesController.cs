@@ -3,9 +3,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
-using RealWord.Db.Repositories;
-using RealWord.Web.Helpers;
-using RealWord.Web.Models;
+using RealWord.Data.Repositories;
+using RealWord.Core.Auth;
+using RealWord.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,7 +81,7 @@ namespace RealWord.Web.controllers
             }
 
              _IUserRepository.FollowUser(currentUser.UserId, userToFollow.UserId);
-             _IUserRepository.SaveChanges();
+             await _IUserRepository.SaveChangesAsync();
 
             var ProfileToReturn = _mapper.Map<ProfileDto>(userToFollow, a => a.Items["currentUserId"] = currentUser.UserId);
             return new ObjectResult(new { profile = ProfileToReturn }) { StatusCode = StatusCodes.Status201Created };
@@ -110,7 +110,7 @@ namespace RealWord.Web.controllers
             }
 
              _IUserRepository.UnfollowUser(currentUser.UserId, userToUnfollow.UserId);
-             _IUserRepository.SaveChanges();
+             await _IUserRepository.SaveChangesAsync();
 
             var ProfileToReturn = _mapper.Map<ProfileDto>(userToUnfollow, a => a.Items["currentUserId"] = currentUser.UserId);
             return Ok(new { profile = ProfileToReturn });

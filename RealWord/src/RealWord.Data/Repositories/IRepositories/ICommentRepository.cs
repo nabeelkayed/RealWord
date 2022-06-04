@@ -1,9 +1,9 @@
-﻿using RealWord.Db.Entities;
+﻿using RealWord.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RealWord.Db.Repositories
+namespace RealWord.Data.Repositories
 {
     public interface ICommentRepository
     {
@@ -11,6 +11,6 @@ namespace RealWord.Db.Repositories
         Task<List<Comment>> GetCommentsForArticleAsync(Guid articleId);
         void CreateComment(Comment comment);
         void DeleteComment(Comment comment);
-        void SaveChanges();
+        Task SaveChangesAsync();
     }
 }

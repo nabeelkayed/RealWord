@@ -5,9 +5,9 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RealWord.Db;
+using RealWord.Data;
 
-namespace RealWord.Db.Migrations
+namespace RealWord.Data.Migrations
 {
     [DbContext(typeof(RealWordDbContext))]
     [Migration("20220530161314_first")]

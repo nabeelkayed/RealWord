@@ -1,11 +1,10 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using RealWord.Db.Entities;
-using RealWord.Db.Repositories;
-using RealWord.Web.Models;
+using RealWord.Data.Entities;
+using RealWord.Data.Repositories;
+using RealWord.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,18 +12,17 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
-
-namespace RealWord.Web.Helpers
+//PrivateAssets="All"
+namespace RealWord.Core.Auth
 {
     public class Authentication : IAuthentication
     {
         private readonly IConfiguration _config;
         private readonly IUserRepository _IUserRepository;
-        private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _accessor;
 
         public Authentication(IUserRepository userRepository, IHttpContextAccessor accessor,
-            IConfiguration config, IMapper mapper)
+            IConfiguration config)
         {
             _IUserRepository = userRepository ??
                 throw new ArgumentNullException(nameof(UserRepository));
@@ -32,13 +30,11 @@ namespace RealWord.Web.Helpers
                 throw new ArgumentNullException(nameof(accessor));
             _config = config ??
                 throw new ArgumentNullException(nameof(config));
-            _mapper = mapper ??
-                throw new ArgumentNullException(nameof(mapper));
         }
 
-        public async Task<User> LoginUserAsync(UserLoginDto userLogin)
+        public async Task<User> LoginUserAsync(User userLogin)
         {
-            var user =await _IUserRepository.LoginUserAsync(_mapper.Map<User>(userLogin));
+            var user =await _IUserRepository.LoginUserAsync(userLogin);
 
             return user;
         }
@@ -53,13 +49,6 @@ namespace RealWord.Web.Helpers
             }
 
             return null;
-        }
-        public User GetCurrentUser()
-        {
-            var currentUsername = _accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var currentUser =  _IUserRepository.GetUser(currentUsername);
-
-            return currentUser;
         }
         public string Generate(User user)
         {

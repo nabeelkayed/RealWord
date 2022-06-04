@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
-using RealWord.Web.Models;
+using RealWord.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RealWord.Db.Repositories;
-using RealWord.Db.Entities;
+using RealWord.Data.Repositories;
+using RealWord.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 
 namespace RealWord.Web.Controllers

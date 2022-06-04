@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace RealWord.Db.Migrations
+namespace RealWord.Data.Migrations
 {
     public partial class first : Migration
     {

@@ -1,17 +1,17 @@
 ﻿using AutoMapper;
-using RealWord.Web.Models;
+using RealWord.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RealWord.Db.Repositories;
-using RealWord.Db.Entities;
+using RealWord.Data.Repositories;
+using RealWord.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using RealWord.Utils.Utils;
 using System.Security.Claims;
 using RealWord.Utils.ResourceParameters;
-using RealWord.Web.Helpers;
+using RealWord.Core.Auth;
 using Microsoft.AspNetCore.Http;
 
 namespace RealWord.Web.controllers
@@ -27,8 +27,6 @@ namespace RealWord.Web.controllers
         private readonly IMapper _mapper;
         private readonly IAuthentication _IAuthentication;
         private readonly ITagRepository _ITagRepository;
-
-
 
         public ArticlesController(IArticleRepository articleRepository, IAuthentication authentication,
                ICommentRepository commentRepository, IUserRepository userRepository,
@@ -132,12 +130,13 @@ namespace RealWord.Web.controllers
             articleEntityForCreation.CreatedAt = timeStamp;
             articleEntityForCreation.UpdatedAt = timeStamp;
 
-             _IArticleRepository.CreateArticle(articleEntityForCreation);
+            _IArticleRepository.CreateArticle(articleEntityForCreation);
             if (articleForCreation.TagList != null && articleForCreation.TagList.Any())
             {
-                 _ITagRepository.CreateTags(articleForCreation.TagList, articleEntityForCreation.ArticleId);
+                _ITagRepository.CreateTags(articleForCreation.TagList, articleEntityForCreation.ArticleId);
             }
-             _IArticleRepository.SaveChanges();
+            await _IArticleRepository.SaveChangesAsync();
+            await _ITagRepository.SaveChangesAsync();
 
             var articleToReturn = _mapper.Map<ArticleDto>(articleEntityForCreation, a => a.Items["currentUserId"] = currentUser.UserId);
             return new ObjectResult(new { article = articleToReturn }) { StatusCode = StatusCodes.Status201Created };
@@ -177,7 +176,7 @@ namespace RealWord.Web.controllers
             article.UpdatedAt = DateTime.Now;
 
             _IArticleRepository.UpdateArticle(article, articleEntityForUpdate);
-             _IArticleRepository.SaveChanges();
+            await _IArticleRepository.SaveChangesAsync();
 
             var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
             return Ok(new { article = articleToReturn });
@@ -198,8 +197,8 @@ namespace RealWord.Web.controllers
                 return BadRequest();
             }
 
-             _IArticleRepository.DeleteArticle(article);
-             _IArticleRepository.SaveChanges();
+            _IArticleRepository.DeleteArticle(article);
+            await _IArticleRepository.SaveChangesAsync();
 
             return NoContent();
         }
@@ -222,7 +221,7 @@ namespace RealWord.Web.controllers
             }
 
             _IArticleRepository.FavoriteArticle(currentUser.UserId, article.ArticleId);
-            _IArticleRepository.SaveChanges();
+            await _IArticleRepository.SaveChangesAsync();
 
             var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
             return new ObjectResult(new { article = articleToReturn }) { StatusCode = StatusCodes.Status201Created };
@@ -246,8 +245,8 @@ namespace RealWord.Web.controllers
                 return BadRequest($" You aren't favorite the article with slug {slug}");
             }
 
-             _IArticleRepository.UnfavoriteArticle(currentUser.UserId, article.ArticleId);
-             _IArticleRepository.SaveChanges();
+            _IArticleRepository.UnfavoriteArticle(currentUser.UserId, article.ArticleId);
+            await _IArticleRepository.SaveChangesAsync();
 
             var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
             return Ok(new { article = articleToReturn });

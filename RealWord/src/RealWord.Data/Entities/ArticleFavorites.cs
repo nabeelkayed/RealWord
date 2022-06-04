@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace RealWord.Db.Entities
+namespace RealWord.Data.Entities
 {
     public class ArticleFavorites
     {

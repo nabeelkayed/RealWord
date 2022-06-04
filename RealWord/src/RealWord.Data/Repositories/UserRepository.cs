@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using RealWord.Db.Entities;
+using RealWord.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealWord.Db.Repositories
+namespace RealWord.Data.Repositories
 {
     public class UserRepository : IUserRepository
     {
@@ -35,16 +35,6 @@ namespace RealWord.Db.Repositories
             }
 
             var user = await _context.Users.Include(a => a.Articles).FirstOrDefaultAsync(u => u.Username == username);
-            return user;
-        }
-        public User GetUser(string username)
-        {
-            if (String.IsNullOrEmpty(username))
-            {
-                throw new ArgumentNullException(nameof(username));
-            }
-
-            var user = _context.Users.Include(a => a.Articles).FirstOrDefault(u => u.Username == username);
             return user;
         }
         public async Task<User> LoginUserAsync(User user)
@@ -83,9 +73,9 @@ namespace RealWord.Db.Repositories
                await _context.UserFollowers.AnyAsync(uf => uf.FollowerId == FollowerId && uf.FolloweingId == FolloweingId);
             return isFollowed;
         }
-        public void SaveChanges()
+        public async Task SaveChangesAsync()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

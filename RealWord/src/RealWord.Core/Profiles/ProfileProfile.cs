@@ -1,12 +1,12 @@
 ﻿using AutoMapper;
-using RealWord.Db.Entities;
-using RealWord.Web.Models;
+using RealWord.Data.Entities;
+using RealWord.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RealWord.Web.Profiles
+namespace RealWord.Core.Profiles
 {
     public class ProfileProfile : Profile
     {

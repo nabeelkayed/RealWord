@@ -46,6 +46,16 @@
       "frameworks": {
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
+          "dependencies": {
+            "AutoMapper.Extensions.Microsoft.DependencyInjection": {
+              "target": "Package",
+              "version": "[11.0.0, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[3.1.25, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -229,9 +239,6 @@
               "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Core\\RealWord.Core.csproj": {
                 "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Core\\RealWord.Core.csproj"
               },
-              "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj": {
-                "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj"
-              },
               "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Utils\\RealWord.Utils.csproj": {
                 "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Utils\\RealWord.Utils.csproj"
               }
@@ -260,10 +267,6 @@
               "target": "Package",
               "version": "[11.0.1, )"
             },
-            "Microsoft.AspNetCore.Authentication.JwtBearer": {
-              "target": "Package",
-              "version": "[3.1.25, )"
-            },
             "Microsoft.AspNetCore.Identity": {
               "target": "Package",
               "version": "[2.2.0, )"
@@ -281,10 +284,6 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[5.0.17, )"
-            },
-            "Swashbuckle.AspNetCore": {
-              "target": "Package",
-              "version": "[6.3.1, )"
             },
             "System.IdentityModel.Tokens.Jwt": {
               "target": "Package",

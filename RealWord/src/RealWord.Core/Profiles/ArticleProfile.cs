@@ -3,14 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using RealWord.Db.Entities;
-using RealWord.Web.Models;
+using RealWord.Data.Entities;
+using RealWord.Core.Models;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using RealWord.Db.Repositories;
-using RealWord.Web.Helpers;
+using RealWord.Data.Repositories;
+using RealWord.Core.Auth;
 
-namespace RealWord.Web.Profiles
+namespace RealWord.Core.Profiles
 {
     public class ArticleProfile : Profile
     {

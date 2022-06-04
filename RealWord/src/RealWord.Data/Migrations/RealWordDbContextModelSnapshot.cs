@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using RealWord.Db;
+using RealWord.Data;
 
-namespace RealWord.Db.Migrations
+namespace RealWord.Data.Migrations
 {
     [DbContext(typeof(RealWordDbContext))]
     partial class RealWordDbContextModelSnapshot : ModelSnapshot

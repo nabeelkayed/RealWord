@@ -7,10 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
-using RealWord.Db;
-using RealWord.Db.Repositories;
-using RealWord.Web.Helpers;
-using RealWord.Web.Models;
+using RealWord.Data;
+using RealWord.Data.Repositories;
+using RealWord.Core.Auth;
+using RealWord.Core.Models;
 using RealWord.Web.Validators;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
-using RealWord.Web.Profiles;
+using RealWord.Core.Profiles;
 using Microsoft.AspNetCore.Mvc;
 
 namespace RealWord.Web

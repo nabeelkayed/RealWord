@@ -1,11 +1,11 @@
-﻿using RealWord.Db.Entities;
+﻿using RealWord.Data.Entities;
 using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using RealWord.Utils.ResourceParameters;
 using System.Threading.Tasks;
 
-namespace RealWord.Db.Repositories
+namespace RealWord.Data.Repositories
 {
     public interface IArticleRepository
     {
@@ -19,6 +19,6 @@ namespace RealWord.Db.Repositories
         void FavoriteArticle(Guid currentUserId, Guid articleToFavoriteId);
         void UnfavoriteArticle(Guid currentUserId, Guid articleToUnfavoriteId);
         Task<bool> IsFavoritedAsync(Guid UserId, Guid articleId);
-        void SaveChanges();
+        Task SaveChangesAsync(); 
     }
 }

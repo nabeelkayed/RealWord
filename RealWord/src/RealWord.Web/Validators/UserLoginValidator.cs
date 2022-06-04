@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RealWord.Web.Models;
+using RealWord.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RealWord.Db.Entities;
+using RealWord.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RealWord.Db
+namespace RealWord.Data
 {
     public class RealWordDbContext : DbContext
     {

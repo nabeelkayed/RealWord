@@ -5,7 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RealWord.Data\RealWord.Data.csproj" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.25" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\RealWord.Data\RealWord.Data.csproj"/>
+  </ItemGroup>
+  
 </Project>
