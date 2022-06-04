@@ -8,15 +8,22 @@ using RealWord.Web.Models;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using RealWord.Db.Repositories;
+using RealWord.Web.Helpers;
 
 namespace RealWord.Web.Profiles
 {
     public class ArticleProfile : Profile
     {
-        private readonly IHttpContextAccessor accessor;
-        private readonly IUserRepository _IUserRepository;
+        //private readonly IAuthentication _IAuthentication;
 
+        //private readonly IHttpContextAccessor _accessor;
+        // private readonly IUserRepository _IUserRepository;
 
+      /*  public ArticleProfile(IAuthentication authentication)
+        {
+            _IAuthentication = authentication ??
+                    throw new ArgumentNullException(nameof(UserRepository));
+        }*/
 
         public ArticleProfile(/*IUserRepository userRepository, IHttpContextAccessor accessor*/)
         {
@@ -40,12 +47,16 @@ namespace RealWord.Web.Profiles
                 .ForMember(
                     dest => dest.Favorited,
                     opt => opt.MapFrom((src, dest, destMember, context) => src.Favorites.Select(s => s.UserId).ToList()
-                              .Contains((Guid)context.Items["currentUserId"])));
-               /* .ForPath(
-                    dest => dest.Author.Following,
-                    opt => opt.MapFrom(src => src.User.Followerings.Select(s => s.FolloweingId).ToList()
-                    .Contains(src.UserId)));*/
-               /////////////////////////////////////////
+                              .Contains( (Guid)context.Items["currentUserId"])));
+               /* .ForMember(
+                    dest => dest.Favorited,
+                    opt => opt.MapFrom((src, dest, destMember, context) => src.Favorites.Select(s => s.UserId).ToList()
+                              .Contains(_IAuthentication.GetCurrentUser().UserId// (Guid)context.Items["currentUserId"])));*/
+            /* .ForPath(
+                 dest => dest.Author.Following,
+                 opt => opt.MapFrom(src => src.User.Followerings.Select(s => s.FolloweingId).ToList()
+                 .Contains(src.UserId)));*/
+            /////////////////////////////////////////
             /* .ForMember(
                  dest => dest.Author.Following,
                  opt => opt.MapFrom((Article src, ArticleDto dest, bool destMember, ResolutionContext context) => src.User.Followerings.Select(s => s.FolloweingId).ToList()
@@ -64,8 +75,8 @@ namespace RealWord.Web.Profiles
             //(ArticleDto)
             //()
             /*  Mapper.CreateMap<ViewModel, Dto>()
-      .ForMember(d => d.CreatedBy, opt => 
-      opt.ResolveUsing((src, dest, destMember, res) => res.Context.Options.Items["CreatedBy"]));*/
+        .ForMember(d => d.CreatedBy, opt => 
+        opt.ResolveUsing((src, dest, destMember, res) => res.Context.Options.Items["CreatedBy"]));*/
             /* .ForMember(
                dest => dest.Author.Following,
                opt => opt.MapFrom((src, dest, destMember, context) => src.User.Followerings.Select(s => s.FolloweingId).ToList()

@@ -18,7 +18,7 @@ namespace RealWord.Web.Helpers
 {
     public class Authentication : IAuthentication
     {
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
         private readonly IUserRepository _IUserRepository;
         private readonly IMapper _mapper;
         private readonly IHttpContextAccessor _accessor;
@@ -36,16 +36,28 @@ namespace RealWord.Web.Helpers
                 throw new ArgumentNullException(nameof(mapper));
         }
 
-        public User LoginUser(UserLoginDto userLogin)
+        public async Task<User> LoginUserAsync(UserLoginDto userLogin)
         {
-            var user = _IUserRepository.LoginUser(_mapper.Map<User>(userLogin));
+            var user =await _IUserRepository.LoginUserAsync(_mapper.Map<User>(userLogin));
 
             return user;
+        }
+        public async Task<User> GetCurrentUserAsync()
+        {
+            var currentUsername = _accessor?.HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            if (!String.IsNullOrEmpty(currentUsername))
+            {
+                var currentUser = await _IUserRepository.GetUserAsync(currentUsername);
+                return currentUser;
+
+            }
+
+            return null;
         }
         public User GetCurrentUser()
         {
             var currentUsername = _accessor.HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier).Value;
-            var currentUser = _IUserRepository.GetUser(currentUsername);
+            var currentUser =  _IUserRepository.GetUser(currentUsername);
 
             return currentUser;
         }
@@ -69,6 +81,5 @@ namespace RealWord.Web.Helpers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
-
     }
 }

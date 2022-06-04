@@ -43,28 +43,28 @@ namespace RealWord.Web.controllers
         }
 
         [HttpPost("{slug}/comments")]
-        public ActionResult<CommentDto> AddCommentToArticle(string slug, CommentForCreationDto commentForCreation)
+        public async Task<ActionResult<CommentDto>> AddCommentToArticle(string slug, CommentForCreationDto commentForCreation)
         {
-            var ArticleNotExists = !_IArticleRepository.ArticleExists(slug);
-            if (ArticleNotExists)
+            var ArticleExists = await _IArticleRepository.ArticleExistsAsync(slug);
+            if (!ArticleExists)
             {
                 return NotFound();
             }
 
             var commentEntityForCreation = _mapper.Map<Comment>(commentForCreation);
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
             commentEntityForCreation.UserId = currentUser.UserId;
 
-            var Article = _IArticleRepository.GetArticle(slug);
+            var Article = await _IArticleRepository.GetArticleAsync(slug);
             commentEntityForCreation.ArticleId = Article.ArticleId;
 
             var timeStamp = DateTime.Now;
             commentEntityForCreation.CreatedAt = timeStamp;
             commentEntityForCreation.UpdatedAt = timeStamp;
 
-            _ICommentRepository.CreateComment(commentEntityForCreation);
-            _ICommentRepository.Save();
+             _ICommentRepository.CreateComment(commentEntityForCreation);
+             _ICommentRepository.SaveChanges();
 
             var createdCommentToReturn = _mapper.Map<CommentDto>(commentEntityForCreation);
             return new ObjectResult(new { comment = createdCommentToReturn }) { StatusCode = StatusCodes.Status201Created };
@@ -72,20 +72,20 @@ namespace RealWord.Web.controllers
 
         [AllowAnonymous]
         [HttpGet("{slug}/comments")]
-        public ActionResult<IEnumerable<CommentDto>> GetCommentsFromArticle(string slug)
+        public async Task<ActionResult<IEnumerable<CommentDto>>> GetCommentsFromArticle(string slug)
         {
-            var article = _IArticleRepository.GetArticle(slug);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
 
             if (article == null)
             {
                 return NotFound();
             }
 
-            var comments = _ICommentRepository.GetCommentsForArticle(article.ArticleId);
+            var comments = await _ICommentRepository.GetCommentsForArticleAsync(article.ArticleId);
             var commentsWhenLogin = new List<CommentDto>();
 
-            var currentUser = _IAuthentication.GetCurrentUser();
-            if (currentUser.Username != null)
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
+            if (currentUser != null)
             {
                 foreach (var comment in comments)
                 {
@@ -103,27 +103,28 @@ namespace RealWord.Web.controllers
         }
 
         [HttpDelete("{slug}/comments/{id}")]
-        public IActionResult DeleteComment(string slug, Guid id)
+        public async Task<IActionResult> DeleteComment(string slug, Guid id)
         {
-            if (!_IArticleRepository.ArticleExists(slug))
+            var articleExists = await _IArticleRepository.ArticleExistsAsync(slug);
+            if (!articleExists)
             {
                 return NotFound();
             }
 
-            var comment = _ICommentRepository.GetComment(id);
+            var comment = await _ICommentRepository.GetCommentAsync(id);
             if (comment == null)
             {
                 return NotFound();
             }
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
             if (currentUser.UserId != comment.UserId)
             {
                 return BadRequest();
             }
 
-            _ICommentRepository.DeleteComment(comment);
-            _ICommentRepository.Save();
+             _ICommentRepository.DeleteComment(comment);
+             _ICommentRepository.SaveChanges();
 
             return NoContent();
         }

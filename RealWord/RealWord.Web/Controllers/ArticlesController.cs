@@ -50,9 +50,9 @@ namespace RealWord.Web.controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public ActionResult<IEnumerable<ArticleDto>> GetArticles([FromQuery] ArticlesParameters articlesParameters)
+        public async Task<ActionResult<IEnumerable<ArticleDto>>> GetArticles([FromQuery] ArticlesParameters articlesParameters)
         {
-            var articles = _IArticleRepository.GetArticles(articlesParameters);
+            var articles = await _IArticleRepository.GetArticlesAsync(articlesParameters);
             if (articles == null)
             {
                 return NotFound("Their is no atricles");
@@ -61,8 +61,8 @@ namespace RealWord.Web.controllers
 
             var articlesWhenLogin = new List<ArticleDto>();
 
-            var currentUser = _IAuthentication.GetCurrentUser();
-            if (currentUser.Username != null)
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
+            if (currentUser != null)
             {
                 foreach (var article in articles)
                 {
@@ -80,11 +80,11 @@ namespace RealWord.Web.controllers
         }
 
         [HttpGet("feed")]
-        public ActionResult<IEnumerable<ArticleDto>> FeedArticle([FromQuery] FeedArticlesParameters feedArticlesParameters)
+        public async Task<ActionResult<IEnumerable<ArticleDto>>> FeedArticle([FromQuery] FeedArticlesParameters feedArticlesParameters)
         {
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
 
-            var articles = _IArticleRepository.GetFeedArticles(currentUser.UserId, feedArticlesParameters);
+            var articles = await _IArticleRepository.GetFeedArticlesAsync(currentUser.UserId, feedArticlesParameters);
             if (!articles.Any())
             {
                 return NotFound("The followings have no articles");
@@ -105,9 +105,9 @@ namespace RealWord.Web.controllers
 
         [AllowAnonymous]
         [HttpGet("{slug}")]
-        public ActionResult<ArticleDto> GetArticle(string slug)
+        public async Task<ActionResult<ArticleDto>> GetArticle(string slug)
         {
-            var article = _IArticleRepository.GetArticle(slug);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
             if (article == null)
             {
                 return NotFound();
@@ -118,41 +118,41 @@ namespace RealWord.Web.controllers
         }
 
         [HttpPost]
-        public ActionResult<ArticleDto> CreateArticle(ArticleForCreationDto articleForCreation)
+        public async Task<ActionResult<ArticleDto>> CreateArticle(ArticleForCreationDto articleForCreation)
         {
             var articleEntityForCreation = _mapper.Map<Article>(articleForCreation);
 
             articleEntityForCreation.UserId = Guid.NewGuid();
-            articleEntityForCreation.Slug.GenerateSlug(articleEntityForCreation.Title, articleEntityForCreation.UserId);//ابحث هل لازم العنوان يكون فريد
+            articleEntityForCreation.Slug.GenerateSlug(articleEntityForCreation.Title, articleEntityForCreation.UserId);
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
             articleEntityForCreation.UserId = currentUser.UserId;
 
             var timeStamp = DateTime.Now;
-            articleEntityForCreation.CreatedAt = timeStamp;//تعبئة الداتا هون والا في الداتا بيس
+            articleEntityForCreation.CreatedAt = timeStamp;
             articleEntityForCreation.UpdatedAt = timeStamp;
 
-            _IArticleRepository.CreateArticle(articleEntityForCreation);
-            if (articleForCreation.TagList != null && articleForCreation.TagList.Any())//هل هذا الفحص الطويل له داعي 
+             _IArticleRepository.CreateArticle(articleEntityForCreation);
+            if (articleForCreation.TagList != null && articleForCreation.TagList.Any())
             {
-                _ITagRepository.CreateTags(articleForCreation.TagList, articleEntityForCreation.ArticleId);
+                 _ITagRepository.CreateTags(articleForCreation.TagList, articleEntityForCreation.ArticleId);
             }
-            _IArticleRepository.Save();
+             _IArticleRepository.SaveChanges();
 
             var articleToReturn = _mapper.Map<ArticleDto>(articleEntityForCreation, a => a.Items["currentUserId"] = currentUser.UserId);
             return new ObjectResult(new { article = articleToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpPut("{slug}")]
-        public ActionResult<ArticleDto> UpdateArticle(string slug, ArticleForUpdateDto articleForUpdate)
+        public async Task<ActionResult<ArticleDto>> UpdateArticle(string slug, ArticleForUpdateDto articleForUpdate)
         {
-            var article = _IArticleRepository.GetArticle(slug);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
             if (article == null)
             {
                 return NotFound();
             }
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
             if (currentUser.UserId != article.UserId)
             {
                 return BadRequest();
@@ -177,52 +177,52 @@ namespace RealWord.Web.controllers
             article.UpdatedAt = DateTime.Now;
 
             _IArticleRepository.UpdateArticle(article, articleEntityForUpdate);
-            _IArticleRepository.Save();
+             _IArticleRepository.SaveChanges();
 
             var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
             return Ok(new { article = articleToReturn });
         }
 
         [HttpDelete("{slug}")]
-        public IActionResult DeleteArticle(string slug)
+        public async Task<IActionResult> DeleteArticle(string slug)
         {
-            var article = _IArticleRepository.GetArticle(slug);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
             if (article == null)
             {
                 return NotFound();
             }
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
             if (currentUser.UserId != article.UserId)
             {
                 return BadRequest();
             }
 
-            _IArticleRepository.DeleteArticle(article);
-            _ICommentRepository.Save();
+             _IArticleRepository.DeleteArticle(article);
+             _IArticleRepository.SaveChanges();
 
             return NoContent();
         }
 
         [HttpPost("{slug}/favorite")]
-        public ActionResult<ArticleDto> FavoriteArticle(string slug)
+        public async Task<ActionResult<ArticleDto>> FavoriteArticle(string slug)
         {
-            var article = _IArticleRepository.GetArticle(slug);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
             if (article == null)
             {
                 return NotFound();
             }
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
 
-            var isFavorited = _IArticleRepository.IsFavorited(currentUser.UserId, article.ArticleId);//لازم أعمل زي هيك عشان الإيميل والعنوان
+            var isFavorited = await _IArticleRepository.IsFavoritedAsync(currentUser.UserId, article.ArticleId);
             if (isFavorited)
             {
                 return BadRequest($"You already favorite the article with slug {slug}");
             }
 
             _IArticleRepository.FavoriteArticle(currentUser.UserId, article.ArticleId);
-            _IArticleRepository.Save();
+            _IArticleRepository.SaveChanges();
 
             var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
             return new ObjectResult(new { article = articleToReturn }) { StatusCode = StatusCodes.Status201Created };
@@ -230,24 +230,24 @@ namespace RealWord.Web.controllers
         }
 
         [HttpDelete("{slug}/favorite")]
-        public IActionResult UnFavoriteArticle(string slug)
+        public async Task<IActionResult> UnFavoriteArticle(string slug)
         {
-            var article = _IArticleRepository.GetArticle(slug);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
             if (article == null)
             {
                 return NotFound();
             }
 
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
 
-            var isUnfavorited = !_IArticleRepository.IsFavorited(currentUser.UserId, article.ArticleId);
-            if (isUnfavorited)
+            var isFavorited = await _IArticleRepository.IsFavoritedAsync(currentUser.UserId, article.ArticleId);
+            if (isFavorited)
             {
                 return BadRequest($" You aren't favorite the article with slug {slug}");
             }
 
-            _IArticleRepository.UnfavoriteArticle(currentUser.UserId, article.ArticleId);
-            _IArticleRepository.Save();
+             _IArticleRepository.UnfavoriteArticle(currentUser.UserId, article.ArticleId);
+             _IArticleRepository.SaveChanges();
 
             var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
             return Ok(new { article = articleToReturn });

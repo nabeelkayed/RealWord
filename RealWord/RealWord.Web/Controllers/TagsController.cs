@@ -30,10 +30,11 @@ namespace RealWord.Web.Controllers
 
         [AllowAnonymous]
         [HttpGet]
-        public ActionResult<TagDto> GetTags()
+        public async Task<ActionResult<TagDto>> GetTags()
         {
-            var tags = _ITagRepository.GetTags();
-            return Ok(_mapper.Map<TagDto>(tags));
+            var tags = await _ITagRepository.GetTagsAsync();
+            var tagsToReturn = _mapper.Map<TagDto>(tags);
+            return Ok(tagsToReturn);
         }
     }
 }

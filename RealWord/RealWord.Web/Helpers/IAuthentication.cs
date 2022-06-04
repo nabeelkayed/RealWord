@@ -10,7 +10,9 @@ namespace RealWord.Web.Helpers
     public interface IAuthentication
     {
         string Generate(User user);
-        User LoginUser(UserLoginDto userLogin);
+        Task<User> LoginUserAsync(UserLoginDto userLogin);
+        Task<User> GetCurrentUserAsync();
         User GetCurrentUser();
+
     }
 }

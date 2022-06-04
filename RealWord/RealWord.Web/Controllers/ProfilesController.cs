@@ -48,7 +48,7 @@ namespace RealWord.Web.controllers
             }
 
             var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            if (currentUser.Username != null)
+            if (currentUser != null)
             {
                 var ProfileToReturnlogin = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = currentUser.UserId);
                 return Ok(new { profile = ProfileToReturnlogin });
@@ -80,8 +80,8 @@ namespace RealWord.Web.controllers
                 return BadRequest($"You already follow the user with username {username}");
             }
 
-            await _IUserRepository.FollowUserAsync(currentUser.UserId, userToFollow.UserId);
-            await _IUserRepository.SaveAsync();
+             _IUserRepository.FollowUser(currentUser.UserId, userToFollow.UserId);
+             _IUserRepository.SaveChanges();
 
             var ProfileToReturn = _mapper.Map<ProfileDto>(userToFollow, a => a.Items["currentUserId"] = currentUser.UserId);
             return new ObjectResult(new { profile = ProfileToReturn }) { StatusCode = StatusCodes.Status201Created };
@@ -103,14 +103,14 @@ namespace RealWord.Web.controllers
                 return BadRequest("You can't unfollow yourself");
             }
 
-            bool isUnfollowed = await !_IUserRepository.IsFollowedAsync(currentUser.UserId, userToUnfollow.UserId);
-            if (isUnfollowed)
+            bool isFollowed = await _IUserRepository.IsFollowedAsync(currentUser.UserId, userToUnfollow.UserId);
+            if (!isFollowed)
             {
                 return BadRequest($"You aren't follow the user of username {username}");
             }
 
-            await _IUserRepository.UnfollowUserAsync(currentUser.UserId, userToUnfollow.UserId);
-            await _IUserRepository.SaveAsync();
+             _IUserRepository.UnfollowUser(currentUser.UserId, userToUnfollow.UserId);
+             _IUserRepository.SaveChanges();
 
             var ProfileToReturn = _mapper.Map<ProfileDto>(userToUnfollow, a => a.Items["currentUserId"] = currentUser.UserId);
             return Ok(new { profile = ProfileToReturn });

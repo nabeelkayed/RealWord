@@ -15,7 +15,7 @@ using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
 using RealWord.Web.Helpers;
 using Microsoft.Net.Http.Headers;
-using Utils.Utils;
+using RealWord.Utils.Utils;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication;
 
@@ -29,7 +29,7 @@ namespace RealWord.Web.controllers
         private readonly IUserRepository _IUserRepository;
         private readonly IAuthentication _IAuthentication;
         private readonly IMapper _mapper;
-        private IConfiguration _config;
+        private readonly IConfiguration _config;
 
 
         public UsersController(IUserRepository userRepository, IAuthentication authentication,
@@ -38,7 +38,7 @@ namespace RealWord.Web.controllers
             _IUserRepository = userRepository ??
                 throw new ArgumentNullException(nameof(UserRepository));
             _IAuthentication = authentication ??
-                throw new ArgumentNullException(nameof(UserRepository));
+                    throw new ArgumentNullException(nameof(UserRepository));
             _config = config ??
                 throw new ArgumentNullException(nameof(config));
             _mapper = mapper ??
@@ -47,12 +47,12 @@ namespace RealWord.Web.controllers
 
         [AllowAnonymous]
         [HttpPost("users/login")]
-        public IActionResult login(UserLoginDto userLogin)
+        public async Task<IActionResult> Login(UserLoginDto userLogin)
         {
             userLogin.Email = userLogin.Email.ToLower();
             //userLogin.Password.GetHash(); 
 
-            var userLogedin = _IAuthentication.LoginUser(userLogin);
+            var userLogedin = await _IAuthentication.LoginUserAsync(userLogin);
             if (userLogedin == null)
             {
                 return NotFound();
@@ -70,22 +70,22 @@ namespace RealWord.Web.controllers
             userForCreation.Username = userForCreation.Username.ToLower();
             userForCreation.Password.GetHash();
 
-            var userExists = _IUserRepository.UserExists(userForCreation.Username);
+            var userExists = await _IUserRepository.UserExistsAsync(userForCreation.Username);
             if (userExists)
             {
                 return NotFound("The user is exist");
             }
 
             userForCreation.Email = userForCreation.Email.ToLower();
-            var emailNotAvailable = !_IUserRepository.EmailAvailable(userForCreation.Email);
-            if (emailNotAvailable)
+            var emailAvailable = await _IUserRepository.EmailAvailableAsync(userForCreation.Email);
+            if (!emailAvailable)
             {
                 return NotFound("The user is exist");
             }
 
-            var userEntityForCreation = _mapper.Map<User>(userForCreation);//ليش بعمل مابنج لأنه ما بصير الداتا بيس يكون الها اكسس على ال api
+            var userEntityForCreation = _mapper.Map<User>(userForCreation);
             _IUserRepository.CreateUser(userEntityForCreation);
-            _IUserRepository.Save();
+            _IUserRepository.SaveChanges();
 
             var userToReturn = _mapper.Map<UserDto>(userEntityForCreation);
             userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
@@ -95,18 +95,17 @@ namespace RealWord.Web.controllers
         [HttpGet("user")]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = _IAuthentication.GetCurrentUserAsync();
 
             var userToReturn = _mapper.Map<UserDto>(currentUser);
             userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
-
             return Ok(new { user = userToReturn });
         }
 
         [HttpPut("user")]
         public async Task<ActionResult<UserDto>> UpdateUser(UserForUpdateDto userForUpdate)
         {
-            var currentUser = _IAuthentication.GetCurrentUser();
+            var currentUser = await _IAuthentication.GetCurrentUserAsync();
 
             var userEntityForUpdate = _mapper.Map<User>(userForUpdate);
 
@@ -132,7 +131,7 @@ namespace RealWord.Web.controllers
             }
 
             _IUserRepository.UpdateUser(currentUser, userEntityForUpdate);
-            _IUserRepository.Save();
+            _IUserRepository.SaveChanges();
 
             var userToReturn = _mapper.Map<UserDto>(currentUser);
             userToReturn.Token = await HttpContext.GetTokenAsync("access_token");

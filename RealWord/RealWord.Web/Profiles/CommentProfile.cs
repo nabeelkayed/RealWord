@@ -14,9 +14,9 @@ namespace RealWord.Web.Profiles
         {
             CreateMap<Comment, CommentDto>()
                 .ForMember(
-                    dest => dest.Id,
+                    dest => dest.Id,//أبدله بcommentId
                     opt => opt.MapFrom(src => src.CommentId));
-            /*.ForMember(
+           /* .ForMember(
                   dest => dest.Author,
                   opt => opt.MapFrom(src => Mapper.Map<ProfileDto>(src.User));*/
 
