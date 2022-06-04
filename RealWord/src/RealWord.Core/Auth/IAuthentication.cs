@@ -10,6 +10,5 @@ namespace RealWord.Core.Auth
     public interface IAuthentication
     {
         string Generate(User user);
-        Task<UserDto> GetCurrentUserAsync();
     }
 }

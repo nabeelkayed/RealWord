@@ -13,6 +13,7 @@ using System.Security.Claims;
 using RealWord.Utils.ResourceParameters;
 using RealWord.Core.Auth;
 using Microsoft.AspNetCore.Http;
+using RealWord.Core.Repositories;
 
 namespace RealWord.Web.controllers
 {
@@ -27,23 +28,26 @@ namespace RealWord.Web.controllers
         private readonly IMapper _mapper;
         private readonly IAuthentication _IAuthentication;
         private readonly ITagRepository _ITagRepository;
+        private readonly IUserService _IUserService;
 
         public ArticlesController(IArticleRepository articleRepository, IAuthentication authentication,
-               ICommentRepository commentRepository, IUserRepository userRepository,
-               ITagRepository tagRepository, IMapper mapper)
+           ICommentRepository commentRepository, IUserRepository userRepository,
+           ITagRepository tagRepository, IMapper mapper, IUserService userService)
         {
             _IArticleRepository = articleRepository ??
                 throw new ArgumentNullException(nameof(articleRepository));
             _ITagRepository = tagRepository ??
                 throw new ArgumentNullException(nameof(tagRepository));
             _IAuthentication = authentication ??
-          throw new ArgumentNullException(nameof(UserRepository));
+                throw new ArgumentNullException(nameof(UserRepository));
             _IUserRepository = userRepository ??
-            throw new ArgumentNullException(nameof(userRepository));
+                throw new ArgumentNullException(nameof(userRepository));
             _ICommentRepository = commentRepository ??
                throw new ArgumentNullException(nameof(commentRepository));
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
+            _IUserService = userService ??
+                throw new ArgumentNullException(nameof(userService));
         }
 
         [AllowAnonymous]
@@ -59,13 +63,13 @@ namespace RealWord.Web.controllers
 
             var articlesWhenLogin = new List<ArticleDto>();
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            if (currentUser != null)
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            if (currentUserId != Guid.Empty)
             {
                 foreach (var article in articles)
                 {
-                    var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
-                    var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUser.UserId);
+                    var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
+                    var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUserId);
                     articleDto.Author = profileDto;
                     articlesWhenLogin.Add(articleDto);
                 }
@@ -80,9 +84,9 @@ namespace RealWord.Web.controllers
         [HttpGet("feed")]
         public async Task<ActionResult<IEnumerable<ArticleDto>>> FeedArticle([FromQuery] FeedArticlesParameters feedArticlesParameters)
         {
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
 
-            var articles = await _IArticleRepository.GetFeedArticlesAsync(currentUser.UserId, feedArticlesParameters);
+            var articles = await _IArticleRepository.GetFeedArticlesAsync(currentUserId, feedArticlesParameters);
             if (!articles.Any())
             {
                 return NotFound("The followings have no articles");
@@ -92,8 +96,8 @@ namespace RealWord.Web.controllers
             var articlesToReturn = new List<ArticleDto>();
             foreach (var article in articles)
             {
-                var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUser.UserId);
-                var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
+                var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUserId);
+                var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
                 articleDto.Author = profileDto;
                 articlesToReturn.Add(articleDto);
             }
@@ -123,8 +127,8 @@ namespace RealWord.Web.controllers
             articleEntityForCreation.UserId = Guid.NewGuid();
             articleEntityForCreation.Slug.GenerateSlug(articleEntityForCreation.Title, articleEntityForCreation.UserId);
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            articleEntityForCreation.UserId = currentUser.UserId;
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            articleEntityForCreation.UserId = currentUserId;
 
             var timeStamp = DateTime.Now;
             articleEntityForCreation.CreatedAt = timeStamp;
@@ -138,7 +142,7 @@ namespace RealWord.Web.controllers
             await _IArticleRepository.SaveChangesAsync();
             await _ITagRepository.SaveChangesAsync();
 
-            var articleToReturn = _mapper.Map<ArticleDto>(articleEntityForCreation, a => a.Items["currentUserId"] = currentUser.UserId);
+            var articleToReturn = _mapper.Map<ArticleDto>(articleEntityForCreation, a => a.Items["currentUserId"] = currentUserId);
             return new ObjectResult(new { article = articleToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
@@ -151,8 +155,8 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            if (currentUser.UserId != article.UserId)
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            if (currentUserId != article.UserId)
             {
                 return BadRequest();
             }
@@ -178,7 +182,7 @@ namespace RealWord.Web.controllers
             _IArticleRepository.UpdateArticle(article, articleEntityForUpdate);
             await _IArticleRepository.SaveChangesAsync();
 
-            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
             return Ok(new { article = articleToReturn });
         }
 
@@ -191,8 +195,8 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            if (currentUser.UserId != article.UserId)
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            if (currentUserId != article.UserId)
             {
                 return BadRequest();
             }
@@ -212,18 +216,18 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
 
-            var isFavorited = await _IArticleRepository.IsFavoritedAsync(currentUser.UserId, article.ArticleId);
+            var isFavorited = await _IArticleRepository.IsFavoritedAsync(currentUserId, article.ArticleId);
             if (isFavorited)
             {
                 return BadRequest($"You already favorite the article with slug {slug}");
             }
 
-            _IArticleRepository.FavoriteArticle(currentUser.UserId, article.ArticleId);
+            _IArticleRepository.FavoriteArticle(currentUserId, article.ArticleId);
             await _IArticleRepository.SaveChangesAsync();
 
-            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
             return new ObjectResult(new { article = articleToReturn }) { StatusCode = StatusCodes.Status201Created };
 
         }
@@ -237,18 +241,18 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
 
-            var isFavorited = await _IArticleRepository.IsFavoritedAsync(currentUser.UserId, article.ArticleId);
+            var isFavorited = await _IArticleRepository.IsFavoritedAsync(currentUserId, article.ArticleId);
             if (isFavorited)
             {
                 return BadRequest($" You aren't favorite the article with slug {slug}");
             }
 
-            _IArticleRepository.UnfavoriteArticle(currentUser.UserId, article.ArticleId);
+            _IArticleRepository.UnfavoriteArticle(currentUserId, article.ArticleId);
             await _IArticleRepository.SaveChangesAsync();
 
-            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUser.UserId);
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
             return Ok(new { article = articleToReturn });
         }
     }

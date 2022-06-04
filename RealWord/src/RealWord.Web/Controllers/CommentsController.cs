@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-
+using RealWord.Core.Repositories;
 
 namespace RealWord.Web.controllers
 {
@@ -25,10 +25,12 @@ namespace RealWord.Web.controllers
         private readonly IMapper _mapper;
         private readonly IUserRepository _IUserRepository;
         private readonly IAuthentication _IAuthentication;
+        private readonly IUserService _IUserService;
+
 
         public CommentsController(IArticleRepository ArticleRepository, IUserRepository userRepository,
         IAuthentication authentication, ICommentRepository CommentRepository,
-        IMapper mapper)
+        IMapper mapper, IUserService userService)
         {
             _IArticleRepository = ArticleRepository ??
                 throw new ArgumentNullException(nameof(ArticleRepository));
@@ -40,6 +42,8 @@ namespace RealWord.Web.controllers
                throw new ArgumentNullException(nameof(CommentRepository));
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
+            _IUserService = userService ??
+             throw new ArgumentNullException(nameof(userService));
         }
 
         [HttpPost("{slug}/comments")]
@@ -53,8 +57,8 @@ namespace RealWord.Web.controllers
 
             var commentEntityForCreation = _mapper.Map<Comment>(commentForCreation);
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            commentEntityForCreation.UserId = currentUser.UserId;
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            commentEntityForCreation.UserId = currentUserId;
 
             var Article = await _IArticleRepository.GetArticleAsync(slug);
             commentEntityForCreation.ArticleId = Article.ArticleId;
@@ -84,13 +88,13 @@ namespace RealWord.Web.controllers
             var comments = await _ICommentRepository.GetCommentsForArticleAsync(article.ArticleId);
             var commentsWhenLogin = new List<CommentDto>();
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            if (currentUser != null)
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            if (currentUserId != null)
             {
                 foreach (var comment in comments)
                 {
-                    var commentDto = _mapper.Map<CommentDto>(comment, a => a.Items["currentUserId"] = currentUser.UserId);
-                    var profileDto = _mapper.Map<ProfileDto>(comment.User, a => a.Items["currentUserId"] = currentUser.UserId);
+                    var commentDto = _mapper.Map<CommentDto>(comment, a => a.Items["currentUserId"] = currentUserId);
+                    var profileDto = _mapper.Map<ProfileDto>(comment.User, a => a.Items["currentUserId"] = currentUserId);
                     commentDto.Author = profileDto;
                     commentsWhenLogin.Add(commentDto);
                 }
@@ -117,8 +121,8 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            if (currentUser.UserId != comment.UserId)
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            if (currentUserId != comment.UserId)
             {
                 return BadRequest();
             }

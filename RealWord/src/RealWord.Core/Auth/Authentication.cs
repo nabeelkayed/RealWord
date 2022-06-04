@@ -19,42 +19,11 @@ namespace RealWord.Core.Auth
     public class Authentication : IAuthentication
     {
         private readonly IConfiguration _config;
-        private readonly IUserRepository _IUserRepository;
-        private readonly IHttpContextAccessor _accessor;
-        private readonly IMapper _mapper;
 
-        public Authentication(IUserRepository userRepository, IHttpContextAccessor accessor,
-        IConfiguration config, IMapper mapper)
+        public Authentication(IConfiguration config)
         {
-            _IUserRepository = userRepository ??
-                throw new ArgumentNullException(nameof(UserRepository));
-            _accessor = accessor ??
-                throw new ArgumentNullException(nameof(accessor));
             _config = config ??
                 throw new ArgumentNullException(nameof(config));
-            _mapper = mapper ??
-          throw new ArgumentNullException(nameof(mapper));
-        }
-        public async Task<UserDto> GetCurrentUserAsync()
-        {
-            var currentUsername = _accessor?.HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (!String.IsNullOrEmpty(currentUsername))
-            {
-                var currentUser = await _IUserRepository.GetUserAsync(currentUsername);
-
-                var userToReturn = _mapper.Map<UserDto>(currentUser);
-                return userToReturn;
-            }
-
-            return null;
-        }
-        public async Task<UserDto> GetCurrentUserIdAsync()
-        {
-            var currentUsername = _accessor?.HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-            if (!String.IsNullOrEmpty(currentUsername))
-            {
-                var currentUser = await _IUserRepository.GetUserAsync(currentUsername);
-            }
         }
 
         public string Generate(User user)

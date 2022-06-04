@@ -38,7 +38,6 @@ namespace RealWord.Web.controllers
         {
             _IUserService = userService ??
                throw new ArgumentNullException(nameof(userService));
-
             _IUserRepository = userRepository ??
                 throw new ArgumentNullException(nameof(UserRepository));
             _IAuthentication = authentication ??
@@ -95,7 +94,7 @@ namespace RealWord.Web.controllers
         [HttpGet("user")]
         public async Task<ActionResult<UserDto>> GetCurrentUser()
         {
-            var userToReturn =await _IAuthentication.GetCurrentUserAsync();
+            var userToReturn =await _IUserService.GetCurrentUserAsync();
 
             userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
             return Ok(new { user = userToReturn });
@@ -104,7 +103,7 @@ namespace RealWord.Web.controllers
         [HttpPut("user")]
         public async Task<ActionResult<UserDto>> UpdateUser(UserForUpdateDto userForUpdate)
         {
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
+            var currentUser = await _IUserService.GetCurrentUserAsync();
 
             var userEntityForUpdate = _mapper.Map<User>(userForUpdate);
 

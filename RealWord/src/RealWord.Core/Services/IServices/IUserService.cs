@@ -9,5 +9,7 @@ namespace RealWord.Core.Repositories
     {
         Task<User> ValidLoginUserAsync(UserLoginDto userLogin);
         UserDto LoginUserAsync(User userLogin);
+        Task<UserDto> GetCurrentUserAsync();
+        Task<Guid> GetCurrentUserIdAsync();
     }
 }

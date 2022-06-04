@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-
+using RealWord.Core.Repositories;
 
 namespace RealWord.Web.controllers
 {
@@ -23,10 +23,10 @@ namespace RealWord.Web.controllers
         private readonly IUserRepository _IUserRepository;
         private readonly IMapper _mapper;
         private readonly IAuthentication _IAuthentication;
-
-
+        private readonly IUserService _IUserService;
+        
         public ProfilesController(IUserRepository userRepository, IAuthentication authentication,
-        IMapper mapper)
+        IMapper mapper, IUserService userService)
         {
             _IUserRepository = userRepository ??
                          throw new ArgumentNullException(nameof(userRepository));
@@ -34,6 +34,8 @@ namespace RealWord.Web.controllers
          throw new ArgumentNullException(nameof(UserRepository));
             _mapper = mapper ??
             throw new ArgumentNullException(nameof(mapper));
+            _IUserService = userService ??
+             throw new ArgumentNullException(nameof(userService));
         }
 
         [AllowAnonymous]
@@ -47,10 +49,10 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            if (currentUser != null)
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            if (currentUserId != null)
             {
-                var ProfileToReturnlogin = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = currentUser.UserId);
+                var ProfileToReturnlogin = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = currentUserId);
                 return Ok(new { profile = ProfileToReturnlogin });
             }
 
@@ -68,22 +70,24 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            if (currentUser.Username == username)
+            var currentUserDto = await _IUserService.GetCurrentUserAsync();
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+
+            if (currentUserDto.Username == username)
             {
                 return BadRequest("You can't follow yourself");
             }
 
-            bool isFollowed = await _IUserRepository.IsFollowedAsync(currentUser.UserId, userToFollow.UserId);
+            bool isFollowed = await _IUserRepository.IsFollowedAsync(currentUserId, userToFollow.UserId);
             if (isFollowed)
             {
                 return BadRequest($"You already follow the user with username {username}");
             }
 
-             _IUserRepository.FollowUser(currentUser.UserId, userToFollow.UserId);
+             _IUserRepository.FollowUser(currentUserId, userToFollow.UserId);
              await _IUserRepository.SaveChangesAsync();
 
-            var ProfileToReturn = _mapper.Map<ProfileDto>(userToFollow, a => a.Items["currentUserId"] = currentUser.UserId);
+            var ProfileToReturn = _mapper.Map<ProfileDto>(userToFollow, a => a.Items["currentUserId"] = currentUserId);
             return new ObjectResult(new { profile = ProfileToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
@@ -97,22 +101,24 @@ namespace RealWord.Web.controllers
                 return NotFound();
             }
 
-            var currentUser = await _IAuthentication.GetCurrentUserAsync();
-            if (currentUser.Username == username)
+            var currentUserDto = await _IUserService.GetCurrentUserAsync();
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+
+            if (currentUserDto.Username == username)
             {
                 return BadRequest("You can't unfollow yourself");
             }
 
-            bool isFollowed = await _IUserRepository.IsFollowedAsync(currentUser.UserId, userToUnfollow.UserId);
+            bool isFollowed = await _IUserRepository.IsFollowedAsync(currentUserId, userToUnfollow.UserId);
             if (!isFollowed)
             {
                 return BadRequest($"You aren't follow the user of username {username}");
             }
 
-             _IUserRepository.UnfollowUser(currentUser.UserId, userToUnfollow.UserId);
+             _IUserRepository.UnfollowUser(currentUserId, userToUnfollow.UserId);
              await _IUserRepository.SaveChangesAsync();
 
-            var ProfileToReturn = _mapper.Map<ProfileDto>(userToUnfollow, a => a.Items["currentUserId"] = currentUser.UserId);
+            var ProfileToReturn = _mapper.Map<ProfileDto>(userToUnfollow, a => a.Items["currentUserId"] = currentUserId);
             return Ok(new { profile = ProfileToReturn });
 
         }
