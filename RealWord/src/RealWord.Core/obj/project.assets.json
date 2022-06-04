@@ -1517,7 +1517,7 @@
           "lib/netstandard1.3/System.Xml.XmlSerializer.dll": {}
         }
       },
-      "RealWord.Db/1.0.0": {
+      "RealWord.Data/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
         "dependencies": {
@@ -1526,10 +1526,10 @@
           "RealWord.Utils": "1.0.0"
         },
         "compile": {
-          "bin/placeholder/RealWord.Db.dll": {}
+          "bin/placeholder/RealWord.Data.dll": {}
         },
         "runtime": {
-          "bin/placeholder/RealWord.Db.dll": {}
+          "bin/placeholder/RealWord.Data.dll": {}
         }
       },
       "RealWord.Utils/1.0.0": {
@@ -5753,10 +5753,10 @@
         "system.xml.xmlserializer.nuspec"
       ]
     },
-    "RealWord.Db/1.0.0": {
+    "RealWord.Data/1.0.0": {
       "type": "project",
-      "path": "../RealWord.Db/RealWord.Db.csproj",
-      "msbuildProject": "../RealWord.Db/RealWord.Db.csproj"
+      "path": "../RealWord.Data/RealWord.Data.csproj",
+      "msbuildProject": "../RealWord.Data/RealWord.Data.csproj"
     },
     "RealWord.Utils/1.0.0": {
       "type": "project",
@@ -5766,7 +5766,7 @@
   },
   "projectFileDependencyGroups": {
     ".NETCoreApp,Version=v3.1": [
-      "RealWord.Db >= 1.0.0"
+      "RealWord.Data >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -5800,8 +5800,8 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Db\\RealWord.Db.csproj": {
-              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Db\\RealWord.Db.csproj"
+            "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj": {
+              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj"
             }
           }
         }

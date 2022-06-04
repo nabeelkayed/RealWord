@@ -31,8 +31,8 @@
           "netcoreapp3.1": {
             "targetAlias": "netcoreapp3.1",
             "projectReferences": {
-              "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Db\\RealWord.Db.csproj": {
-                "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Db\\RealWord.Db.csproj"
+              "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj": {
+                "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj"
               }
             }
           }
@@ -65,14 +65,14 @@
         }
       }
     },
-    "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Db\\RealWord.Db.csproj": {
+    "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Db\\RealWord.Db.csproj",
-        "projectName": "RealWord.Db",
-        "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Db\\RealWord.Db.csproj",
+        "projectUniqueName": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj",
+        "projectName": "RealWord.Data",
+        "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj",
         "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Db\\obj\\",
+        "outputPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"

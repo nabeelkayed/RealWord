@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "xZSCW4+dabYvcD8i+MG4sqiHCWq0Fc2nddBFgAFUdnwwbPGluS0iDgDeTvWES/X1EIW9Z2pC+mXMldCzWr0paw==",
+  "dgSpecHash": "jZQpyNmR9gXmSr740xcrOwCaYMC1gLdrxNt8PHf3ybMtN5xlZHnAS8vp0Xw7vRkHCmy02NYZP//BEF9fxToKsQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Web\\RealWord.Web.csproj",
+  "projectFilePath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Web\\RealWord.Web.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\hp\\.nuget\\packages\\automapper\\11.0.0\\automapper.11.0.0.nupkg.sha512",
     "C:\\Users\\hp\\.nuget\\packages\\automapper.extensions.microsoft.dependencyinjection\\11.0.0\\automapper.extensions.microsoft.dependencyinjection.11.0.0.nupkg.sha512",

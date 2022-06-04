@@ -2234,7 +2234,7 @@
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
         "dependencies": {
-          "RealWord.Db": "1.0.0"
+          "RealWord.Data": "1.0.0"
         },
         "compile": {
           "bin/placeholder/RealWord.Core.dll": {}
@@ -2243,7 +2243,7 @@
           "bin/placeholder/RealWord.Core.dll": {}
         }
       },
-      "RealWord.Db/1.0.0": {
+      "RealWord.Data/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v3.1",
         "dependencies": {
@@ -2252,10 +2252,10 @@
           "RealWord.Utils": "1.0.0"
         },
         "compile": {
-          "bin/placeholder/RealWord.Db.dll": {}
+          "bin/placeholder/RealWord.Data.dll": {}
         },
         "runtime": {
-          "bin/placeholder/RealWord.Db.dll": {}
+          "bin/placeholder/RealWord.Data.dll": {}
         }
       },
       "RealWord.Utils/1.0.0": {
@@ -7413,10 +7413,10 @@
       "path": "../RealWord.Core/RealWord.Core.csproj",
       "msbuildProject": "../RealWord.Core/RealWord.Core.csproj"
     },
-    "RealWord.Db/1.0.0": {
+    "RealWord.Data/1.0.0": {
       "type": "project",
-      "path": "../RealWord.Db/RealWord.Db.csproj",
-      "msbuildProject": "../RealWord.Db/RealWord.Db.csproj"
+      "path": "../RealWord.Data/RealWord.Data.csproj",
+      "msbuildProject": "../RealWord.Data/RealWord.Data.csproj"
     },
     "RealWord.Utils/1.0.0": {
       "type": "project",
@@ -7435,7 +7435,7 @@
       "Microsoft.AspNetCore.Mvc.Formatters.Json >= 2.2.0",
       "Microsoft.EntityFrameworkCore.Tools >= 5.0.17",
       "RealWord.Core >= 1.0.0",
-      "RealWord.Db >= 1.0.0",
+      "RealWord.Data >= 1.0.0",
       "RealWord.Utils >= 1.0.0",
       "Swashbuckle.AspNetCore >= 6.3.1",
       "System.IdentityModel.Tokens.Jwt >= 6.18.0"
@@ -7448,11 +7448,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Web\\RealWord.Web.csproj",
+      "projectUniqueName": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Web\\RealWord.Web.csproj",
       "projectName": "RealWord.Web",
-      "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Web\\RealWord.Web.csproj",
+      "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Web\\RealWord.Web.csproj",
       "packagesPath": "C:\\Users\\hp\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Web\\obj\\",
+      "outputPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Web\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -7472,14 +7472,14 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "projectReferences": {
-            "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Core\\RealWord.Core.csproj": {
-              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Core\\RealWord.Core.csproj"
+            "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Core\\RealWord.Core.csproj": {
+              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Core\\RealWord.Core.csproj"
             },
-            "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Db\\RealWord.Db.csproj": {
-              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Db\\RealWord.Db.csproj"
+            "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj": {
+              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Data\\RealWord.Data.csproj"
             },
-            "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Utils\\RealWord.Utils.csproj": {
-              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\RealWord.Utils\\RealWord.Utils.csproj"
+            "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Utils\\RealWord.Utils.csproj": {
+              "projectPath": "C:\\Users\\hp\\Desktop\\RealWord\\RealWord\\src\\RealWord.Utils\\RealWord.Utils.csproj"
             }
           }
         }

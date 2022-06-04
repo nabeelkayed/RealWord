@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# SQL Server Management Studio Solution File, Format Version 18.00
+VisualStudioVersion = 15.0.28307.421
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{4F2E2C19-372F-40D8-9FA7-9D2138C6997A}") = "RealWord.Db", "RealWord.Db\RealWord.Db.ssmssqlproj", "{D7A96B1C-DE23-4E95-86E4-0FD1172F8B11}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Default|Default = Default|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7A96B1C-DE23-4E95-86E4-0FD1172F8B11}.Default|Default.ActiveCfg = Default
+		{2CFDDA62-5A25-427B-8017-12AB4389DD58}.Default|Default.ActiveCfg = Default
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {AE038665-AEDC-43A0-8D42-DF3F102BD819}
+	EndGlobalSection
+EndGlobal

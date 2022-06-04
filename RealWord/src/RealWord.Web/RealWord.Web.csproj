@@ -22,7 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RealWord.Core\RealWord.Core.csproj" />
-    <ProjectReference Include="..\RealWord.Db\RealWord.Db.csproj" />
+    <ProjectReference Include="..\RealWord.Data\RealWord.Data.csproj" />
     <ProjectReference Include="..\RealWord.Utils\RealWord.Utils.csproj" />
   </ItemGroup>
 

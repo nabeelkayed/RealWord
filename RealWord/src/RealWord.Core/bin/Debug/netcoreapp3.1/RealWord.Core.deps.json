@@ -8,7 +8,7 @@
     ".NETCoreApp,Version=v3.1": {
       "RealWord.Core/1.0.0": {
         "dependencies": {
-          "RealWord.Db": "1.0.0"
+          "RealWord.Data": "1.0.0"
         },
         "runtime": {
           "RealWord.Core.dll": {}
@@ -1078,14 +1078,14 @@
           "System.Xml.XmlDocument": "4.3.0"
         }
       },
-      "RealWord.Db/1.0.0": {
+      "RealWord.Data/1.0.0": {
         "dependencies": {
           "Microsoft.AspNetCore.Http.Abstractions": "2.2.0",
           "Microsoft.EntityFrameworkCore.SqlServer": "5.0.17",
           "RealWord.Utils": "1.0.0"
         },
         "runtime": {
-          "RealWord.Db.dll": {}
+          "RealWord.Data.dll": {}
         }
       },
       "RealWord.Utils/1.0.0": {
@@ -1780,7 +1780,7 @@
       "path": "system.xml.xmlserializer/4.3.0",
       "hashPath": "system.xml.xmlserializer.4.3.0.nupkg.sha512"
     },
-    "RealWord.Db/1.0.0": {
+    "RealWord.Data/1.0.0": {
       "type": "project",
       "serviceable": false,
       "sha512": ""
