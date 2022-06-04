@@ -1,0 +1,15 @@
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\bin\Debug\netcoreapp3.1\RealWord.Core.deps.json
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\bin\Debug\netcoreapp3.1\RealWord.Core.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\bin\Debug\netcoreapp3.1\RealWord.Core.pdb
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\bin\Debug\netcoreapp3.1\RealWord.Db.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\bin\Debug\netcoreapp3.1\RealWord.Db.pdb
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\obj\Debug\netcoreapp3.1\RealWord.Core.csproj.AssemblyReference.cache
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\obj\Debug\netcoreapp3.1\RealWord.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\obj\Debug\netcoreapp3.1\RealWord.Core.AssemblyInfoInputs.cache
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\obj\Debug\netcoreapp3.1\RealWord.Core.AssemblyInfo.cs
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\obj\Debug\netcoreapp3.1\RealWord.Core.csproj.CoreCompileInputs.cache
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\obj\Debug\netcoreapp3.1\RealWord.Core.csproj.CopyComplete
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\obj\Debug\netcoreapp3.1\RealWord.Core.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\obj\Debug\netcoreapp3.1\RealWord.Core.pdb
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\bin\Debug\netcoreapp3.1\RealWord.Utils.dll
+C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Core\bin\Debug\netcoreapp3.1\RealWord.Utils.pdb
