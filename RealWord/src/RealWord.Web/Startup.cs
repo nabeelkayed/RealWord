@@ -20,7 +20,7 @@ using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
 using RealWord.Core.Profiles;
 using Microsoft.AspNetCore.Mvc;
-using RealWord.Core.Repositories;
+using RealWord.Core.Services;
 
 namespace RealWord.Web
 {
@@ -36,6 +36,8 @@ namespace RealWord.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
+
             services.AddControllers(setupAction =>
             {
                 setupAction.ReturnHttpNotAcceptable = true;
@@ -123,10 +125,14 @@ namespace RealWord.Web
                 app.UseExceptionHandler("/Error");
             }
 
+
             app.UseStaticFiles();
 
             app.UseRouting();
 
+            app.UseCors(options => options.WithOrigins("http://localhost:50001")
+                                          .AllowAnyMethod()
+                                          .AllowAnyHeader());
             app.UseAuthentication();
 
             app.UseAuthorization();

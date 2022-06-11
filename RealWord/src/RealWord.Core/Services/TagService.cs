@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using RealWord.Data.Repositories;
 
-namespace RealWord.Core.Repositories
+namespace RealWord.Core.Services
 {
     public class TagService : ITagService
     {
@@ -28,8 +28,17 @@ namespace RealWord.Core.Repositories
         public async Task<TagDto> GetTagsAsync()
         {
             var tags = await _ITagRepository.GetTagsAsync();
+
             var tagsToReturn = _mapper.Map<TagDto>(tags);
             return tagsToReturn;
+        }
+        public async Task CreateTags(List<string> tagList, Guid articleId)
+        { 
+            var tags = await _ITagRepository.GetTagsListAsync();
+            var newtags = tags.Union(tagList).ToList();
+
+            _ITagRepository.CreateTags(newtags, articleId);
+            await _ITagRepository.SaveChangesAsync();
         }
     }
 }

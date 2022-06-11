@@ -1,14 +1,9 @@
-﻿using AutoMapper;
-using RealWord.Core.Models;
+﻿using RealWord.Core.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using RealWord.Data.Repositories;
-using RealWord.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
-using RealWord.Core.Repositories;
+using RealWord.Core.Services;
 
 namespace RealWord.Web.Controllers
 {
@@ -30,7 +25,17 @@ namespace RealWord.Web.Controllers
         public async Task<ActionResult<TagDto>> GetTags()
         {
             var tagsToReturn = await _ITagService.GetTagsAsync();
+           
             return Ok(tagsToReturn);
+        }
+
+        [AllowAnonymous]
+        [HttpOptions]
+        public IActionResult TagsOptions()
+        {
+            Response.Headers.Add("Allow", "GET,OPTIONS");
+
+            return Ok();
         }
     }
 }

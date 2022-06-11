@@ -16,21 +16,23 @@ namespace RealWord.Data.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+
         public async Task<List<Tag>> GetTagsAsync()
         {
             var tags = await _context.Tags.ToListAsync();
             return tags;
         }
+        public async Task<List<string>> GetTagsListAsync()
+        {
+            var tags = await _context.Tags.Select(t => t.TagId).ToListAsync();
+            return tags;
+        }
         public void CreateTags(List<string> tagList, Guid articleId)
         {
-            var tags = _context.Tags.Select(t => t.TagId).ToList();
             foreach (var tag in tagList)
             {
-                if (!tags.Contains(tag))
-                {
-                    var newTag = new Tag { TagId = tag };
-                    _context.Tags.Add(newTag);
-                }
+                var newTag = new Tag { TagId = tag };
+                _context.Tags.Add(newTag);
 
                 var ArticleTags = new ArticleTags { TagId = tag, ArticleId = articleId };
                 _context.ArticleTags.Add(ArticleTags);
@@ -40,5 +42,7 @@ namespace RealWord.Data.Repositories
         {
             await _context.SaveChangesAsync();
         }
+
+
     }
 }

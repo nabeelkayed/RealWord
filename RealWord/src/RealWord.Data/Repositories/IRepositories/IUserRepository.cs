@@ -8,7 +8,6 @@ namespace RealWord.Data.Repositories
     {
         Task<bool> UserExistsAsync(string username);
         Task<User> GetUserAsync(string username);
-        //User GetUser(string username);
         Task<User> LoginUserAsync(User user);
         void CreateUser(User user);
         Task<bool> EmailAvailableAsync(string email);

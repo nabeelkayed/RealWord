@@ -3,13 +3,17 @@ using RealWord.Data.Entities;
 using System;
 using System.Threading.Tasks;
 
-namespace RealWord.Core.Repositories
+namespace RealWord.Core.Services
 {
     public interface IUserService
     {
-        Task<User> ValidLoginUserAsync(UserLoginDto userLogin);
-        UserDto LoginUserAsync(User userLogin);
+        Task<UserDto> LoginUserAsync(UserLoginDto userLogin);
         Task<UserDto> GetCurrentUserAsync();
         Task<Guid> GetCurrentUserIdAsync();
+        Task<UserDto> CreateUserAsync(UserForCreationDto userForCreation);
+        Task<UserDto> UpdateUserAsync(UserForUpdateDto userForUpdateDto);
+        Task<ProfileDto> GetProfileAsync(string username);
+        Task<ProfileDto> FollowUserAsync(string username);
+        Task<ProfileDto> UnFollowUserAsync(string username);
     }
 }

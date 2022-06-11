@@ -4,21 +4,21 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using RealWord.Utils.ResourceParameters;
 using System.Threading.Tasks;
+using RealWord.Core.Models;
 
-namespace RealWord.Core.Repositories
+namespace RealWord.Core.Services
 {
     public interface IArticleService
     {
         Task<bool> ArticleExistsAsync(string slug);
-        Task<Article> GetArticleAsync(string slug);
-        Task<List<Article>> GetArticlesAsync(ArticlesParameters articlesParameters);
-        Task<List<Article>> GetFeedArticlesAsync(Guid currentUserId, FeedArticlesParameters feedArticlesParameters);
-        void CreateArticle(Article article); 
-        void UpdateArticle(Article updatedArticle, Article articleForUpdate);
-        void DeleteArticle(Article article);
-        void FavoriteArticle(Guid currentUserId, Guid articleToFavoriteId);
-        void UnfavoriteArticle(Guid currentUserId, Guid articleToUnfavoriteId);
-        Task<bool> IsFavoritedAsync(Guid UserId, Guid articleId);
-        Task SaveChangesAsync(); 
+        Task<bool> IsAuthorized(string slug);
+        Task<IEnumerable<ArticleDto>> GetArticlesAsync(ArticlesParameters articlesParameters);
+        Task<IEnumerable<ArticleDto>> FeedArticleAsync(FeedArticlesParameters feedArticlesParameters);
+        Task<ArticleDto> GetArticleAsync(string slug);
+        Task<ArticleDto> CreateArticleAsync(ArticleForCreationDto articleForCreation);
+        Task<ArticleDto> UpdateArticleAsync(string slug, ArticleForUpdateDto articleForUpdate);
+        Task DeleteArticleAsync(string slug);
+        Task<ArticleDto> FavoriteArticleAsync(string slug);
+        Task<ArticleDto> UnFavoriteArticleAsync(string slug);
     }
 }

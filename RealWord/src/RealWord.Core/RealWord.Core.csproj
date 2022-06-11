@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\RealWord.Data\RealWord.Data.csproj"/>
+    <ProjectReference Include="..\RealWord.Data\RealWord.Data.csproj"  />
   </ItemGroup>
   
 </Project>

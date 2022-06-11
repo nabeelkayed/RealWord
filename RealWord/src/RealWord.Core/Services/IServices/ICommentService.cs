@@ -1,16 +1,17 @@
-﻿using RealWord.Data.Entities;
+﻿using RealWord.Core.Models;
+using RealWord.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RealWord.Core.Repositories
+namespace RealWord.Core.Services
 {
     public interface ICommentService
     {
-        Task<Comment> GetCommentAsync(Guid id);
-        Task<List<Comment>> GetCommentsForArticleAsync(Guid articleId);
-        void CreateComment(Comment comment);
-        void DeleteComment(Comment comment);
-        Task SaveChangesAsync();
+        Task<bool> CommentExistsAsync(string slug, Guid id);
+        Task<bool> IsAuthorized(string slug,Guid id);
+        Task<CommentDto> AddCommentToArticleAsync(string slug, CommentForCreationDto commentForCreation);
+        Task<IEnumerable<CommentDto>> GetCommentsFromArticleAsync(string slug);
+        Task<bool> DeleteCommentAsync(string slug, Guid id);
     }
 }

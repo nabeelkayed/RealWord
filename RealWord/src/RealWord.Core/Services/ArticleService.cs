@@ -1,137 +1,217 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using RealWord.Data.Entities;
-using RealWord.Utils.ResourceParameters; 
+using RealWord.Utils.ResourceParameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using RealWord.Utils.Utils;
 using System.Threading.Tasks;
-using RealWord.Data;
+using RealWord.Core.Models;
+using RealWord.Data.Repositories;
+using AutoMapper;
 
-namespace RealWord.Core.Repositories
+namespace RealWord.Core.Services
 {
     public class ArticleService : IArticleService
     {
-        private readonly RealWordDbContext _context;
+        private readonly IArticleRepository _IArticleRepository;
+        private readonly IUserService _IUserService;
+        private readonly ITagService _ITagService;
+        private readonly IMapper _mapper;
 
-        public ArticleService(RealWordDbContext context)
+        public ArticleService(IArticleRepository articleRepository, IUserService userService,
+         ITagService tagService, IMapper mapper)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+
+            _IArticleRepository = articleRepository ??
+                throw new ArgumentNullException(nameof(articleRepository));
+            _IUserService = userService ??
+                throw new ArgumentNullException(nameof(userService));
+            _ITagService = tagService ??
+                throw new ArgumentNullException(nameof(tagService));
+            _mapper = mapper ??
+                throw new ArgumentNullException(nameof(mapper));
         }
+
         public async Task<bool> ArticleExistsAsync(string slug)
         {
-            if (String.IsNullOrEmpty(slug))
+            var isArticleExists = await _IArticleRepository.ArticleExistsAsync(slug);
+            return isArticleExists;
+        }
+        public async Task<bool> IsAuthorized(string slug)
+        {
+            var article = await _IArticleRepository.GetArticleAsync(slug);
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+
+            var isAuthorized = currentUserId == article.UserId;
+            return isAuthorized;
+        }
+        public async Task<IEnumerable<ArticleDto>> GetArticlesAsync(ArticlesParameters articlesParameters)
+        {
+            var articles = await _IArticleRepository.GetArticlesAsync(articlesParameters);
+            if (articles == null)
             {
-                throw new ArgumentNullException(nameof(slug));
+                return null;
             }
 
-            bool articleExists = await _context.Articles.AnyAsync(a => a.Slug == slug);
-            return articleExists;
-        }
-        public async Task<Article> GetArticleAsync(string slug)
-        {
-            if (String.IsNullOrEmpty(slug))
+            var articlesWhenLogin = new List<ArticleDto>();
+
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            if (currentUserId != Guid.Empty)
             {
-                throw new ArgumentNullException(nameof(slug));
+                foreach (var article in articles)
+                {
+                    var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
+                    var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUserId);
+                    articleDto.Author = profileDto;
+                    articlesWhenLogin.Add(articleDto);
+                }
+
+                return articlesWhenLogin;
             }
 
-            var article = await _context.Articles.FirstOrDefaultAsync(a => a.Slug == slug);
-            return article;
+            var articlesToReturn = _mapper.Map<IEnumerable<ArticleDto>>(articles, a => a.Items["currentUserId"] = Guid.NewGuid());
+            return articlesToReturn;
         }
-        public async Task<List<Article>> GetArticlesAsync(ArticlesParameters articlesParameters)
+        public async Task<IEnumerable<ArticleDto>> FeedArticleAsync(FeedArticlesParameters feedArticlesParameters)
         {
-            var articles = _context.Articles.AsQueryable();
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
 
-            if (!string.IsNullOrEmpty(articlesParameters.Tag))
+            var articles = await _IArticleRepository.GetFeedArticlesAsync(currentUserId, feedArticlesParameters);
+            if (!articles.Any())
             {
-                var tag = articlesParameters.Tag.Trim();
-                var userfavarets = await _context.ArticleTags.Where(af => af.TagId == tag)
-                                                       .Select(a => a.ArticleId)
-                                                       .ToListAsync();
-                articles = articles.Where(a => userfavarets.Contains(a.ArticleId));
-            }
-            if (!string.IsNullOrEmpty(articlesParameters.Author))
-            {
-                var authorname = articlesParameters.Author.Trim();
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == authorname);
-                articles = articles.Where(a => a.UserId == user.UserId);
-            }
-            if (!string.IsNullOrEmpty(articlesParameters.Favorited))
-            {
-                var username = articlesParameters.Favorited.Trim();
-                var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-
-                var userfavarets = await _context.ArticleFavorites.Where(af => af.UserId == user.UserId)
-                                                            .Select(a => a.ArticleId)
-                                                            .ToListAsync();
-                articles = articles.Where(a => userfavarets.Contains(a.ArticleId));
+                return null;
             }
 
-            articles = articles.Skip(articlesParameters.Offset)
-                               .Take(articlesParameters.Limit)
-                               .Include(a => a.User)
-                               .ThenInclude(a => a.Followers)
-                               .Include(a => a.Tags)
-                               .Include(a => a.Favorites)
-                               .OrderByDescending(x => x.CreatedAt);
-
-            return await articles.ToListAsync();
-        }
-        public async Task<List<Article>> GetFeedArticlesAsync(Guid currentUserId, FeedArticlesParameters feedArticlesParameters)
-        {
-            var userFollowings = await _context.UserFollowers.Where(uf => uf.FollowerId == currentUserId)
-                                                       .Select(uf => uf.FolloweingId)
-                                                       .ToListAsync();
-            if (!userFollowings.Any())
+            var articlesToReturn = new List<ArticleDto>();
+            foreach (var article in articles)
             {
-                throw new ArgumentNullException(nameof(userFollowings));
+                var profileDto = _mapper.Map<ProfileDto>(article.User, a => a.Items["currentUserId"] = currentUserId);
+                var articleDto = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
+                articleDto.Author = profileDto;
+                articlesToReturn.Add(articleDto);
             }
 
-            var feedArticles = await _context.Articles.Where(a => userFollowings.Contains(a.UserId))
-                                                .Include(a => a.User)
-                                                .ThenInclude(a => a.Followers)
-                                                .Include(a => a.Tags)
-                                                .Include(a => a.Favorites)
-                                                .OrderByDescending(x => x.CreatedAt)
-                                                .Skip(feedArticlesParameters.Offset)
-                                                .Take(feedArticlesParameters.Limit)
-                                                .ToListAsync();
-            return feedArticles;
+            return articlesToReturn;
         }
-        public void CreateArticle(Article article)
+        public async Task<ArticleDto> GetArticleAsync(string slug)
         {
-            _context.Articles.Add(article);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
+            if (article == null)
+            {
+                return null;
+            }
+
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = Guid.NewGuid());
+            return articleToReturn;
         }
-        public void UpdateArticle(Article updatedArticle, Article articleForUpdate)
+
+        public async Task<ArticleDto> CreateArticleAsync(ArticleForCreationDto articleForCreation)
         {
+            var articleEntityForCreation = _mapper.Map<Article>(articleForCreation);
+
+            articleEntityForCreation.UserId = Guid.NewGuid();
+            articleEntityForCreation.Slug.GenerateSlug(articleEntityForCreation.Title, articleEntityForCreation.UserId);
+
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+            articleEntityForCreation.UserId = currentUserId;
+
+            var timeStamp = DateTime.Now;
+            articleEntityForCreation.CreatedAt = timeStamp;
+            articleEntityForCreation.UpdatedAt = timeStamp;
+
+            _IArticleRepository.CreateArticle(articleEntityForCreation);
+            await _IArticleRepository.SaveChangesAsync();
+
+            if (articleForCreation.TagList != null && articleForCreation.TagList.Any())
+            {
+                await _ITagService.CreateTags(articleForCreation.TagList, articleEntityForCreation.ArticleId);
+            }
+
+            var articleToReturn = _mapper.Map<ArticleDto>(articleEntityForCreation, a => a.Items["currentUserId"] = currentUserId);
+            return articleToReturn;
         }
-        public void DeleteArticle(Article article)
+        public async Task<ArticleDto> UpdateArticleAsync(string slug, ArticleForUpdateDto articleForUpdate)
         {
-            _context.Articles.Remove(article);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+
+            var articleEntityForUpdate = _mapper.Map<Article>(articleForUpdate);
+
+            if (!string.IsNullOrWhiteSpace(articleForUpdate.Title))
+            {
+                article.Title = articleForUpdate.Title;
+                article.Slug.GenerateSlug(articleForUpdate.Title, article.ArticleId);
+            }
+            if (!string.IsNullOrWhiteSpace(articleForUpdate.Description))
+            {
+                article.Description = articleForUpdate.Description;
+            }
+            if (!string.IsNullOrWhiteSpace(articleForUpdate.Body))
+            {
+                article.Body = articleForUpdate.Body;
+            }
+
+            article.UpdatedAt = DateTime.Now;
+
+            _IArticleRepository.UpdateArticle(article, articleEntityForUpdate);
+            await _IArticleRepository.SaveChangesAsync();
+
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
+            return articleToReturn;
         }
-        public void FavoriteArticle(Guid currentUserId, Guid articleToFavoriteId)
+        public async Task DeleteArticleAsync(string slug)
         {
-            var articleFavorite =
-                new ArticleFavorites { ArticleId = articleToFavoriteId, UserId = currentUserId };
-             _context.ArticleFavorites.Add(articleFavorite);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
+
+            _IArticleRepository.DeleteArticle(article);
+            await _IArticleRepository.SaveChangesAsync();
         }
-        public void UnfavoriteArticle(Guid currentUserId, Guid articleToUnFavoriteId)
+        public async Task<ArticleDto> FavoriteArticleAsync(string slug)
         {
-            var articleFavorite =
-                new ArticleFavorites { ArticleId = articleToUnFavoriteId, UserId = currentUserId };
-            _context.ArticleFavorites.Remove(articleFavorite);
+            var article = await _IArticleRepository.GetArticleAsync(slug);
+            if (article == null)
+            {
+                return null;
+            }
+
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+
+            var isFavorited = await _IArticleRepository.IsFavoritedAsync(currentUserId, article.ArticleId);
+            if (isFavorited)
+            {
+                return null;
+            }
+
+            _IArticleRepository.FavoriteArticle(currentUserId, article.ArticleId);
+            await _IArticleRepository.SaveChangesAsync();
+
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
+            return articleToReturn;
         }
-        public async Task<bool> IsFavoritedAsync(Guid UserId, Guid articleId)
+        public async Task<ArticleDto> UnFavoriteArticleAsync(string slug)
         {
-            var isFavorited =
-               await _context.ArticleFavorites.AnyAsync(af => af.UserId == UserId && af.ArticleId == articleId);
-            return isFavorited;
-        }
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
+            var article = await _IArticleRepository.GetArticleAsync(slug);
+            if (article == null)
+            {
+                return null;
+            }
+
+            var currentUserId = await _IUserService.GetCurrentUserIdAsync();
+
+            var isFavorited = await _IArticleRepository.IsFavoritedAsync(currentUserId, article.ArticleId);
+            if (isFavorited)
+            {
+                return null;
+            }
+
+            _IArticleRepository.UnfavoriteArticle(currentUserId, article.ArticleId);
+            await _IArticleRepository.SaveChangesAsync();
+
+            var articleToReturn = _mapper.Map<ArticleDto>(article, a => a.Items["currentUserId"] = currentUserId);
+            return articleToReturn;
         }
     }
 }
