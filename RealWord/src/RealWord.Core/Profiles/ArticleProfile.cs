@@ -1,14 +1,9 @@
 ﻿using AutoMapper;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using RealWord.Data.Entities;
 using RealWord.Core.Models;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using RealWord.Data.Repositories;
-using RealWord.Core.Auth;
+
 
 namespace RealWord.Core.Profiles
 {
