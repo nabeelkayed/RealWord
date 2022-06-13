@@ -26,7 +26,7 @@ namespace RealWord.Web.controllers
         public async Task<ActionResult<ProfileDto>> GetProfile(string username)
         {
             var profileToReturn = await _IUserService.GetProfileAsync(username);
-            if (profileToReturn == null)
+            if (profileToReturn == null) 
             {
                 return NotFound();
             }
@@ -35,27 +35,27 @@ namespace RealWord.Web.controllers
         }
 
         [HttpPost("{username}/follow")]
-        public async Task<ActionResult<ProfileDto>> Follow(string username)
+        public async Task<ActionResult<ProfileDto>> FollowUser(string username)
         {
-            var profileToReturn =await _IUserService.GetProfileAsync(username);
-            if (profileToReturn == null)
+            var followedProfileToReturn = await _IUserService.FollowUserAsync(username);
+            if (followedProfileToReturn == null)
             {
                 return NotFound();
             }
 
-            return new ObjectResult(new { profile = profileToReturn }) { StatusCode = StatusCodes.Status201Created };
+            return new ObjectResult(new { profile = followedProfileToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpDelete("{username}/follow")]
-        public async Task<ActionResult<ProfileDto>> UnFollow(string username)
+        public async Task<ActionResult<ProfileDto>> UnFollowUser(string username)
         {
-            var profileToReturn =await _IUserService.UnFollowUserAsync(username);
-            if (profileToReturn == null)
+            var unFollowedProfileToReturn = await _IUserService.UnFollowUserAsync(username);
+            if (unFollowedProfileToReturn == null)
             {
                 return NotFound();
             }
 
-            return Ok(new { profile = profileToReturn });
+            return Ok(new { profile = unFollowedProfileToReturn });
         }
         
         [AllowAnonymous]

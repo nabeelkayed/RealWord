@@ -1,11 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using RealWord.Core.Models;
-using RealWord.Data;
-using RealWord.Data.Entities;
+﻿using RealWord.Core.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using RealWord.Data.Repositories;
@@ -33,11 +29,14 @@ namespace RealWord.Core.Services
             return tagsToReturn;
         }
         public async Task CreateTags(List<string> tagList, Guid articleId)
-        { 
+        {
             var tags = await _ITagRepository.GetTagsListAsync();
-            var newtags = tags.Union(tagList).ToList();
-
-            _ITagRepository.CreateTags(newtags, articleId);
+            var newtags = tagList.Except(tags).ToList();
+            if (newtags.Any())
+            {
+                await _ITagRepository.CreateTagsAsync(newtags, articleId);
+            }
+            await _ITagRepository.CreateArticleTagsAsync(tagList, articleId);
             await _ITagRepository.SaveChangesAsync();
         }
     }

@@ -13,12 +13,8 @@ using RealWord.Core.Auth;
 using RealWord.Core.Models;
 using RealWord.Web.Validators;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using FluentValidation.AspNetCore;
-using RealWord.Core.Profiles;
 using Microsoft.AspNetCore.Mvc;
 using RealWord.Core.Services;
 
@@ -140,7 +136,6 @@ namespace RealWord.Web
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
-                // endpoints.MapRazorPages();
             });
         }
     }

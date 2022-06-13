@@ -26,23 +26,27 @@ namespace RealWord.Web.controllers
         [HttpPost("users/login")]
         public async Task<ActionResult<UserDto>> Login(UserLoginDto userLogin)
         {
-            var userToReturn =await _IUserService.LoginUserAsync(userLogin);
-            if (userToReturn == null)
+            var logedinUserToReturn =await _IUserService.LoginUserAsync(userLogin);
+            if (logedinUserToReturn == null)
             {
                 return NotFound();
             }
          
-            return Ok(new { user = userToReturn });
+            return Ok(new { user = logedinUserToReturn });
         }
 
         [AllowAnonymous]
         [HttpPost("users")]
         public async Task<ActionResult<UserDto>> CreateUser(UserForCreationDto userForCreation)
         {
-            var userToReturn = await _IUserService.CreateUserAsync(userForCreation);
+            var CreatedUserToReturn = await _IUserService.CreateUserAsync(userForCreation);
+            if (CreatedUserToReturn == null)
+            {
+                return NotFound();
+            }
 
-            userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
-            return new ObjectResult(new { user = userToReturn }) { StatusCode = StatusCodes.Status201Created };
+            CreatedUserToReturn.Token = await HttpContext.GetTokenAsync("access_token");
+            return new ObjectResult(new { user = CreatedUserToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpGet("user")]
@@ -61,10 +65,13 @@ namespace RealWord.Web.controllers
         [HttpPut("user")]
         public async Task<ActionResult<UserDto>> UpdateUser(UserForUpdateDto userForUpdate)
         {
-            var userToReturn = await _IUserService.UpdateUserAsync(userForUpdate);
-            userToReturn.Token = await HttpContext.GetTokenAsync("access_token");
-
-            return Ok(new { user = userToReturn });
+            var updatedUserToReturn = await _IUserService.UpdateUserAsync(userForUpdate);
+            if (updatedUserToReturn == null)
+            {
+                return NotFound();
+            }
+            updatedUserToReturn.Token = await HttpContext.GetTokenAsync("access_token");
+            return Ok(new { user = updatedUserToReturn });
         }
 
         [AllowAnonymous]

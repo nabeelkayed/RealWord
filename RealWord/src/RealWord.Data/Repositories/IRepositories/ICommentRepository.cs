@@ -7,9 +7,10 @@ namespace RealWord.Data.Repositories
 {
     public interface ICommentRepository
     {
+        Task<bool> CommentExistsAsync(Guid id);
         Task<Comment> GetCommentAsync(Guid id);
         Task<List<Comment>> GetCommentsForArticleAsync(Guid articleId);
-        void CreateComment(Comment comment);
+        Task CreateCommentAsync(Comment comment);
         void DeleteComment(Comment comment);
         Task SaveChangesAsync();
     }

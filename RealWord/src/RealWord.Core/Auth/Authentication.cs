@@ -13,7 +13,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-//PrivateAssets="All" 
+
 namespace RealWord.Core.Auth
 {
     public class Authentication : IAuthentication

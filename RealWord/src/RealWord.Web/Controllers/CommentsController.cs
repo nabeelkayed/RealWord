@@ -51,18 +51,18 @@ namespace RealWord.Web.controllers
         public async Task<IActionResult> DeleteComment(string slug, Guid id)
         {
             var isArticleExists = await _ICommentService.CommentExistsAsync(slug, id);
-            if (isArticleExists)
+            if (!isArticleExists)
             {
                 return NotFound();
             }
 
             var isAuthorized = await _ICommentService.IsAuthorized(slug, id);
-            if (isAuthorized)
+            if (!isAuthorized)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
-            await _ICommentService.DeleteCommentAsync(slug, id);
+            await _ICommentService.DeleteCommentAsync(id);
             return NoContent();
         }
 

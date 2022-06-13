@@ -1,7 +1,5 @@
-﻿using RealWord.Data.Entities;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Http;
 using RealWord.Utils.ResourceParameters;
 using System.Threading.Tasks;
 using RealWord.Core.Models;
@@ -12,6 +10,7 @@ namespace RealWord.Core.Services
     {
         Task<bool> ArticleExistsAsync(string slug);
         Task<bool> IsAuthorized(string slug);
+        Task<Guid> GetArticleIdAsync(string slug); 
         Task<IEnumerable<ArticleDto>> GetArticlesAsync(ArticlesParameters articlesParameters);
         Task<IEnumerable<ArticleDto>> FeedArticleAsync(FeedArticlesParameters feedArticlesParameters);
         Task<ArticleDto> GetArticleAsync(string slug);

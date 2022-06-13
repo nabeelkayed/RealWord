@@ -65,43 +65,43 @@ namespace RealWord.Web.controllers
         [HttpPost]
         public async Task<ActionResult<ArticleDto>> CreateArticle(ArticleForCreationDto articleForCreation)
         {
-            var articleToReturn = await _IArticleService.CreateArticleAsync(articleForCreation);
+            var CreatedArticleToReturn = await _IArticleService.CreateArticleAsync(articleForCreation);
 
-            return new ObjectResult(new { article = articleToReturn }) { StatusCode = StatusCodes.Status201Created };
+            return new ObjectResult(new { article = CreatedArticleToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpPut("{slug}")]
         public async Task<ActionResult<ArticleDto>> UpdateArticle(string slug, ArticleForUpdateDto articleForUpdate)
         {
             var isArticleExists = await _IArticleService.ArticleExistsAsync(slug);
-            if (isArticleExists)
+            if (!isArticleExists)
             {
                 return NotFound();
             }
 
             var isAuthorized = await _IArticleService.IsAuthorized(slug);
-            if (isAuthorized)
+            if (!isAuthorized)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
-            var articleToReturn = await _IArticleService.UpdateArticleAsync(slug, articleForUpdate);
-            return Ok(new { article = articleToReturn });
+            var ubdatedArticleToReturn = await _IArticleService.UpdateArticleAsync(slug, articleForUpdate);
+            return Ok(new { article = ubdatedArticleToReturn });
         }
 
         [HttpDelete("{slug}")]
         public async Task<IActionResult> DeleteArticle(string slug)
         {
             var isArticleExists = await _IArticleService.ArticleExistsAsync(slug);
-            if (isArticleExists)
+            if (!isArticleExists)
             {
                 return NotFound();
             }
 
             var isAuthorized = await _IArticleService.IsAuthorized(slug);
-            if (isAuthorized)
+            if (!isAuthorized)
             {
-                return Unauthorized();
+                return Forbid();
             }
 
             await _IArticleService.DeleteArticleAsync(slug);
@@ -111,25 +111,25 @@ namespace RealWord.Web.controllers
         [HttpPost("{slug}/favorite")]
         public async Task<ActionResult<ArticleDto>> FavoriteArticle(string slug)
         {
-            var articleToReturn = await _IArticleService.FavoriteArticleAsync(slug);
-            if (articleToReturn == null)
+            var FavoritedaArticleToReturn = await _IArticleService.FavoriteArticleAsync(slug);
+            if (FavoritedaArticleToReturn == null)
             {
                 return NotFound();
             }
 
-            return new ObjectResult(new { article = articleToReturn }) { StatusCode = StatusCodes.Status201Created };
+            return new ObjectResult(new { article = FavoritedaArticleToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpDelete("{slug}/favorite")]
         public async Task<ActionResult<ArticleDto>> UnFavoriteArticle(string slug)
         {
-            var articleToReturn = await _IArticleService.UnFavoriteArticleAsync(slug);
-            if (articleToReturn == null)
+            var unfavoritedaArticleToReturn = await _IArticleService.UnFavoriteArticleAsync(slug);
+            if (unfavoritedaArticleToReturn == null)
             {
                 return NotFound();
             }
 
-            return Ok(new { article = articleToReturn });
+            return Ok(new { article = unfavoritedaArticleToReturn });
         }
 
         [AllowAnonymous]

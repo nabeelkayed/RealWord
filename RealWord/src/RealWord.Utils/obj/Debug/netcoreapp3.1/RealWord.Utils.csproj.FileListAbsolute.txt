@@ -7,3 +7,13 @@ C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Utils\obj\Debug\netcoreapp3.1\Rea
 C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.csproj.CoreCompileInputs.cache
 C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.dll
 C:\Users\hp\Desktop\RealWord\RealWord\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.pdb
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\bin\Debug\netcoreapp3.1\RealWord.Utils.deps.json
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\bin\Debug\netcoreapp3.1\RealWord.Utils.dll
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\bin\Debug\netcoreapp3.1\RealWord.Utils.pdb
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.csproj.AssemblyReference.cache
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.AssemblyInfoInputs.cache
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.AssemblyInfo.cs
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.csproj.CoreCompileInputs.cache
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.dll
+C:\Users\hp\Desktop\RealWord\RealWord\src\RealWord.Utils\obj\Debug\netcoreapp3.1\RealWord.Utils.pdb

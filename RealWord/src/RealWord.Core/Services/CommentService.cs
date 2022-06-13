@@ -1,34 +1,27 @@
 ﻿using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 using RealWord.Core.Models;
-using RealWord.Data;
 using RealWord.Data.Entities;
 using RealWord.Data.Repositories;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RealWord.Core.Services
 {
     public class CommentService : ICommentService
     {
-        private readonly IArticleRepository _IArticleRepository;//لازم تنشال
         private readonly ICommentRepository _ICommentRepository;
+        private readonly IArticleService _IArticleService;
         private readonly IUserService _IUserService;
         private readonly IMapper _mapper;
-        private readonly IArticleService _IArticleService;
 
-        public CommentService(IArticleRepository ArticleRepository, ICommentRepository CommentRepository,
-        IMapper mapper, IArticleService articleService, IUserService userService)
+        public CommentService(ICommentRepository CommentRepository,
+        IArticleService articleService, IUserService userService, IMapper mapper)
         {
-            _IArticleRepository = ArticleRepository ??
-                throw new ArgumentNullException(nameof(ArticleRepository));
+            _ICommentRepository = CommentRepository ??
+               throw new ArgumentNullException(nameof(CommentRepository));
             _IArticleService = articleService ??
                throw new ArgumentNullException(nameof(articleService));
-            _ICommentRepository = CommentRepository ??
-                throw new ArgumentNullException(nameof(CommentRepository));
             _IUserService = userService ??
                 throw new ArgumentNullException(nameof(userService));
             _mapper = mapper ??
@@ -37,21 +30,21 @@ namespace RealWord.Core.Services
 
         public async Task<bool> CommentExistsAsync(string slug, Guid id)
         {
-            var articleExists = await _IArticleRepository.ArticleExistsAsync(slug);
+            var articleExists = await _IArticleService.ArticleExistsAsync(slug);
             if (!articleExists)
             {
                 return false;
             }
 
-            var comment = await _ICommentRepository.GetCommentAsync(id);
-            if (comment == null)
+            var commentExists = await _ICommentRepository.CommentExistsAsync(id);
+            if (!commentExists)
             {
                 return false;
             }
+
             return true;
         }
-
-        public async Task<bool> IsAuthorized(string slug,Guid id)
+        public async Task<bool> IsAuthorized(string slug, Guid id)
         {
             var comment = await _ICommentRepository.GetCommentAsync(id);
             var currentUserId = await _IUserService.GetCurrentUserIdAsync();
@@ -61,65 +54,67 @@ namespace RealWord.Core.Services
         }
         public async Task<CommentDto> AddCommentToArticleAsync(string slug, CommentForCreationDto commentForCreation)
         {
-            var ArticleExists = await _IArticleRepository.ArticleExistsAsync(slug);
-            if (!ArticleExists)
+            var articleId = await _IArticleService.GetArticleIdAsync(slug);
+            if (articleId == Guid.Empty)
             {
                 return null;
             }
 
             var commentEntityForCreation = _mapper.Map<Comment>(commentForCreation);
 
+            commentEntityForCreation.CommentId = Guid.NewGuid();
+
             var currentUserId = await _IUserService.GetCurrentUserIdAsync();
             commentEntityForCreation.UserId = currentUserId;
 
-            var Article = await _IArticleRepository.GetArticleAsync(slug);
-            commentEntityForCreation.ArticleId = Article.ArticleId;
+            commentEntityForCreation.ArticleId = articleId;
 
             var timeStamp = DateTime.Now;
             commentEntityForCreation.CreatedAt = timeStamp;
             commentEntityForCreation.UpdatedAt = timeStamp;
 
-            _ICommentRepository.CreateComment(commentEntityForCreation);
+            await _ICommentRepository.CreateCommentAsync(commentEntityForCreation);
             await _ICommentRepository.SaveChangesAsync();
 
-            var createdCommentToReturn = _mapper.Map<CommentDto>(commentEntityForCreation);
-            return createdCommentToReturn;
+            var createdCommentToreturn = MapComment(currentUserId, commentEntityForCreation);
+            return createdCommentToreturn;
         }
         public async Task<IEnumerable<CommentDto>> GetCommentsFromArticleAsync(string slug)
         {
-            var article = await _IArticleRepository.GetArticleAsync(slug);
-            if (article == null)
+            var articleId = await _IArticleService.GetArticleIdAsync(slug);
+            if (articleId == Guid.Empty)
             {
                 return null;
             }
 
-            var comments = await _ICommentRepository.GetCommentsForArticleAsync(article.ArticleId);
-            var commentsWhenLogin = new List<CommentDto>();
+            var comments = await _ICommentRepository.GetCommentsForArticleAsync(articleId);
 
+            var commentsToReturn = new List<CommentDto>();
             var currentUserId = await _IUserService.GetCurrentUserIdAsync();
-            if (currentUserId != null)
-            {
-                foreach (var comment in comments)
-                {
-                    var commentDto = _mapper.Map<CommentDto>(comment, a => a.Items["currentUserId"] = currentUserId);
-                    var profileDto = _mapper.Map<ProfileDto>(comment.User, a => a.Items["currentUserId"] = currentUserId);
-                    commentDto.Author = profileDto;
-                    commentsWhenLogin.Add(commentDto);
-                }
 
-                return commentsWhenLogin;
+            foreach (var comment in comments)
+            {
+                var commentDto = MapComment(currentUserId, comment);
+                commentsToReturn.Add(commentDto);
             }
 
-            var commentsToReturn = _mapper.Map<IEnumerable<CommentDto>>(comments);
             return commentsToReturn;
         }
-        public async Task<bool> DeleteCommentAsync(string slug, Guid id)
+
+        public async Task DeleteCommentAsync(Guid id)
         {
             var comment = await _ICommentRepository.GetCommentAsync(id);
 
             _ICommentRepository.DeleteComment(comment);
-            await _ICommentRepository.SaveChangesAsync();
-            return true;
+            await _ICommentRepository.SaveChangesAsync();          
+        }
+        private CommentDto MapComment(Guid currentUserId, Comment comment)
+        {
+            var commentDto = _mapper.Map<CommentDto>(comment);
+            var profileDto = _mapper.Map<ProfileDto>(comment.User, a => a.Items["currentUserId"] = currentUserId);
+            commentDto.Author = profileDto;
+            
+            return commentDto;
         }
     }
 }

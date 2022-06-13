@@ -32,9 +32,6 @@ namespace RealWord.Data
             {
                 a.HasKey(a => a.ArticleId);
 
-                //a.Property<DateTime>("CreatedAt");
-                //a.Property<DateTime>("UpdatedAt");
-
                 a.Property(a => a.Slug).IsRequired();
                 a.Property(a => a.Title).IsRequired();
 
@@ -48,6 +45,17 @@ namespace RealWord.Data
                .WithOne(c => c.Article)
                .HasForeignKey(c => c.ArticleId)
                .OnDelete(DeleteBehavior.Cascade);
+
+                a.HasMany<ArticleTags>(a => a.Tags)
+               .WithOne(c => c.Article)
+               .HasForeignKey(c => c.ArticleId)
+               .OnDelete(DeleteBehavior.Cascade);
+
+                a.HasMany<ArticleFavorites>(a => a.Favorites)
+               .WithOne(c => c.Article)
+               .HasForeignKey(c => c.ArticleId)
+               .OnDelete(DeleteBehavior.Cascade);
+
             });
 
             modelBuilder.Entity<ArticleFavorites>(a =>
@@ -85,13 +93,9 @@ namespace RealWord.Data
             {
                 c.HasKey(c => c.CommentId);
 
-                //c.Property<DateTime>("CreatedAt");
-                //c.Property<DateTime>("UpdatedAt");
-
                 c.Property(c => c.Body).IsRequired();
                 c.Property(c => c.CreatedAt).IsRequired();
                 c.Property(c => c.UpdatedAt).IsRequired();
-
             });
 
 

@@ -3,7 +3,6 @@ using RealWord.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RealWord.Data.Repositories
@@ -27,22 +26,26 @@ namespace RealWord.Data.Repositories
             var tags = await _context.Tags.Select(t => t.TagId).ToListAsync();
             return tags;
         }
-        public void CreateTags(List<string> tagList, Guid articleId)
+        public async Task CreateTagsAsync(List<string> tagList, Guid articleId)
         {
             foreach (var tag in tagList)
             {
                 var newTag = new Tag { TagId = tag };
-                _context.Tags.Add(newTag);
-
-                var ArticleTags = new ArticleTags { TagId = tag, ArticleId = articleId };
-                _context.ArticleTags.Add(ArticleTags);
+                await _context.Tags.AddAsync(newTag);
             }
+        }
+        public async Task CreateArticleTagsAsync(List<string> tagList, Guid articleId)
+        {
+            foreach (var tag in tagList)
+            {
+                var ArticleTags = new ArticleTags { TagId = tag, ArticleId = articleId };
+                await _context.ArticleTags.AddAsync(ArticleTags);
+            }
+
         }
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
         }
-
-
     }
 }

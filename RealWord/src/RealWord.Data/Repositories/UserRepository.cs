@@ -1,10 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using RealWord.Data.Entities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RealWord.Data.Repositories
@@ -34,7 +31,23 @@ namespace RealWord.Data.Repositories
                 throw new ArgumentNullException(nameof(username));
             }
 
-            var user = await _context.Users.Include(a => a.Articles).FirstOrDefaultAsync(u => u.Username == username);
+            var user = await _context.Users.Include(u => u.Articles)
+                                           .Include(u => u.Followerings)
+                                           .Include(u => u.Followers)
+                                           .FirstOrDefaultAsync(u => u.Username == username);
+            return user;
+        }
+        public async Task<User> GetUserAsNoTrackingAsync(string username)
+        {
+            if (String.IsNullOrEmpty(username))
+            {
+                throw new ArgumentNullException(nameof(username));
+            }
+
+            var user = await _context.Users.AsNoTracking().Include(u => u.Articles)
+                                           .Include(u => u.Followerings)
+                                           .Include(u => u.Followers)
+                                           .FirstOrDefaultAsync(u => u.Username == username);
             return user;
         }
         public async Task<User> LoginUserAsync(User user)
@@ -43,23 +56,23 @@ namespace RealWord.Data.Repositories
                                                              && u.Password == user.Password);
             return LoginUser;
         }
-        public void CreateUser(User user)
+        public async Task CreateUserAsync(User user)
         {
-            _context.Users.Add(user);
+            await _context.Users.AddAsync(user);
         }
         public async Task<bool> EmailAvailableAsync(string email)
         {
-            var emailAvailable = await _context.Users.Select(a => a.Email).ContainsAsync(email);
-            return emailAvailable;
+            var emailNotAvailable = await _context.Users.Select(a => a.Email).ContainsAsync(email);
+            return emailNotAvailable;
         }
         public void UpdateUser(User updatedUser, User userForUpdate)
         {
         }
-        public void FollowUser(Guid currentUserId, Guid userToFollowId)
+        public async Task FollowUserAsync(Guid currentUserId, Guid userToFollowId)
         {
             var userFollower =
                 new UserFollowers { FollowerId = currentUserId, FolloweingId = userToFollowId };
-            _context.UserFollowers.Add(userFollower);
+            await _context.UserFollowers.AddAsync(userFollower);
         }
         public void UnfollowUser(Guid currentUserId, Guid userToUnfollowId)
         {

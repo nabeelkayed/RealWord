@@ -9,7 +9,8 @@ namespace RealWord.Data.Repositories
     {
         Task<List<Tag>> GetTagsAsync();
         Task<List<string>> GetTagsListAsync();
-        void CreateTags(List<string> Tags, Guid articleId);
+        Task CreateTagsAsync(List<string> Tags, Guid articleId);
+        Task CreateArticleTagsAsync(List<string> tagList, Guid articleId);
         Task SaveChangesAsync();
     }
 }

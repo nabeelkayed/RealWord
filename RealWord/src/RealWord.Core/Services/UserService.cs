@@ -1,17 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
 using RealWord.Core.Auth;
 using RealWord.Core.Models;
-using RealWord.Data;
 using RealWord.Data.Entities;
 using RealWord.Data.Repositories;
 using RealWord.Utils.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RealWord.Core.Services
@@ -35,20 +31,20 @@ namespace RealWord.Core.Services
             _mapper = mapper ??
                 throw new ArgumentNullException(nameof(mapper));
         }
-        public async Task<UserDto>  LoginUserAsync(UserLoginDto userLogin)
+        public async Task<UserDto> LoginUserAsync(UserLoginDto userLogin)
         {
             userLogin.Email = userLogin.Email.ToLower();
-            //userLogin.Password.GetHash(); 
+            userLogin.Password = userLogin.Password.GetHash();
 
-            var user1 = _mapper.Map<User>(userLogin);
-            var user = await _IUserRepository.LoginUserAsync(user1);
-            if (user == null)
+            var user = _mapper.Map<User>(userLogin);
+            var userlogedin = await _IUserRepository.LoginUserAsync(user);
+            if (userlogedin == null)
             {
                 return null;
             }
 
-            var userToReturn = _mapper.Map<UserDto>(user);
-            userToReturn.Token = _IAuthentication.Generate(user);
+            var userToReturn = _mapper.Map<UserDto>(userlogedin);
+            userToReturn.Token = _IAuthentication.Generate(userlogedin);
             return userToReturn;
         }
         public async Task<UserDto> GetCurrentUserAsync()
@@ -78,94 +74,95 @@ namespace RealWord.Core.Services
         {
             userForCreation.Username = userForCreation.Username.ToLower();
             userForCreation.Email = userForCreation.Email.ToLower();
-            userForCreation.Password.GetHash();
+            userForCreation.Password = userForCreation.Password.GetHash();
 
             var userExists = await _IUserRepository.UserExistsAsync(userForCreation.Username);
-            if (userExists)
+            if (!userExists)
             {
                 return null;
             }
 
-            var emailAvailable = await _IUserRepository.EmailAvailableAsync(userForCreation.Email);
-            if (!emailAvailable)
+            var emailNotAvailable = await _IUserRepository.EmailAvailableAsync(userForCreation.Email);
+            if (emailNotAvailable)
             {
                 return null;
             }
 
             var userEntityForCreation = _mapper.Map<User>(userForCreation);
-            _IUserRepository.CreateUser(userEntityForCreation);
+            await _IUserRepository.CreateUserAsync(userEntityForCreation);
             await _IUserRepository.SaveChangesAsync();
-
-            var userToReturn = _mapper.Map<UserDto>(userEntityForCreation);
-            return userToReturn;
+             
+            var createdUserToReturn = _mapper.Map<UserDto>(userEntityForCreation);
+            return createdUserToReturn;
         }
         public async Task<UserDto> UpdateUserAsync(UserForUpdateDto userForUpdate)
         {
-            var currentUser1 = await GetCurrentUserAsync();
-            var currentUser = await _IUserRepository.GetUserAsync(currentUser1.Username);
+            var currentUser = await GetCurrentUserAsync();
+            var updatedUser = await _IUserRepository.GetUserAsync(currentUser.Username);
 
             var userEntityForUpdate = _mapper.Map<User>(userForUpdate);
 
             if (!string.IsNullOrWhiteSpace(userForUpdate.Email))
             {
-                currentUser.Email = userForUpdate.Email.ToLower();
+                var EmailNotAvailable = await _IUserRepository.EmailAvailableAsync(userForUpdate.Email);
+                if (EmailNotAvailable)
+                {
+                    return null;
+                }
+
+                updatedUser.Email = userForUpdate.Email.ToLower();
             }
             if (!string.IsNullOrWhiteSpace(userForUpdate.Image))
             {
-                currentUser.Image = userForUpdate.Image;
+                updatedUser.Image = userForUpdate.Image;
             }
             if (!string.IsNullOrWhiteSpace(userForUpdate.Bio))
             {
-                currentUser.Bio = userForUpdate.Bio;
+                updatedUser.Bio = userForUpdate.Bio;
             }
             if (!string.IsNullOrWhiteSpace(userForUpdate.Password))
             {
-                currentUser.Password = userForUpdate.Password.GetHash();
+                updatedUser.Password = userForUpdate.Password.GetHash();
             }
             if (!string.IsNullOrWhiteSpace(userForUpdate.Username))
             {
-                currentUser.Username = userForUpdate.Username.ToLower();
+                updatedUser.Username = userForUpdate.Username.ToLower();
             }
 
-            _IUserRepository.UpdateUser(currentUser, userEntityForUpdate);
+            _IUserRepository.UpdateUser(updatedUser, userEntityForUpdate);
             await _IUserRepository.SaveChangesAsync();
 
-            var userToReturn = _mapper.Map<UserDto>(currentUser);
-            return userToReturn;
+            var UpdatedUserToReturn = _mapper.Map<UserDto>(updatedUser);
+            return UpdatedUserToReturn;
         }
         public async Task<ProfileDto> GetProfileAsync(string username)
         {
             username = username.ToLower();
-         
-            var User = await _IUserRepository.GetUserAsync(username);
-            if (User == null)
+
+            var user = await _IUserRepository.GetUserAsync(username);
+            if (user == null)
             {
                 return null;
             }
 
             var currentUserId = await GetCurrentUserIdAsync();
-            if (currentUserId != null)
-            {
-                var profileToReturnlogin = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = currentUserId);
-                return profileToReturnlogin;
-            }
 
-            var profileToReturn = _mapper.Map<ProfileDto>(User, a => a.Items["currentUserId"] = Guid.NewGuid());
+            var profileToReturn = _mapper.Map<ProfileDto>(user, a => a.Items["currentUserId"] = currentUserId);
             return profileToReturn;
         }
         public async Task<ProfileDto> FollowUserAsync(string username)
         {
             username = username.ToLower();
-            
-            var userToFollow = await _IUserRepository.GetUserAsync(username);
-            if (userToFollow == null)
+
+            var currentUser = await GetCurrentUserAsync();
+            var currentUserId = await GetCurrentUserIdAsync();
+            if (currentUser.Username == username)
             {
                 return null;
             }
 
-            var currentUserDto = await GetCurrentUserAsync();
-            var currentUserId = await GetCurrentUserIdAsync();
-            if (currentUserDto.Username == username)
+            var userToFollow = await _IUserRepository.GetUserAsync(username);
+            if (userToFollow == null)
             {
                 return null;
             }
@@ -176,26 +173,26 @@ namespace RealWord.Core.Services
                 return null;
             }
 
-            _IUserRepository.FollowUser(currentUserId, userToFollow.UserId);
+            await _IUserRepository.FollowUserAsync(currentUserId, userToFollow.UserId);
             await _IUserRepository.SaveChangesAsync();
 
-            var profileToReturn = _mapper.Map<ProfileDto>(userToFollow, a => a.Items["currentUserId"] = currentUserId);
-            return profileToReturn;
+            var FollowedprofileToReturn = _mapper.Map<ProfileDto>(userToFollow, a => a.Items["currentUserId"] = currentUserId);
+            return FollowedprofileToReturn;
         }
 
         public async Task<ProfileDto> UnFollowUserAsync(string username)
         {
             username = username.ToLower();
-            
-            var userToUnfollow = await _IUserRepository.GetUserAsync(username);
-            if (userToUnfollow == null)
+
+            var currentUser = await GetCurrentUserAsync();
+            var currentUserId = await GetCurrentUserIdAsync();
+            if (currentUser.Username == username)
             {
                 return null;
             }
 
-            var currentUserDto = await GetCurrentUserAsync();
-            var currentUserId = await GetCurrentUserIdAsync();
-            if (currentUserDto.Username == username)
+            var userToUnfollow = await _IUserRepository.GetUserAsNoTrackingAsync(username);
+            if (userToUnfollow == null)
             {
                 return null;
             }
@@ -209,8 +206,10 @@ namespace RealWord.Core.Services
             _IUserRepository.UnfollowUser(currentUserId, userToUnfollow.UserId);
             await _IUserRepository.SaveChangesAsync();
 
-            var profileToReturn = _mapper.Map<ProfileDto>(userToUnfollow, a => a.Items["currentUserId"] = currentUserId);
-            return profileToReturn;
+            var UnfollowedUser = await _IUserRepository.GetUserAsync(username);
+            
+            var unfollowedProfileToReturn = _mapper.Map<ProfileDto>(UnfollowedUser, a => a.Items["currentUserId"] = currentUserId);
+            return unfollowedProfileToReturn;
         }
     }
 }

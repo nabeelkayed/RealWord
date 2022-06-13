@@ -10,8 +10,8 @@ using RealWord.Data;
 namespace RealWord.Data.Migrations
 {
     [DbContext(typeof(RealWordDbContext))]
-    [Migration("20220530161314_first")]
-    partial class first
+    [Migration("20220612045759_addcascade")]
+    partial class addcascade
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -21,7 +21,7 @@ namespace RealWord.Data.Migrations
                 .HasAnnotation("ProductVersion", "5.0.17")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("RealWord.Db.Entities.Article", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.Article", b =>
                 {
                     b.Property<Guid>("ArticleId")
                         .ValueGeneratedOnAdd()
@@ -59,7 +59,7 @@ namespace RealWord.Data.Migrations
                     b.ToTable("Articles");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.ArticleFavorites", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.ArticleFavorites", b =>
                 {
                     b.Property<Guid>("ArticleId")
                         .HasColumnType("uniqueidentifier");
@@ -74,7 +74,7 @@ namespace RealWord.Data.Migrations
                     b.ToTable("ArticleFavorites");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.ArticleTags", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.ArticleTags", b =>
                 {
                     b.Property<Guid>("ArticleId")
                         .HasColumnType("uniqueidentifier");
@@ -89,7 +89,7 @@ namespace RealWord.Data.Migrations
                     b.ToTable("ArticleTags");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.Comment", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.Comment", b =>
                 {
                     b.Property<Guid>("CommentId")
                         .ValueGeneratedOnAdd()
@@ -120,7 +120,7 @@ namespace RealWord.Data.Migrations
                     b.ToTable("Comments");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.Tag", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.Tag", b =>
                 {
                     b.Property<string>("TagId")
                         .HasColumnType("nvarchar(450)");
@@ -130,7 +130,7 @@ namespace RealWord.Data.Migrations
                     b.ToTable("Tags");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.User", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.User", b =>
                 {
                     b.Property<Guid>("UserId")
                         .ValueGeneratedOnAdd()
@@ -165,7 +165,7 @@ namespace RealWord.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.UserFollowers", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.UserFollowers", b =>
                 {
                     b.Property<Guid>("FollowerId")
                         .HasColumnType("uniqueidentifier");
@@ -180,9 +180,9 @@ namespace RealWord.Data.Migrations
                     b.ToTable("UserFollowers");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.Article", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.Article", b =>
                 {
-                    b.HasOne("RealWord.Db.Entities.User", "User")
+                    b.HasOne("RealWord.Data.Entities.User", "User")
                         .WithMany("Articles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -191,15 +191,15 @@ namespace RealWord.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.ArticleFavorites", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.ArticleFavorites", b =>
                 {
-                    b.HasOne("RealWord.Db.Entities.Article", "Article")
+                    b.HasOne("RealWord.Data.Entities.Article", "Article")
                         .WithMany("Favorites")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("RealWord.Db.Entities.User", "User")
+                    b.HasOne("RealWord.Data.Entities.User", "User")
                         .WithMany("Favorites")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -210,15 +210,15 @@ namespace RealWord.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.ArticleTags", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.ArticleTags", b =>
                 {
-                    b.HasOne("RealWord.Db.Entities.Article", "Article")
+                    b.HasOne("RealWord.Data.Entities.Article", "Article")
                         .WithMany("Tags")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("RealWord.Db.Entities.Tag", "Tag")
+                    b.HasOne("RealWord.Data.Entities.Tag", "Tag")
                         .WithMany("Articles")
                         .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -229,15 +229,15 @@ namespace RealWord.Data.Migrations
                     b.Navigation("Tag");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.Comment", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.Comment", b =>
                 {
-                    b.HasOne("RealWord.Db.Entities.Article", "Article")
+                    b.HasOne("RealWord.Data.Entities.Article", "Article")
                         .WithMany("Comments")
                         .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RealWord.Db.Entities.User", "User")
+                    b.HasOne("RealWord.Data.Entities.User", "User")
                         .WithMany("Comments")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -248,15 +248,15 @@ namespace RealWord.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.UserFollowers", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.UserFollowers", b =>
                 {
-                    b.HasOne("RealWord.Db.Entities.User", "Followeing")
+                    b.HasOne("RealWord.Data.Entities.User", "Followeing")
                         .WithMany("Followers")
                         .HasForeignKey("FolloweingId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("RealWord.Db.Entities.User", "Follower")
+                    b.HasOne("RealWord.Data.Entities.User", "Follower")
                         .WithMany("Followerings")
                         .HasForeignKey("FollowerId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -267,7 +267,7 @@ namespace RealWord.Data.Migrations
                     b.Navigation("Follower");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.Article", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.Article", b =>
                 {
                     b.Navigation("Comments");
 
@@ -276,12 +276,12 @@ namespace RealWord.Data.Migrations
                     b.Navigation("Tags");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.Tag", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.Tag", b =>
                 {
                     b.Navigation("Articles");
                 });
 
-            modelBuilder.Entity("RealWord.Db.Entities.User", b =>
+            modelBuilder.Entity("RealWord.Data.Entities.User", b =>
                 {
                     b.Navigation("Articles");
 

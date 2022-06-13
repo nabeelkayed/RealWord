@@ -1,12 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using RealWord.Data.Entities;
-using RealWord.Utils.ResourceParameters; 
+using RealWord.Utils.ResourceParameters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using RealWord.Utils.Utils;
 using System.Threading.Tasks;
 
 namespace RealWord.Data.Repositories
@@ -36,7 +34,9 @@ namespace RealWord.Data.Repositories
                 throw new ArgumentNullException(nameof(slug));
             }
 
-            var article = await _context.Articles.FirstOrDefaultAsync(a => a.Slug == slug);
+            var article = await _context.Articles.Include(a => a.Tags)
+                                                 .Include(a => a.User)
+                                                 .FirstOrDefaultAsync(a => a.Slug == slug);
             return article;
         }
         public async Task<List<Article>> GetArticlesAsync(ArticlesParameters articlesParameters)
@@ -76,7 +76,8 @@ namespace RealWord.Data.Repositories
                                .Include(a => a.Favorites)
                                .OrderByDescending(x => x.CreatedAt);
 
-            return await articles.ToListAsync();
+            var allArticles = await articles.ToListAsync();
+            return allArticles;
         }
         public async Task<List<Article>> GetFeedArticlesAsync(Guid currentUserId, FeedArticlesParameters feedArticlesParameters)
         {
@@ -99,9 +100,9 @@ namespace RealWord.Data.Repositories
                                                 .ToListAsync();
             return feedArticles;
         }
-        public void CreateArticle(Article article)
+        public async Task CreateArticleAsync(Article article)
         {
-            _context.Articles.Add(article);
+            await _context.Articles.AddAsync(article);
         }
         public void UpdateArticle(Article updatedArticle, Article articleForUpdate)
         {
@@ -110,11 +111,11 @@ namespace RealWord.Data.Repositories
         {
             _context.Articles.Remove(article);
         }
-        public void FavoriteArticle(Guid currentUserId, Guid articleToFavoriteId)
+        public async Task FavoriteArticleAsync(Guid currentUserId, Guid articleToFavoriteId)
         {
             var articleFavorite =
                 new ArticleFavorites { ArticleId = articleToFavoriteId, UserId = currentUserId };
-             _context.ArticleFavorites.Add(articleFavorite);
+            await _context.ArticleFavorites.AddAsync(articleFavorite);
         }
         public void UnfavoriteArticle(Guid currentUserId, Guid articleToUnFavoriteId)
         {

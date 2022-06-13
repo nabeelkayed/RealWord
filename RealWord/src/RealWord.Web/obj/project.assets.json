@@ -3604,7 +3604,7 @@
       ]
     },
     "System.AppContext/4.1.0": {
-      "sha512": "3QjO4jNV7PdKkmQAVp9atA+usVnKRwI3Kx1nMwJ93T0LcQfx7pKAYk0nKz5wn1oP5iqlhZuy6RXOFdhr7rDwow==",
+      "sha512": "pfMyPx3jOQl33i8xd3OX4RGf8z4OWpsqV8TWa6ZQ9w7UACF+FV5Huwte6a8p5EORV9TZsVm6u0kZ0dBo9ooDxQ==",
       "type": "package",
       "path": "system.appcontext/4.1.0",
       "files": [
@@ -3923,7 +3923,7 @@
       ]
     },
     "System.ComponentModel/4.3.0": {
-      "sha512": "VyGn1jGRZVfxnh8EdvDCi71v3bMXrsu8aYJOwoV7SNDLVhiEqwP86pPMyRGsDsxhXAm2b3o9OIqeETfN5qfezw==",
+      "sha512": "yczirnxopv9Gd2OYkXvFn6vSCbJcr9uE2HITCSQjXI17aBnwAb74pCR2KsklcsZcJireog/O+IfTJ+EL6rh7pA==",
       "type": "package",
       "path": "system.componentmodel/4.3.0",
       "files": [
@@ -4968,7 +4968,7 @@
       ]
     },
     "System.Net.NameResolution/4.3.0": {
-      "sha512": "AFYl08R7MrsrEjqpQWTZWBadqXyTzNDaWpMqyxhb0d6sGhV6xMDKueuBXlLL30gz+DIRY6MpdgnHWlCh5wmq9w==",
+      "sha512": "QX5EgSjjmmAqxeG3CNmxNgYgO+JX+1YKoV5eufCLDpTMRcN4IE7L7z2Zv0jBcNGEEgx5malETy3Sx36ta01ZEQ==",
       "type": "package",
       "path": "system.net.nameresolution/4.3.0",
       "files": [

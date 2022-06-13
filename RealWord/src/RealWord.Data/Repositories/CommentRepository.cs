@@ -3,7 +3,6 @@ using RealWord.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RealWord.Data.Repositories
@@ -16,27 +15,39 @@ namespace RealWord.Data.Repositories
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
+
+        public async Task<bool> CommentExistsAsync(Guid id)
+        {
+            if (id == null || id == Guid.Empty)
+            {
+                throw new ArgumentNullException(nameof(id));
+            }
+
+            bool commentExists = await _context.Comments.AnyAsync(c => c.CommentId == id);
+            return commentExists;
+        }
         public async Task<Comment> GetCommentAsync(Guid id)
         {
             if (id == null || id == Guid.Empty)
             {
-                throw new ArgumentNullException(nameof(id)); 
+                throw new ArgumentNullException(nameof(id));
             }
 
-            var comment = await _context.Comments.FindAsync(id);
+            var comment = await _context.Comments.Include(c => c.User)
+                                                 .FirstOrDefaultAsync(c => c.CommentId == id);
             return comment;
         }
         public async Task<List<Comment>> GetCommentsForArticleAsync(Guid articleId)
         {
             var articleComments = await _context.Comments.Where(c => c.ArticleId == articleId)
-                                                   .Include(c=>c.User)
-                                                   .ThenInclude(c=>c.Followers)
+                                                   .Include(c => c.User)
+                                                   .ThenInclude(c => c.Followers)
                                                    .ToListAsync();
             return articleComments;
         }
-        public void CreateComment(Comment comment)
+        public async Task CreateCommentAsync(Comment comment)
         {
-            _context.Comments.Add(comment);
+            await _context.Comments.AddAsync(comment);
         }
         public void DeleteComment(Comment comment)
         {
