@@ -105,7 +105,7 @@ namespace RealWord.Core.Services
         {
             var articleEntityForCreation = _mapper.Map<Article>(articleForCreation);
 
-            articleEntityForCreation.UserId = Guid.NewGuid();
+            articleEntityForCreation.ArticleId = Guid.NewGuid();
             articleEntityForCreation.Slug = articleEntityForCreation.Slug.GenerateSlug(articleEntityForCreation.Title, articleEntityForCreation.UserId);
 
             var currentUserId = await _IUserService.GetCurrentUserIdAsync();
@@ -123,36 +123,37 @@ namespace RealWord.Core.Services
                 await _ITagService.CreateTags(articleForCreation.TagList, articleEntityForCreation.ArticleId);
             }
 
-            var createdArticleToReturn = MapArticle(articleEntityForCreation, currentUserId);
+            var createdArticle = await _IArticleRepository.GetArticleAsync(articleEntityForCreation.Slug);
+            var createdArticleToReturn = MapArticle(createdArticle, currentUserId);
             return createdArticleToReturn;
         }
         public async Task<ArticleDto> UpdateArticleAsync(string slug, ArticleForUpdateDto articleForUpdate)
         {
-            var UpdatedArticle = await _IArticleRepository.GetArticleAsync(slug);
+            var updatedArticle = await _IArticleRepository.GetArticleAsync(slug);
             var currentUserId = await _IUserService.GetCurrentUserIdAsync();
 
             var articleEntityForUpdate = _mapper.Map<Article>(articleForUpdate);
 
             if (!string.IsNullOrWhiteSpace(articleForUpdate.Title))
             {
-                UpdatedArticle.Title = articleForUpdate.Title;
-                UpdatedArticle.Slug.GenerateSlug(articleForUpdate.Title, UpdatedArticle.ArticleId);
+                updatedArticle.Title = articleForUpdate.Title;
+                updatedArticle.Slug.GenerateSlug(articleForUpdate.Title, updatedArticle.ArticleId);
             }
             if (!string.IsNullOrWhiteSpace(articleForUpdate.Description))
             {
-                UpdatedArticle.Description = articleForUpdate.Description;
+                updatedArticle.Description = articleForUpdate.Description;
             }
             if (!string.IsNullOrWhiteSpace(articleForUpdate.Body))
             {
-                UpdatedArticle.Body = articleForUpdate.Body;
+                updatedArticle.Body = articleForUpdate.Body;
             }
 
-            UpdatedArticle.UpdatedAt = DateTime.Now;
+            updatedArticle.UpdatedAt = DateTime.Now;
 
-            _IArticleRepository.UpdateArticle(UpdatedArticle, articleEntityForUpdate);
+            _IArticleRepository.UpdateArticle(updatedArticle, articleEntityForUpdate);
             await _IArticleRepository.SaveChangesAsync();
-            
-            var UpdatedArticleToReturn = MapArticle(UpdatedArticle, currentUserId);
+
+            var UpdatedArticleToReturn = MapArticle(updatedArticle, currentUserId);
             return UpdatedArticleToReturn;
         }
 

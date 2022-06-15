@@ -55,7 +55,7 @@ namespace RealWord.Web.controllers
             var userToReturn = await _IUserService.GetCurrentUserAsync();
             if (userToReturn == null)
             {
-                return NotFound();
+                return Unauthorized();
             }
 
             userToReturn.Token = await HttpContext.GetTokenAsync("access_token");

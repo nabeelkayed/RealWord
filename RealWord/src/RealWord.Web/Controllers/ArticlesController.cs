@@ -65,9 +65,9 @@ namespace RealWord.Web.controllers
         [HttpPost]
         public async Task<ActionResult<ArticleDto>> CreateArticle(ArticleForCreationDto articleForCreation)
         {
-            var CreatedArticleToReturn = await _IArticleService.CreateArticleAsync(articleForCreation);
+            var createdArticleToReturn = await _IArticleService.CreateArticleAsync(articleForCreation);
 
-            return new ObjectResult(new { article = CreatedArticleToReturn }) { StatusCode = StatusCodes.Status201Created };
+            return new ObjectResult(new { article = createdArticleToReturn }) { StatusCode = StatusCodes.Status201Created };
         }
 
         [HttpPut("{slug}")]

@@ -46,16 +46,6 @@ namespace RealWord.Data
                .HasForeignKey(c => c.ArticleId)
                .OnDelete(DeleteBehavior.Cascade);
 
-                a.HasMany<ArticleTags>(a => a.Tags)
-               .WithOne(c => c.Article)
-               .HasForeignKey(c => c.ArticleId)
-               .OnDelete(DeleteBehavior.Cascade);
-
-                a.HasMany<ArticleFavorites>(a => a.Favorites)
-               .WithOne(c => c.Article)
-               .HasForeignKey(c => c.ArticleId)
-               .OnDelete(DeleteBehavior.Cascade);
-
             });
 
             modelBuilder.Entity<ArticleFavorites>(a =>
@@ -65,12 +55,12 @@ namespace RealWord.Data
                 a.HasOne(ua => ua.Article)
                 .WithMany(u => u.Favorites)
                 .HasForeignKey(ua => ua.ArticleId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
                 a.HasOne(u => u.User)
                 .WithMany(u => u.Favorites)
                 .HasForeignKey(u => u.UserId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<ArticleTags>(a =>
@@ -80,12 +70,12 @@ namespace RealWord.Data
                 a.HasOne(ua => ua.Article)
                 .WithMany(u => u.Tags)
                 .HasForeignKey(ua => ua.ArticleId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
                 a.HasOne(u => u.Tag)
                 .WithMany(u => u.Articles)
                 .HasForeignKey(u => u.TagId)
-                .OnDelete(DeleteBehavior.NoAction);
+                .OnDelete(DeleteBehavior.Cascade);
 
             });
 

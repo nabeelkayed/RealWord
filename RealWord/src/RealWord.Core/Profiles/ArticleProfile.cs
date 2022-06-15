@@ -21,10 +21,7 @@ namespace RealWord.Core.Profiles
                 .ForMember(
                     dest => dest.Favorited,
                     opt => opt.MapFrom((src, dest, destMember, context) => src.Favorites.Select(s => s.UserId).ToList()
-                              .Contains((Guid)context.Items["currentUserId"])))
-                .AfterMap(
-                    (src, dest, context) =>
-                     dest.Author = context.Mapper.Map<ProfileDto>(src.User, a => a.Items["currentUserId"] = context.Items["currentUserId"]));
+                              .Contains((Guid)context.Items["currentUserId"])));
 
             CreateMap<ArticleForCreationDto, Article>();
             CreateMap<ArticleForUpdateDto, Article>();

@@ -52,7 +52,7 @@ namespace RealWord.Core.Services
             var currentUsername = _accessor?.HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (!String.IsNullOrEmpty(currentUsername))
             {
-                var currentUser = await _IUserRepository.GetUserAsync(currentUsername);
+                var currentUser = await _IUserRepository.GetUserAsNoTrackingAsync(currentUsername);
                 var userToReturn = _mapper.Map<UserDto>(currentUser);
                 return userToReturn;
             }
@@ -64,7 +64,7 @@ namespace RealWord.Core.Services
             var currentUsername = _accessor?.HttpContext?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
             if (!String.IsNullOrEmpty(currentUsername))
             {
-                var currentUser = await _IUserRepository.GetUserAsync(currentUsername);
+                var currentUser = await _IUserRepository.GetUserAsNoTrackingAsync(currentUsername);
                 return currentUser.UserId;
             }
 
@@ -77,7 +77,7 @@ namespace RealWord.Core.Services
             userForCreation.Password = userForCreation.Password.GetHash();
 
             var userExists = await _IUserRepository.UserExistsAsync(userForCreation.Username);
-            if (!userExists)
+            if (userExists)
             {
                 return null;
             }

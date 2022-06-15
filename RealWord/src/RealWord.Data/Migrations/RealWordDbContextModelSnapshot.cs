@@ -194,13 +194,13 @@ namespace RealWord.Data.Migrations
                     b.HasOne("RealWord.Data.Entities.Article", "Article")
                         .WithMany("Favorites")
                         .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RealWord.Data.Entities.User", "User")
                         .WithMany("Favorites")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Article");
@@ -213,13 +213,13 @@ namespace RealWord.Data.Migrations
                     b.HasOne("RealWord.Data.Entities.Article", "Article")
                         .WithMany("Tags")
                         .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("RealWord.Data.Entities.Tag", "Tag")
                         .WithMany("Articles")
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Article");

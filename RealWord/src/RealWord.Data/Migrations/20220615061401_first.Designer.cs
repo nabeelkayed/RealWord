@@ -10,8 +10,8 @@ using RealWord.Data;
 namespace RealWord.Data.Migrations
 {
     [DbContext(typeof(RealWordDbContext))]
-    [Migration("20220612045759_addcascade")]
-    partial class addcascade
+    [Migration("20220615061401_first")]
+    partial class first
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
